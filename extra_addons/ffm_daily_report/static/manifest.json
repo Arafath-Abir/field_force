@@ -1,0 +1,22 @@
+{
+  "name": "Newtec FFM - Field Force Management",
+  "short_name": "Newtec FFM",
+  "start_url": "/ff",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4f6f8",
+  "theme_color": "#107c41",
+  "description": "Newtec Pharmaceuticals Field Force Management Mobile Portal",
+  "icons": [
+    {
+      "src": "/field_force_management/static/src/description/icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/field_force_management/static/src/description/icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

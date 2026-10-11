@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Base /ff Mobile Shell Layout (NO web.assets_backend) -->
+    <template id="ff_layout" name="FFM Marketer Shell Layout">
+        &lt;!DOCTYPE html&gt;
+        <html lang="bn">
+            <head>
+                <meta charset="utf-8"/>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+                <meta name="apple-mobile-web-app-capable" content="yes"/>
+                <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+                <meta name="theme-color" content="#107c41"/>
+                <title><t t-esc="app_name or 'Newtec FFM'"/></title>
+                <link rel="manifest" href="/ff/manifest.json"/>
+                <link rel="stylesheet" href="/ffm_daily_report/static/src/css/ffm_mobile.css"/>
+                <script src="/ffm_daily_report/static/src/js/ffm_app.js"></script>
+            </head>
+            <body>
+                <!-- Header -->
+                <header class="ffm-header">
+                    <div>
+                        <div class="ffm-header-title"><t t-esc="app_name or 'Newtec FFM'"/></div>
+                    </div>
+                    <div class="ffm-header-user">
+                        <span t-esc="user_name"/>
+                        <a href="/web/session/logout?redirect=/ff" class="ffm-btn-logout">লগআউট</a>
+                    </div>
+                </header>
+
+                <!-- Page Container -->
+                <main class="ffm-container" role="main">
+                    <t t-raw="0"/>
+                </main>
+
+                <!-- Toast Notification Container -->
+                <div id="ffm-toast-container" class="ffm-toast-container"></div>
+            </body>
+        </html>
+    </template>
+
+    <!-- Start Page / Dashboard with 8 Tiles -->
+    <template id="ff_dashboard" name="FFM Dashboard">
+        <t t-call="ffm_daily_report.ff_layout">
+            <!-- User Status Header -->
+            <div class="ffm-status-card">
+                <div class="ffm-status-row">
+                    <div>
+                        <strong style="font-size: 1.05rem;" t-esc="employee.name or user_name"/>
+                        <div style="font-size: 0.8rem; color: var(--ffm-text-muted);">
+                            <span t-esc="employee.job_id.name or 'Field Marketer'"/>
+                            <t t-if="employee.hq"> • <span t-esc="employee.hq"/></t>
+                            <t t-if="territory"> • <span t-esc="territory.name"/></t>
+                        </div>
+                    </div>
+                    <div>
+                        <t t-if="attendance_today">
+                            <span class="ffm-badge ffm-badge-success">✓ হাজিরা সম্পন্ন</span>
+                        </t>
+                        <t t-else="">
+                            <span class="ffm-badge ffm-badge-warning">⚠ হাজিরা বাকি</span>
+                        </t>
+                    </div>
+                </div>
+                <div style="font-size: 0.8rem; color: #4b5563; border-top: 1px solid #f3f4f6; padding-top: 8px; margin-top: 4px;">
+                    আজকের তারিখ: <strong t-esc="today_str"/>
+                </div>
+            </div>
+
+            <!-- 8-Tile Dashboard Grid -->
+            <div class="ffm-grid">
+                <!-- 1. Daily Attendance (Active) -->
+                <a href="/ff/attendance" class="ffm-tile">
+                    <div class="ffm-tile-icon">📍</div>
+                    <div class="ffm-tile-title">দৈনিক হাজিরা</div>
+                    <div class="ffm-tile-subtitle">Daily Attendance</div>
+                    <t t-if="attendance_today">
+                        <span class="ffm-badge ffm-badge-success" style="margin-top: 6px;">সম্পন্ন</span>
+                    </t>
+                </a>
+
+                <!-- 2. Daily Report (Active / Today's Report) -->
+                <a href="/ff/report/daily" class="ffm-tile">
+                    <div class="ffm-tile-icon">📝</div>
+                    <div class="ffm-tile-title">আজকের রিপোর্ট</div>
+                    <div class="ffm-tile-subtitle">Daily Report</div>
+                </a>
+
+                <!-- 3. Chemist Visit (Phase 3) -->
+                <div class="ffm-tile ffm-tile-disabled">
+                    <span class="ffm-tile-badge-soon">শীঘ্রই</span>
+                    <div class="ffm-tile-icon">💊</div>
+                    <div class="ffm-tile-title">কেমিস্ট ভিজিট</div>
+                    <div class="ffm-tile-subtitle">Chemist Visit</div>
+                </div>
+
+                <!-- 4. Doctor Visit (Phase 3) -->
+                <div class="ffm-tile ffm-tile-disabled">
+                    <span class="ffm-tile-badge-soon">শীঘ্রই</span>
+                    <div class="ffm-tile-icon">🩺</div>
+                    <div class="ffm-tile-title">ডাক্তার ভিজিট</div>
+                    <div class="ffm-tile-subtitle">Doctor Visit</div>
+                </div>
+
+                <!-- 5. Farm Visit (Phase 3) -->
+                <div class="ffm-tile ffm-tile-disabled">
+                    <span class="ffm-tile-badge-soon">শীঘ্রই</span>
+                    <div class="ffm-tile-icon">🚜</div>
+                    <div class="ffm-tile-title">খামার ভিজিট</div>
+                    <div class="ffm-tile-subtitle">Farm Visit</div>
+                </div>
+
+                <!-- 6. Daily Expense (Phase 4) -->
+                <div class="ffm-tile ffm-tile-disabled">
+                    <span class="ffm-tile-badge-soon">শীঘ্রই</span>
+                    <div class="ffm-tile-icon">💵</div>
+                    <div class="ffm-tile-title">দৈনিক খরচ</div>
+                    <div class="ffm-tile-subtitle">Daily Expense</div>
+                </div>
+
+                <!-- 7. Monthly Statement (Phase 5) -->
+                <div class="ffm-tile ffm-tile-disabled">
+                    <span class="ffm-tile-badge-soon">শীঘ্রই</span>
+                    <div class="ffm-tile-icon">📊</div>
+                    <div class="ffm-tile-title">মাসিক বিল</div>
+                    <div class="ffm-tile-subtitle">Monthly Statement</div>
+                </div>
+
+                <!-- 8. Approvals & Summary (Phase 6) -->
+                <div class="ffm-tile ffm-tile-disabled">
+                    <span class="ffm-tile-badge-soon">শীঘ্রই</span>
+                    <div class="ffm-tile-icon">📋</div>
+                    <div class="ffm-tile-title">রিপোর্ট ও অনুমোদন</div>
+                    <div class="ffm-tile-subtitle">Summary Card</div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- Daily Attendance Screen -->
+    <template id="ff_attendance" name="FFM Attendance Screen">
+        <t t-call="ffm_daily_report.ff_layout">
+            <a href="/ff" class="ffm-back-link">← ড্যাশবোর্ডে ফিরে যান (Back to Home)</a>
+
+            <div class="ffm-form-card">
+                <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 6px;">দৈনিক হাজিরা (Daily Attendance)</h2>
+                <p style="font-size: 0.85rem; color: var(--ffm-text-muted); margin-bottom: 20px;">
+                    আজকের উপস্থিতি নিশ্চিত করতে জিপিএস অবস্থান সংরক্ষণ করুন।
+                </p>
+
+                <!-- Case A: Already submitted today -->
+                <t t-if="attendance">
+                    <div style="background: #def7ec; border: 1.5px solid #31c48d; border-radius: 8px; padding: 18px; text-align: center; margin-bottom: 16px;">
+                        <div style="font-size: 2.2rem; color: #046c4e;">✓</div>
+                        <h3 style="font-size: 1.1rem; color: #03543f; margin-top: 4px;">আজকের উপস্থিতি নিশ্চিত হয়েছে</h3>
+                        <p style="font-size: 0.85rem; color: #046c4e; margin-top: 4px;">
+                            তারিখ: <strong t-esc="attendance.date"/> | সময়: <strong t-esc="reporting_time_str"/>
+                        </p>
+                    </div>
+
+                    <div style="background: #f9fafb; border-radius: 8px; padding: 14px; font-size: 0.88rem; line-height: 1.8;">
+                        <div><strong>কর্মীর নাম:</strong> <span t-esc="attendance.name"/></div>
+                        <div><strong>পদবী:</strong> <span t-esc="attendance.designation"/></div>
+                        <t t-if="attendance.territory_id">
+                            <div><strong>টেরিটরি:</strong> <span t-esc="attendance.territory_id.name"/></div>
+                        </t>
+                        <t t-if="attendance.mode_of_journey">
+                            <div><strong>ভ্রমণের মাধ্যম:</strong> <span t-esc="attendance.mode_of_journey"/></div>
+                        </t>
+                        <div><strong>জিপিএস স্থানাঙ্ক:</strong> <span t-esc="attendance.latitude"/>, <span t-esc="attendance.longitude"/> (±<t t-esc="attendance.accuracy"/>m)</div>
+                    </div>
+
+                    <div style="margin-top: 20px;">
+                        <a t-att-href="attendance.map_url" target="_blank" class="ffm-btn ffm-btn-secondary">
+                            গুগল ম্যাপে অবস্থান দেখুন (Open Map)
+                        </a>
+                    </div>
+                </t>
+
+                <!-- Case B: Not submitted yet -->
+                <t t-else="">
+                    <form id="attendanceForm" onsubmit="return handleAttendanceSubmit(event)">
+                        <!-- GPS Capture Box -->
+                        <div class="ffm-gps-box">
+                            <button type="button" id="btnCaptureGPS" class="ffm-btn ffm-btn-secondary" onclick="captureLocation()" style="margin-bottom: 8px;">
+                                📡 আমার অবস্থান শনাক্ত করুন (Capture GPS)
+                            </button>
+                            <div id="gpsStatusText" style="font-size: 0.82rem; color: var(--ffm-text-muted);">
+                                উপরের বাটনে ক্লিক করে জিপিএস পারমিশন দিন
+                            </div>
+                            <div id="gpsCoordsDisplay" class="ffm-gps-coords" style="display: none;"></div>
+                        </div>
+
+                        <!-- Hidden GPS inputs -->
+                        <input type="hidden" id="latitude" name="latitude" value=""/>
+                        <input type="hidden" id="longitude" name="longitude" value=""/>
+                        <input type="hidden" id="accuracy" name="accuracy" value=""/>
+
+                        <!-- Mode of Journey -->
+                        <div class="ffm-form-group">
+                            <label class="ffm-form-label" for="mode_of_journey">ভ্রমণের মাধ্যম (Mode of Journey)</label>
+                            <select id="mode_of_journey" name="mode_of_journey" class="ffm-form-control">
+                                <option value="Motorcycle">মোটরসাইকেল (Motorcycle)</option>
+                                <option value="Bus">বাস (Bus)</option>
+                                <option value="Rickshaw">রিকশা / ভ্যান (Rickshaw)</option>
+                                <option value="CNG/Auto">সিএনজি / অটো (CNG/Auto)</option>
+                                <option value="Walking">হেঁটে (Walking)</option>
+                                <option value="Other">অন্যান্য (Other)</option>
+                            </select>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" id="btnSubmitAttendance" class="ffm-btn ffm-btn-primary" disabled="disabled">
+                            হাজিরা নিশ্চিত করুন (Submit Attendance)
+                        </button>
+                    </form>
+
+                    <script>
+                        var hasGps = false;
+
+                        function captureLocation() {
+                            var btn = document.getElementById('btnCaptureGPS');
+                            var status = document.getElementById('gpsStatusText');
+                            var display = document.getElementById('gpsCoordsDisplay');
+                            var submitBtn = document.getElementById('btnSubmitAttendance');
+
+                            btn.disabled = true;
+                            status.innerText = 'জিপিএস সংকেত খোঁজা হচ্ছে... (Detecting GPS signal...)';
+
+                            FFM.captureGPS(
+                                function(pos) {
+                                    btn.disabled = false;
+                                    document.getElementById('latitude').value = pos.latitude.toFixed(7);
+                                    document.getElementById('longitude').value = pos.longitude.toFixed(7);
+                                    document.getElementById('accuracy').value = pos.accuracy.toFixed(1);
+
+                                    hasGps = true;
+                                    status.innerHTML = '✓ অবস্থান সফলভাবে শনাক্ত হয়েছে!';
+                                    status.style.color = 'var(--ffm-success)';
+                                    display.style.display = 'block';
+                                    display.innerText = 'Lat: ' + pos.latitude.toFixed(5) + ', Lon: ' + pos.longitude.toFixed(5) + ' (Accuracy: ±' + Math.round(pos.accuracy) + 'm)';
+                                    submitBtn.disabled = false;
+                                },
+                                function(err) {
+                                    btn.disabled = false;
+                                    hasGps = false;
+                                    submitBtn.disabled = true;
+                                    status.innerText = 'ত্রুটি: ' + err.message;
+                                    status.style.color = 'var(--ffm-danger)';
+                                    FFM.showToast(err.message, 'error');
+                                }
+                            );
+                        }
+
+                        function handleAttendanceSubmit(e) {
+                            e.preventDefault();
+                            if (!hasGps) {
+                                FFM.showToast('দয়া করে প্রথমে আপনার জিপিএস অবস্থান শনাক্ত করুন।', 'error');
+                                return false;
+                            }
+
+                            var submitBtn = document.getElementById('btnSubmitAttendance');
+                            var release = FFM.doubleTapGuard(submitBtn, 'হাজিরা জমা হচ্ছে... (Submitting)');
+
+                            var payload = {
+                                latitude: parseFloat(document.getElementById('latitude').value),
+                                longitude: parseFloat(document.getElementById('longitude').value),
+                                accuracy: parseFloat(document.getElementById('accuracy').value),
+                                mode_of_journey: document.getElementById('mode_of_journey').value,
+                                client_uuid: FFM.getOrGenerateUUID('ffm_attendance_uuid')
+                            };
+
+                            fetch('/ff/attendance/submit', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(payload)
+                            })
+                            .then(function(res) {
+                                return res.json();
+                            })
+                            .then(function(data) {
+                                if (data.status === 'success') {
+                                    FFM.clearDraft('attendance');
+                                    FFM.resetUUID('ffm_attendance_uuid');
+                                    FFM.showToast(data.message || 'হাজিরা সফলভাবে গৃহীত হয়েছে!', 'success');
+                                    setTimeout(function() {
+                                        window.location.reload();
+                                    }, 1200);
+                                } else {
+                                    release();
+                                    FFM.showToast(data.message || 'হাজিরা গ্রহণ ব্যর্থ হয়েছে।', 'error');
+                                }
+                            })
+                            .catch(function(err) {
+                                release();
+                                FFM.showToast('নেটওয়ার্ক সংযোগে সমস্যা হয়েছে। আবার চেষ্টা করুন।', 'error');
+                            });
+
+                            return false;
+                        }
+                    </script>
+                </t>
+            </div>
+        </t>
+    </template>
+
+</odoo>
