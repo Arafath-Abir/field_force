@@ -204,13 +204,13 @@ class TravelJourney(models.Model):
     place_to_id = fields.Many2one('ffm.place', string='To', required=True)
 
     mode = fields.Selection(TRANSPORT_MODES, string='Mode of Journey', required=True)
-    distance_km = fields.Float(string='Distance (km)', digits=(16, 2), readonly=True)
+    distance_km = fields.Float(string='Distance (km)', digits=(16, 2))
     duration_minutes = fields.Float(
         string='Duration (min)', digits=(16, 2), readonly=True)
-    fare_tk = fields.Float(string='Fare (Tk)', digits=(16, 2), readonly=True)
+    fare_tk = fields.Float(string='Fare (Tk)', digits=(16, 2))
     route_info = fields.Char(string='Route Info', readonly=True)
 
-    def _recalc(self):
+    def _recalc(self, force=False):
         FareConfig = self.env['ffm.fare.config']
         for record in self:
             if record.place_from_id and record.place_to_id:
@@ -221,25 +221,32 @@ class TravelJourney(models.Model):
                     record.route_info = _('From and To locations must be different.')
                     continue
 
-                route = record.place_from_id.compute_route_to(
-                    record.place_to_id, mode=record.mode
-                )
-                distance = route.get('distance_km', 0.0)
-                duration = route.get('duration_minutes', 0.0)
-                fare = (
-                    FareConfig.get_fare(record.mode, distance)
-                    if record.mode and distance
-                    else 0.0
-                )
+                distance = record.distance_km
+                duration = record.duration_minutes
+                source_label = _('Manual distance')
+                if force or not distance:
+                    route = record.place_from_id.compute_route_to(
+                        record.place_to_id, mode=record.mode
+                    )
+                    distance = route.get('distance_km', 0.0)
+                    duration = route.get('duration_minutes', 0.0)
+                    source_label = (
+                        _('Road route')
+                        if route.get('source') == 'geoapify'
+                        else _('Fallback distance')
+                    )
+
+                fare = record.fare_tk
+                if force or not fare:
+                    fare = (
+                        FareConfig.get_fare(record.mode, distance)
+                        if record.mode and distance
+                        else 0.0
+                    )
                 record.distance_km = distance
                 record.duration_minutes = duration
                 record.fare_tk = fare
 
-                source_label = (
-                    _('Road route')
-                    if route.get('source') == 'geoapify'
-                    else _('Fallback distance')
-                )
                 record.route_info = (
                     '%s → %s · %.2f km · %.0f min · ৳%.0f · %s' % (
                         record.place_from_id.name,
@@ -259,16 +266,14 @@ class TravelJourney(models.Model):
     @api.onchange('place_from_id', 'place_to_id', 'mode')
     def _onchange_recalculate_route(self):
         """Show distance and fare immediately in the editable journey line."""
-        self._recalc()
+        self._recalc(force=True)
 
     def write(self, vals):
-        res = super().write(vals)
-        if {'place_from_id', 'place_to_id', 'mode'} & set(vals.keys()):
-            self._recalc()
-        return res
+        return super().write(vals)
 
     @api.model
     def create(self, vals):
         rec = super().create(vals)
-        rec._recalc()
+        if not vals.get('distance_km') or not vals.get('fare_tk'):
+            rec._recalc(force=False)
         return rec

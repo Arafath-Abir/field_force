@@ -62,6 +62,110 @@ def _response_error_message(response):
     return str(message)[:300]
 
 
+class RoutingProviderBase:
+    """Abstract provider interface for geocoding and road routing."""
+
+    def search_places(self, query, config):
+        raise NotImplementedError
+
+    def get_route(self, lat1, lng1, lat2, lng2, mode, config):
+        raise NotImplementedError
+
+
+class GeoapifyRoutingProvider(RoutingProviderBase):
+    """Geoapify provider implementation with strict 3-second timeout protection."""
+
+    def search_places(self, query, config):
+        if not config.get('api_key'):
+            return []
+        url = '%s/v1/geocode/autocomplete' % config['base_url']
+        params = {
+            'apiKey': config['api_key'],
+            'text': query,
+            'format': 'json',
+            'filter': 'countrycode:%s' % config['country_code'],
+            'limit': config['limit'],
+            'lang': config['language'],
+        }
+        try:
+            response = requests.get(
+                url,
+                params=params,
+                timeout=min(3.0, float(config.get('timeout', 3.0))),
+                headers={
+                    'Accept': 'application/json',
+                    'User-Agent': 'Odoo14-FieldForceManagement/1.0',
+                },
+            )
+            if response.status_code != 200:
+                return []
+            payload = response.json()
+        except Exception as exc:
+            _logger.warning('Geoapify search failed: %s', exc)
+            return []
+
+        results = payload.get('results') if isinstance(payload, dict) else []
+        return results if isinstance(results, list) else []
+
+    def get_route(self, lat1, lng1, lat2, lng2, mode, config):
+        if not config.get('api_key'):
+            return False
+        route_mode = 'walk' if mode == 'on_foot' else 'drive'
+        waypoints = '%.7f,%.7f|%.7f,%.7f' % (lat1, lng1, lat2, lng2)
+        url = '%s/v1/routing' % config['base_url']
+        params = {
+            'apiKey': config['api_key'],
+            'waypoints': waypoints,
+            'mode': route_mode,
+            'format': 'json',
+            'units': 'metric',
+        }
+        try:
+            response = requests.get(
+                url,
+                params=params,
+                timeout=min(3.0, float(config.get('timeout', 3.0))),
+                headers={
+                    'Accept': 'application/json',
+                    'User-Agent': 'Odoo14-FieldForceManagement/1.0',
+                },
+            )
+            if response.status_code != 200:
+                return False
+            payload = response.json()
+        except Exception as exc:
+            _logger.warning('Geoapify routing failed: %s', exc)
+            return False
+
+        route = False
+        if isinstance(payload, dict):
+            results = payload.get('results') or []
+            if isinstance(results, list) and results:
+                route = results[0]
+            if not route:
+                features = payload.get('features') or []
+                if isinstance(features, list) and features:
+                    route = features[0].get('properties') or {}
+
+        if not isinstance(route, dict):
+            return False
+
+        distance_meters = _float_value(route.get('distance')) or 0.0
+        duration_seconds = _float_value(route.get('time')) or 0.0
+        if distance_meters <= 0:
+            return False
+
+        return {
+            'distance_km': round(distance_meters / 1000.0, 2),
+            'duration_minutes': round(duration_seconds / 60.0, 2) if duration_seconds > 0 else 0.0,
+            'source': 'geoapify',
+        }
+
+
+def get_routing_provider(provider_type='geoapify'):
+    return GeoapifyRoutingProvider()
+
+
 class FfmPlace(models.Model):
     _name = 'ffm.place'
     _description = 'Place / Location'
@@ -402,34 +506,7 @@ class FfmPlace(models.Model):
             local_domain = expression.AND([args, [('active', '=', True)]])
 
         effective_limit = limit or 40
-        local_records = self.search(local_domain, limit=effective_limit)
-        local_results = local_records.name_get()
-
-        use_remote = self.env.context.get('ffm_place_autocomplete')
-        config = self._geoapify_config()
-        query = (name or '').strip()
-        desired_cached_results = min(config['limit'], effective_limit)
-        if (
-            not use_remote
-            or not query
-            or len(query) < config['minimum_chars']
-            or not config['api_key']
-            or len(local_results) >= desired_cached_results
-        ):
-            return local_results
-
-        remote_records = self._cache_geoapify_places(
-            self._search_geoapify(query)
-        )
-        results = remote_records.name_get()
-        seen_ids = {record_id for record_id, _label in results}
-        for record_id, label in local_results:
-            if record_id not in seen_ids:
-                results.append((record_id, label))
-                seen_ids.add(record_id)
-            if len(results) >= effective_limit:
-                break
-        return results[:effective_limit]
+        return self.search(local_domain, limit=effective_limit).name_get()
 
     @api.model
     def search_geoapify(self, query):
