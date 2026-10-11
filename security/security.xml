@@ -41,6 +41,13 @@
         <field name="implied_ids" eval="[(4, ref('group_ffm_dsm'))]"/>
     </record>
 
+    <!-- Director (same level as NSM/MM, implies DSM) -->
+    <record id="group_ffm_director" model="res.groups">
+        <field name="name">Director</field>
+        <field name="category_id" ref="ffm_module_category"/>
+        <field name="implied_ids" eval="[(4, ref('group_ffm_dsm'))]"/>
+    </record>
+
     <!-- Accounts -->
     <record id="group_ffm_accounts" model="res.groups">
         <field name="name">Accounts</field>
@@ -52,7 +59,7 @@
     <record id="group_ffm_admin" model="res.groups">
         <field name="name">Administrator</field>
         <field name="category_id" ref="ffm_module_category"/>
-        <field name="implied_ids" eval="[(4, ref('group_ffm_nsm'))]"/>
+        <field name="implied_ids" eval="[(4, ref('group_ffm_nsm')), (4, ref('group_ffm_director'))]"/>
         <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
     </record>
 
