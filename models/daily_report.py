@@ -183,6 +183,15 @@ class DailyReport(models.Model):
                 raise UserError(_('You do not have permission to reset this report to draft.'))
             rec.state = 'draft'
 
+    def init(self):
+        super().init()
+        self.env.cr.execute("""
+            CREATE INDEX IF NOT EXISTS ffm_daily_report_emp_date_idx ON ffm_daily_report (employee_id, date);
+            CREATE INDEX IF NOT EXISTS ffm_daily_report_date_idx ON ffm_daily_report (date);
+            CREATE INDEX IF NOT EXISTS ffm_daily_report_state_idx ON ffm_daily_report (state);
+            CREATE INDEX IF NOT EXISTS ffm_daily_report_territory_idx ON ffm_daily_report (territory_id);
+        """)
+
 
 class ChemistVisit(models.Model):
     _name = 'ffm.chemist.visit'
@@ -223,6 +232,13 @@ class ChemistVisit(models.Model):
                 if not float(val).is_integer():
                     raise ValidationError(_('%s Tk must be a whole number.') % label)
 
+    def init(self):
+        super().init()
+        self.env.cr.execute("""
+            CREATE INDEX IF NOT EXISTS ffm_chemist_visit_report_id_idx ON ffm_chemist_visit (report_id);
+            CREATE INDEX IF NOT EXISTS ffm_chemist_visit_chemist_id_idx ON ffm_chemist_visit (chemist_id);
+        """)
+
 
 class PrescriberVisit(models.Model):
     _name = 'ffm.prescriber.visit'
@@ -257,6 +273,13 @@ class PrescriberVisit(models.Model):
         for rec in self:
             if not rec.prescriber_id and not (rec.prescriber_name_manual and rec.prescriber_name_manual.strip()):
                 raise ValidationError(_('Either select a Doctor or provide a Manual Doctor Name.'))
+
+    def init(self):
+        super().init()
+        self.env.cr.execute("""
+            CREATE INDEX IF NOT EXISTS ffm_prescriber_visit_report_id_idx ON ffm_prescriber_visit (report_id);
+            CREATE INDEX IF NOT EXISTS ffm_prescriber_visit_prescriber_id_idx ON ffm_prescriber_visit (prescriber_id);
+        """)
 
 
 # Injected by travel_log upgrade: back-relation to travel logs for this report

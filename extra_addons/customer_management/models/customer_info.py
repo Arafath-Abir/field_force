@@ -21,3 +21,12 @@ class CustomerInformation(models.Model):
     ], string='State', default='draft')
     active = fields.Boolean(default=True)
 
+    def init(self):
+        super().init()
+        self.env.cr.execute("""
+            CREATE INDEX IF NOT EXISTS customer_info_type_idx ON customer_information (type);
+            CREATE INDEX IF NOT EXISTS customer_info_field_person_idx ON customer_information (field_person_id);
+            CREATE INDEX IF NOT EXISTS customer_info_state_idx ON customer_information (state);
+            CREATE INDEX IF NOT EXISTS customer_info_active_idx ON customer_information (active);
+        """)
+

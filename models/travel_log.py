@@ -190,6 +190,15 @@ class TravelLog(models.Model):
             ], limit=1)
         return account.id if account else False
 
+    def init(self):
+        super().init()
+        self.env.cr.execute("""
+            CREATE INDEX IF NOT EXISTS ffm_travel_log_emp_date_idx ON ffm_travel_log (employee_id, date);
+            CREATE INDEX IF NOT EXISTS ffm_travel_log_date_idx ON ffm_travel_log (date);
+            CREATE INDEX IF NOT EXISTS ffm_travel_log_report_id_idx ON ffm_travel_log (daily_report_id);
+            CREATE INDEX IF NOT EXISTS ffm_travel_log_state_idx ON ffm_travel_log (state);
+        """)
+
 
 class TravelJourney(models.Model):
     _name = 'ffm.travel.journey'
@@ -277,3 +286,11 @@ class TravelJourney(models.Model):
         if not vals.get('distance_km') or not vals.get('fare_tk'):
             rec._recalc(force=False)
         return rec
+
+    def init(self):
+        super().init()
+        self.env.cr.execute("""
+            CREATE INDEX IF NOT EXISTS ffm_travel_journey_log_id_idx ON ffm_travel_journey (travel_log_id);
+            CREATE INDEX IF NOT EXISTS ffm_travel_journey_place_from_idx ON ffm_travel_journey (place_from_id);
+            CREATE INDEX IF NOT EXISTS ffm_travel_journey_place_to_idx ON ffm_travel_journey (place_to_id);
+        """)
