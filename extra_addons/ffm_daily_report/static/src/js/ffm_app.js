@@ -134,5 +134,51 @@
         );
     };
 
+    // 6. Browser Image Compression Helper (~1280px max, JPEG ~0.7)
+    FFM.compressImage = function(file, callback, maxDimension, quality) {
+        if (!file) {
+            callback(null);
+            return;
+        }
+        maxDimension = maxDimension || 1280;
+        quality = (quality !== undefined) ? quality : 0.7;
+
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var img = new Image();
+            img.onload = function() {
+                var width = img.width;
+                var height = img.height;
+
+                if (width > maxDimension || height > maxDimension) {
+                    if (width > height) {
+                        height = Math.round((height * maxDimension) / width);
+                        width = maxDimension;
+                    } else {
+                        width = Math.round((width * maxDimension) / height);
+                        height = maxDimension;
+                    }
+                }
+
+                var canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                var ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                var dataUrl = canvas.toDataURL('image/jpeg', quality);
+                callback(dataUrl);
+            };
+            img.onerror = function() {
+                callback(null, new Error('ছবি লোড করা সম্ভব হয়নি।'));
+            };
+            img.src = e.target.result;
+        };
+        reader.onerror = function() {
+            callback(null, new Error('ফাইল রিড করা সম্ভব হয়নি।'));
+        };
+        reader.readAsDataURL(file);
+    };
+
     window.FFM = FFM;
 })(window);

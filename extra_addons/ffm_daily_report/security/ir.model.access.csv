@@ -24,3 +24,11 @@ access_ffm_farm_visit_rsm,ffm.farm.visit.rsm,model_ffm_farm_visit,field_force_ma
 access_ffm_farm_visit_asm,ffm.farm.visit.asm,model_ffm_farm_visit,field_force_management.group_ffm_asm,1,1,1,1
 access_ffm_farm_visit_accounts,ffm.farm.visit.accounts,model_ffm_farm_visit,field_force_management.group_ffm_accounts,1,0,0,0
 access_ffm_farm_visit_field_person,ffm.farm.visit.field_person,model_ffm_farm_visit,field_force_management.group_ffm_field_person,1,1,1,0
+access_ffm_daily_expense_admin,ffm.daily.expense.admin,model_ffm_daily_expense,field_force_management.group_ffm_admin,1,1,1,1
+access_ffm_daily_expense_director,ffm.daily.expense.director,model_ffm_daily_expense,field_force_management.group_ffm_director,1,1,1,1
+access_ffm_daily_expense_nsm,ffm.daily.expense.nsm,model_ffm_daily_expense,field_force_management.group_ffm_nsm,1,1,1,1
+access_ffm_daily_expense_dsm,ffm.daily.expense.dsm,model_ffm_daily_expense,field_force_management.group_ffm_dsm,1,1,1,1
+access_ffm_daily_expense_rsm,ffm.daily.expense.rsm,model_ffm_daily_expense,field_force_management.group_ffm_rsm,1,1,1,1
+access_ffm_daily_expense_asm,ffm.daily.expense.asm,model_ffm_daily_expense,field_force_management.group_ffm_asm,1,1,1,1
+access_ffm_daily_expense_accounts,ffm.daily.expense.accounts,model_ffm_daily_expense,field_force_management.group_ffm_accounts,1,1,0,0
+access_ffm_daily_expense_field_person,ffm.daily.expense.field_person,model_ffm_daily_expense,field_force_management.group_ffm_field_person,1,1,1,0

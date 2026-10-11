@@ -113,13 +113,12 @@
                     <div class="ffm-tile-subtitle">Farm Visit</div>
                 </a>
 
-                <!-- 6. Daily Expense (Phase 4) -->
-                <div class="ffm-tile ffm-tile-disabled">
-                    <span class="ffm-tile-badge-soon">শীঘ্রই</span>
+                <!-- 6. Daily Expense (Active) -->
+                <a href="/ff/expense" class="ffm-tile">
                     <div class="ffm-tile-icon">💵</div>
                     <div class="ffm-tile-title">দৈনিক খরচ</div>
                     <div class="ffm-tile-subtitle">Daily Expense</div>
-                </div>
+                </a>
 
                 <!-- 7. Monthly Statement (Phase 5) -->
                 <div class="ffm-tile ffm-tile-disabled">
@@ -1141,6 +1140,11 @@
                         </div>
                     </div>
 
+                    <div style="display: flex; justify-content: space-between; font-size: 0.82rem; color: #15803d; background: #f0fdf4; padding: 6px 10px; border-radius: 6px; margin-bottom: 8px;">
+                        <span>দৈনিক মোট খরচ (Daily Expense):</span>
+                        <strong>৳<t t-esc="'%.0f' % day_expense_total"/></strong>
+                    </div>
+
                     <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #475569; padding-top: 6px; border-top: 1px solid #e2e8f0;">
                         <span>কেমিস্ট: <strong><t t-esc="len(chemist_visits)"/></strong></span>
                         <span>ডাক্তার: <strong><t t-esc="len(doctor_visits)"/></strong> (A+: <t t-esc="grade_counts['a_plus']"/>, A: <t t-esc="grade_counts['a']"/>, B: <t t-esc="grade_counts['b']"/>, C: <t t-esc="grade_counts['c']"/>)</span>
@@ -1252,7 +1256,398 @@
                 <t t-else="">
                     <div style="font-size: 0.82rem; color: var(--ffm-text-muted); font-style: italic;">কোনো যাতায়াত রেকর্ড নেই।</div>
                 </t>
+
+                <!-- 5. Daily Expenses List -->
+                <h3 style="font-size: 0.95rem; font-weight: 700; margin: 20px 0 8px; color: #1e293b; display: flex; justify-content: space-between; align-items: center;">
+                    <span>💵 দৈনিক খরচ (<t t-esc="len(daily_expenses)"/> টি এন্ট্রি)</span>
+                    <span style="color: #047857; font-size: 0.9rem;">মোট: ৳<t t-esc="'%.0f' % day_expense_total"/></span>
+                </h3>
+                <t t-if="daily_expenses">
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <t t-foreach="daily_expenses" t-as="exp">
+                            <div style="border: 1px solid var(--ffm-border); border-radius: 6px; padding: 10px; font-size: 0.85rem; background: #ffffff;">
+                                <div style="display: flex; justify-content: space-between; font-weight: 700;">
+                                    <span>এন্ট্রি #<t t-esc="exp.id"/></span>
+                                    <span style="color: #047857;">৳<t t-esc="'%.0f' % exp.total_amount"/></span>
+                                </div>
+                                <div style="color: var(--ffm-text-muted); font-size: 0.78rem; margin-top: 4px; line-height: 1.6;">
+                                    <t t-if="exp.entertainment"><div>☕ আপ্যায়ন: ৳<t t-esc="'%.0f' % exp.entertainment"/> (ভাউচার সংযুক্ত)</div></t>
+                                    <t t-if="exp.courier"><div>📦 কুরিয়ার: ৳<t t-esc="'%.0f' % exp.courier"/> (ভাউচার সংযুক্ত)</div></t>
+                                    <t t-if="exp.photocopy"><div>📄 ফটোকপি: ৳<t t-esc="'%.0f' % exp.photocopy"/> (ভাউচার সংযুক্ত)</div></t>
+                                    <t t-if="exp.hotel_rent"><div>🏨 হোটেল ভাড়া: ৳<t t-esc="'%.0f' % exp.hotel_rent"/> (ভাউচার সংযুক্ত)</div></t>
+                                    <t t-if="exp.promotion"><div>🎁 প্রমোশন: ৳<t t-esc="'%.0f' % exp.promotion"/></div></t>
+                                    <t t-if="exp.stationery"><div>✏️ স্টেশনারি: ৳<t t-esc="'%.0f' % exp.stationery"/></div></t>
+                                    <t t-if="exp.carrying"><div>🚚 ক্যারেজ / বহন: ৳<t t-esc="'%.0f' % exp.carrying"/></div></t>
+                                    <t t-if="exp.banking"><div>🏦 ব্যাংকিং: ৳<t t-esc="'%.0f' % exp.banking"/></div></t>
+                                    <t t-if="exp.bike"><div>🏍️ বাইক: ৳<t t-esc="'%.0f' % exp.bike"/></div></t>
+                                    <t t-if="exp.note">
+                                        <div style="color: #4b5563; font-style: italic; margin-top: 2px;">নোট: <t t-esc="exp.note"/></div>
+                                    </t>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+                <t t-else="">
+                    <div style="font-size: 0.82rem; color: var(--ffm-text-muted); font-style: italic;">কোনো দৈনিক খরচ এন্ট্রি নেই।</div>
+                </t>
             </div>
+        </t>
+    </template>
+
+    <!-- Daily Expense Form Screen (Phase 4) -->
+    <template id="ff_daily_expense" name="FFM Marketer Daily Expense">
+        <t t-call="ffm_daily_report.ff_layout">
+            <a href="/ff" class="ffm-back-link">← ড্যাশবোর্ডে ফিরে যান (Back to Home)</a>
+
+            <div class="ffm-form-card">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                    <div>
+                        <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 4px;">দৈনিক খরচ ও ভাউচার</h2>
+                        <div style="font-size: 0.82rem; color: var(--ffm-text-muted);">
+                            তারিখ: <strong t-esc="today_str"/>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <span style="font-size: 0.75rem; color: var(--ffm-text-muted);">আজকের মোট খরচ</span>
+                        <div style="font-size: 1.2rem; font-weight: 700; color: #047857;">
+                            ৳<span id="day_total_top" t-esc="'%.0f' % day_expense_total"/>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: #eff6ff; border-left: 4px solid var(--ffm-accent); padding: 10px 14px; border-radius: 4px; font-size: 0.8rem; color: #1e40af; margin-bottom: 20px;">
+                    💡 অন্তত একটি খাতের খরচ (&gt;০) আবশ্যক। <strong>আপ্যায়ন, কুরিয়ার, ফটোকপি ও হোটেল ভাড়ার</strong> ক্ষেত্রে ভাউচারের ছবি আপলোড বাধ্যতামূলক।
+                </div>
+
+                <form id="dailyExpenseForm" onsubmit="return handleExpenseSubmit(event)">
+                    <!-- 1. Entertainment -->
+                    <div class="ffm-form-group" style="border: 1px solid var(--ffm-border); border-radius: 8px; padding: 12px; margin-bottom: 14px; background: #fafafa;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <label class="ffm-form-label" style="margin-bottom: 0;">☕ আপ্যায়ন খরচ (Entertainment)</label>
+                            <span id="badge_v_ent" class="ffm-badge" style="background: #fee2e2; color: #991b1b; display: none;">ভাউচার আবশ্যক</span>
+                        </div>
+                        <input type="number" id="entertainment" name="entertainment" class="ffm-form-control expense-amount-input" min="0" step="1" placeholder="0" oninput="onAmountChanged('entertainment')"/>
+                        
+                        <div id="voucher_box_entertainment" style="margin-top: 10px;">
+                            <label style="font-size: 0.78rem; font-weight: 600; color: #4b5563; display: block; margin-bottom: 4px;">
+                                📷 আপ্যায়ন ভাউচার ছবি (ক্যামেরা / গ্যালারি):
+                            </label>
+                            <input type="file" id="file_entertainment" accept="image/*" class="ffm-form-control" style="padding: 6px;" onchange="onFileSelected(this, 'preview_ent', 'hidden_v_ent')"/>
+                            <input type="hidden" id="hidden_v_ent" name="voucher_entertainment"/>
+                            <div id="preview_ent_box" style="margin-top: 6px; display: none;">
+                                <img id="preview_ent" src="" alt="Voucher Preview" style="max-height: 120px; border-radius: 6px; border: 1px solid #ccc;"/>
+                                <button type="button" class="ffm-btn ffm-btn-secondary" style="min-height: 28px; padding: 2px 8px; font-size: 0.75rem; width: auto; margin-left: 8px;" onclick="clearVoucher('file_entertainment', 'preview_ent', 'preview_ent_box', 'hidden_v_ent')">মুছে ফেলুন</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Courier -->
+                    <div class="ffm-form-group" style="border: 1px solid var(--ffm-border); border-radius: 8px; padding: 12px; margin-bottom: 14px; background: #fafafa;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <label class="ffm-form-label" style="margin-bottom: 0;">📦 কুরিয়ার খরচ (Courier)</label>
+                            <span id="badge_v_cou" class="ffm-badge" style="background: #fee2e2; color: #991b1b; display: none;">ভাউচার আবশ্যক</span>
+                        </div>
+                        <input type="number" id="courier" name="courier" class="ffm-form-control expense-amount-input" min="0" step="1" placeholder="0" oninput="onAmountChanged('courier')"/>
+                        
+                        <div id="voucher_box_courier" style="margin-top: 10px;">
+                            <label style="font-size: 0.78rem; font-weight: 600; color: #4b5563; display: block; margin-bottom: 4px;">
+                                📷 কুরিয়ার রসিদ / ভাউচার ছবি:
+                            </label>
+                            <input type="file" id="file_courier" accept="image/*" class="ffm-form-control" style="padding: 6px;" onchange="onFileSelected(this, 'preview_cou', 'hidden_v_cou')"/>
+                            <input type="hidden" id="hidden_v_cou" name="voucher_courier"/>
+                            <div id="preview_cou_box" style="margin-top: 6px; display: none;">
+                                <img id="preview_cou" src="" alt="Voucher Preview" style="max-height: 120px; border-radius: 6px; border: 1px solid #ccc;"/>
+                                <button type="button" class="ffm-btn ffm-btn-secondary" style="min-height: 28px; padding: 2px 8px; font-size: 0.75rem; width: auto; margin-left: 8px;" onclick="clearVoucher('file_courier', 'preview_cou', 'preview_cou_box', 'hidden_v_cou')">মুছে ফেলুন</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Photocopy -->
+                    <div class="ffm-form-group" style="border: 1px solid var(--ffm-border); border-radius: 8px; padding: 12px; margin-bottom: 14px; background: #fafafa;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <label class="ffm-form-label" style="margin-bottom: 0;">📄 ফটোকপি খরচ (Photocopy)</label>
+                            <span id="badge_v_pho" class="ffm-badge" style="background: #fee2e2; color: #991b1b; display: none;">ভাউচার আবশ্যক</span>
+                        </div>
+                        <input type="number" id="photocopy" name="photocopy" class="ffm-form-control expense-amount-input" min="0" step="1" placeholder="0" oninput="onAmountChanged('photocopy')"/>
+                        
+                        <div id="voucher_box_photocopy" style="margin-top: 10px;">
+                            <label style="font-size: 0.78rem; font-weight: 600; color: #4b5563; display: block; margin-bottom: 4px;">
+                                📷 ফটোকপি বিল / ভাউচার ছবি:
+                            </label>
+                            <input type="file" id="file_photocopy" accept="image/*" class="ffm-form-control" style="padding: 6px;" onchange="onFileSelected(this, 'preview_pho', 'hidden_v_pho')"/>
+                            <input type="hidden" id="hidden_v_pho" name="voucher_photocopy"/>
+                            <div id="preview_pho_box" style="margin-top: 6px; display: none;">
+                                <img id="preview_pho" src="" alt="Voucher Preview" style="max-height: 120px; border-radius: 6px; border: 1px solid #ccc;"/>
+                                <button type="button" class="ffm-btn ffm-btn-secondary" style="min-height: 28px; padding: 2px 8px; font-size: 0.75rem; width: auto; margin-left: 8px;" onclick="clearVoucher('file_photocopy', 'preview_pho', 'preview_pho_box', 'hidden_v_pho')">মুছে ফেলুন</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. Hotel Rent -->
+                    <div class="ffm-form-group" style="border: 1px solid var(--ffm-border); border-radius: 8px; padding: 12px; margin-bottom: 14px; background: #fafafa;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <label class="ffm-form-label" style="margin-bottom: 0;">🏨 হোটেল ভাড়া (Hotel Rent)</label>
+                            <span id="badge_v_hot" class="ffm-badge" style="background: #fee2e2; color: #991b1b; display: none;">ভাউচার আবশ্যক</span>
+                        </div>
+                        <input type="number" id="hotel_rent" name="hotel_rent" class="ffm-form-control expense-amount-input" min="0" step="1" placeholder="0" oninput="onAmountChanged('hotel_rent')"/>
+                        
+                        <div id="voucher_box_hotel_rent" style="margin-top: 10px;">
+                            <label style="font-size: 0.78rem; font-weight: 600; color: #4b5563; display: block; margin-bottom: 4px;">
+                                📷 হোটেল মানিরিসিপ্ট / ভাউচার ছবি:
+                            </label>
+                            <input type="file" id="file_hotel_rent" accept="image/*" class="ffm-form-control" style="padding: 6px;" onchange="onFileSelected(this, 'preview_hot', 'hidden_v_hot')"/>
+                            <input type="hidden" id="hidden_v_hot" name="voucher_hotel_rent"/>
+                            <div id="preview_hot_box" style="margin-top: 6px; display: none;">
+                                <img id="preview_hot" src="" alt="Voucher Preview" style="max-height: 120px; border-radius: 6px; border: 1px solid #ccc;"/>
+                                <button type="button" class="ffm-btn ffm-btn-secondary" style="min-height: 28px; padding: 2px 8px; font-size: 0.75rem; width: auto; margin-left: 8px;" onclick="clearVoucher('file_hotel_rent', 'preview_hot', 'preview_hot_box', 'hidden_v_hot')">মুছে ফেলুন</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Other Categories -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;">
+                        <div class="ffm-form-group">
+                            <label class="ffm-form-label">🎁 প্রমোশন খরচ</label>
+                            <input type="number" id="promotion" name="promotion" class="ffm-form-control expense-amount-input" min="0" step="1" placeholder="0" oninput="recalcTotal()"/>
+                        </div>
+                        <div class="ffm-form-group">
+                            <label class="ffm-form-label">✏️ স্টেশনারি খরচ</label>
+                            <input type="number" id="stationery" name="stationery" class="ffm-form-control expense-amount-input" min="0" step="1" placeholder="0" oninput="recalcTotal()"/>
+                        </div>
+                        <div class="ffm-form-group">
+                            <label class="ffm-form-label">🚚 ক্যারেজ / বহন</label>
+                            <input type="number" id="carrying" name="carrying" class="ffm-form-control expense-amount-input" min="0" step="1" placeholder="0" oninput="recalcTotal()"/>
+                        </div>
+                        <div class="ffm-form-group">
+                            <label class="ffm-form-label">🏦 ব্যাংকিং খরচ</label>
+                            <input type="number" id="banking" name="banking" class="ffm-form-control expense-amount-input" min="0" step="1" placeholder="0" oninput="recalcTotal()"/>
+                        </div>
+                    </div>
+
+                    <div class="ffm-form-group">
+                        <label class="ffm-form-label">🏍️ মোটরসাইকেল জ্বালানি / মেরামত (Bike)</label>
+                        <input type="number" id="bike" name="bike" class="ffm-form-control expense-amount-input" min="0" step="1" placeholder="0" oninput="recalcTotal()"/>
+                    </div>
+
+                    <div class="ffm-form-group">
+                        <label class="ffm-form-label">📝 খরচের বিবরণ / মন্তব্য (Note - ঐচ্ছিক)</label>
+                        <textarea id="note" name="note" class="ffm-form-control" rows="2" placeholder="প্রয়োজনীয় বিবরণ লিখুন..."></textarea>
+                    </div>
+
+                    <!-- Live Total Display -->
+                    <div style="background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 8px; padding: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-weight: 700; color: #166534; font-size: 0.95rem;">এই এন্ট্রির মোট খরচ:</span>
+                        <span style="font-weight: 800; color: #15803d; font-size: 1.25rem;">৳<span id="live_form_total">0</span></span>
+                    </div>
+
+                    <button type="submit" id="submitExpenseBtn" class="ffm-btn ffm-btn-primary">
+                        ✓ খরচ জমা দিন (Submit Expense)
+                    </button>
+                </form>
+
+                <!-- Today's Submitted Expenses List -->
+                <div style="margin-top: 32px; border-top: 2px dashed #e2e8f0; padding-top: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3 style="font-size: 1rem; font-weight: 700; color: #1e293b;">
+                            📋 আজকের জমাকৃত খরচের তালিকা (<t t-esc="len(today_expenses)"/> টি)
+                        </h3>
+                        <span style="font-size: 0.9rem; font-weight: 700; color: #047857;">
+                            মোট: ৳<t t-esc="'%.0f' % day_expense_total"/>
+                        </span>
+                    </div>
+
+                    <t t-if="today_expenses">
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <t t-foreach="today_expenses" t-as="exp">
+                                <div style="border: 1px solid var(--ffm-border); border-radius: 8px; padding: 12px; background: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                        <strong style="color: #1e293b; font-size: 0.9rem;">এন্ট্রি #<t t-esc="exp.id"/></strong>
+                                        <span style="font-weight: 800; color: #047857; font-size: 1rem;">৳<t t-esc="'%.0f' % exp.total_amount"/></span>
+                                    </div>
+                                    <div style="font-size: 0.8rem; color: #4b5563; line-height: 1.7;">
+                                        <t t-if="exp.entertainment"><div>☕ আপ্যায়ন: <strong>৳<t t-esc="'%.0f' % exp.entertainment"/></strong> <span class="ffm-badge ffm-badge-success" style="font-size: 0.7rem; padding: 1px 6px;">ভাউচার সংরক্ষিত</span></div></t>
+                                        <t t-if="exp.courier"><div>📦 কুরিয়ার: <strong>৳<t t-esc="'%.0f' % exp.courier"/></strong> <span class="ffm-badge ffm-badge-success" style="font-size: 0.7rem; padding: 1px 6px;">ভাউচার সংরক্ষিত</span></div></t>
+                                        <t t-if="exp.photocopy"><div>📄 ফটোকপি: <strong>৳<t t-esc="'%.0f' % exp.photocopy"/></strong> <span class="ffm-badge ffm-badge-success" style="font-size: 0.7rem; padding: 1px 6px;">ভাউচার সংরক্ষিত</span></div></t>
+                                        <t t-if="exp.hotel_rent"><div>🏨 হোটেল ভাড়া: <strong>৳<t t-esc="'%.0f' % exp.hotel_rent"/></strong> <span class="ffm-badge ffm-badge-success" style="font-size: 0.7rem; padding: 1px 6px;">ভাউচার সংরক্ষিত</span></div></t>
+                                        <t t-if="exp.promotion"><div>🎁 প্রমোশন: <strong>৳<t t-esc="'%.0f' % exp.promotion"/></strong></div></t>
+                                        <t t-if="exp.stationery"><div>✏️ স্টেশনারি: <strong>৳<t t-esc="'%.0f' % exp.stationery"/></strong></div></t>
+                                        <t t-if="exp.carrying"><div>🚚 ক্যারেজ / বহন: <strong>৳<t t-esc="'%.0f' % exp.carrying"/></strong></div></t>
+                                        <t t-if="exp.banking"><div>🏦 ব্যাংকিং: <strong>৳<t t-esc="'%.0f' % exp.banking"/></strong></div></t>
+                                        <t t-if="exp.bike"><div>🏍️ বাইক: <strong>৳<t t-esc="'%.0f' % exp.bike"/></strong></div></t>
+                                        <t t-if="exp.note">
+                                            <div style="color: #64748b; font-style: italic; margin-top: 4px;">বিবরণ: <t t-esc="exp.note"/></div>
+                                        </t>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
+                    <t t-else="">
+                        <div style="font-size: 0.85rem; color: var(--ffm-text-muted); font-style: italic; text-align: center; padding: 16px; background: #f8fafc; border-radius: 6px;">
+                            আজকে এখনও কোনো দৈনিক খরচ এন্ট্রি করা হয়নি।
+                        </div>
+                    </t>
+                </div>
+            </div>
+
+            <script type="text/javascript">
+                function onAmountChanged(field) {
+                    var val = parseFloat(document.getElementById(field).value || 0);
+                    var badgeMap = {
+                        'entertainment': 'badge_v_ent',
+                        'courier': 'badge_v_cou',
+                        'photocopy': 'badge_v_pho',
+                        'hotel_rent': 'badge_v_hot'
+                    };
+                    var badgeId = badgeMap[field];
+                    if (badgeId) {
+                        var badge = document.getElementById(badgeId);
+                        if (badge) {
+                            badge.style.display = (val &gt; 0) ? 'inline-block' : 'none';
+                        }
+                    }
+                    recalcTotal();
+                }
+
+                function recalcTotal() {
+                    var fields = ['entertainment', 'courier', 'photocopy', 'hotel_rent', 'promotion', 'stationery', 'carrying', 'banking', 'bike'];
+                    var total = 0;
+                    fields.forEach(function(f) {
+                        var el = document.getElementById(f);
+                        if (el) {
+                            var v = parseFloat(el.value || 0);
+                            if (v &gt; 0) total += v;
+                        }
+                    });
+                    document.getElementById('live_form_total').innerText = Math.round(total);
+                }
+
+                function onFileSelected(inputEl, previewImgId, hiddenInputId) {
+                    var file = inputEl.files &amp;&amp; inputEl.files[0];
+                    if (!file) return;
+
+                    FFM.compressImage(file, function(dataUrl, err) {
+                        if (err || !dataUrl) {
+                            FFM.showToast('ছবি প্রসেস করা যায়নি। আবার চেষ্টা করুন।', 'error');
+                            inputEl.value = '';
+                            return;
+                        }
+                        document.getElementById(hiddenInputId).value = dataUrl;
+                        var img = document.getElementById(previewImgId);
+                        img.src = dataUrl;
+                        img.parentElement.style.display = 'block';
+                    }, 1280, 0.7);
+                }
+
+                function clearVoucher(fileInputId, previewImgId, previewBoxId, hiddenInputId) {
+                    document.getElementById(fileInputId).value = '';
+                    document.getElementById(hiddenInputId).value = '';
+                    var img = document.getElementById(previewImgId);
+                    img.src = '';
+                    document.getElementById(previewBoxId).style.display = 'none';
+                }
+
+                function handleExpenseSubmit(event) {
+                    event.preventDefault();
+
+                    var entertainment = parseFloat(document.getElementById('entertainment').value || 0);
+                    var courier = parseFloat(document.getElementById('courier').value || 0);
+                    var photocopy = parseFloat(document.getElementById('photocopy').value || 0);
+                    var hotel_rent = parseFloat(document.getElementById('hotel_rent').value || 0);
+                    var promotion = parseFloat(document.getElementById('promotion').value || 0);
+                    var stationery = parseFloat(document.getElementById('stationery').value || 0);
+                    var carrying = parseFloat(document.getElementById('carrying').value || 0);
+                    var banking = parseFloat(document.getElementById('banking').value || 0);
+                    var bike = parseFloat(document.getElementById('bike').value || 0);
+                    var note = document.getElementById('note').value.trim();
+
+                    var amounts = [entertainment, courier, photocopy, hotel_rent, promotion, stationery, carrying, banking, bike];
+                    for (var i = 0; i &lt; amounts.length; i++) {
+                        if (amounts[i] &lt; 0) {
+                            FFM.showToast('খরচের পরিমাণ ঋণাত্মক হতে পারে না।', 'error');
+                            return false;
+                        }
+                    }
+
+                    var total = 0;
+                    amounts.forEach(function(a) { total += a; });
+                    if (total &lt;= 0) {
+                        FFM.showToast('অন্তত একটি খাতের খরচ (>০) আবশ্যক।', 'error');
+                        return false;
+                    }
+
+                    var v_ent = document.getElementById('hidden_v_ent').value;
+                    var v_cou = document.getElementById('hidden_v_cou').value;
+                    var v_pho = document.getElementById('hidden_v_pho').value;
+                    var v_hot = document.getElementById('hidden_v_hot').value;
+
+                    if (entertainment &gt; 0 &amp;&amp; !v_ent) {
+                        FFM.showToast('আপ্যায়ন খরচের ভাউচার ছবি আবশ্যক।', 'error');
+                        return false;
+                    }
+                    if (courier &gt; 0 &amp;&amp; !v_cou) {
+                        FFM.showToast('কুরিয়ার খরচের ভাউচার ছবি আবশ্যক।', 'error');
+                        return false;
+                    }
+                    if (photocopy &gt; 0 &amp;&amp; !v_pho) {
+                        FFM.showToast('ফটোকপি খরচের ভাউচার ছবি আবশ্যক।', 'error');
+                        return false;
+                    }
+                    if (hotel_rent &gt; 0 &amp;&amp; !v_hot) {
+                        FFM.showToast('হোটেল ভাড়ার ভাউচার ছবি আবশ্যক।', 'error');
+                        return false;
+                    }
+
+                    var btn = document.getElementById('submitExpenseBtn');
+                    var release = FFM.doubleTapGuard(btn, 'জমা হচ্ছে... অপেক্ষা করুন');
+                    var clientUuid = FFM.getOrGenerateUUID('ffm_expense_uuid');
+
+                    var payload = {
+                        client_uuid: clientUuid,
+                        entertainment: entertainment,
+                        courier: courier,
+                        photocopy: photocopy,
+                        hotel_rent: hotel_rent,
+                        promotion: promotion,
+                        stationery: stationery,
+                        carrying: carrying,
+                        banking: banking,
+                        bike: bike,
+                        note: note,
+                        voucher_entertainment: v_ent,
+                        voucher_courier: v_cou,
+                        voucher_photocopy: v_pho,
+                        voucher_hotel_rent: v_hot
+                    };
+
+                    fetch('/ff/expense/submit', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({params: payload})
+                    })
+                    .then(function(res) { return res.json(); })
+                    .then(function(data) {
+                        var res = data.result || data;
+                        if (res.status === 'success') {
+                            FFM.resetUUID('ffm_expense_uuid');
+                            FFM.showToast(res.message || 'দৈনিক খরচ সফলভাবে জমা হয়েছে।', 'success');
+                            setTimeout(function() {
+                                window.location.reload();
+                            }, 800);
+                        } else {
+                            release();
+                            FFM.showToast(res.message || 'সংরক্ষণ ব্যর্থ হয়েছে।', 'error');
+                        }
+                    })
+                    .catch(function(err) {
+                        release();
+                        FFM.showToast('নেটওয়ার্ক ত্রুটি। আবার চেষ্টা করুন।', 'error');
+                    });
+
+                    return false;
+                }
+            </script>
         </t>
     </template>
 

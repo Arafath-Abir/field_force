@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Daily Expense Tree View -->
+    <record id="view_ffm_daily_expense_tree" model="ir.ui.view">
+        <field name="name">ffm.daily.expense.tree</field>
+        <field name="model">ffm.daily.expense</field>
+        <field name="arch" type="xml">
+            <tree string="Daily Expenses">
+                <field name="date"/>
+                <field name="employee_id"/>
+                <field name="total_amount" sum="Total Expenses"/>
+                <field name="entertainment" optional="show" sum="Total Entertainment"/>
+                <field name="courier" optional="show" sum="Total Courier"/>
+                <field name="photocopy" optional="show" sum="Total Photocopy"/>
+                <field name="hotel_rent" optional="show" sum="Total Hotel Rent"/>
+                <field name="bike" optional="show" sum="Total Bike Maintenance"/>
+                <field name="promotion" optional="hide"/>
+                <field name="stationery" optional="hide"/>
+                <field name="carrying" optional="hide"/>
+                <field name="banking" optional="hide"/>
+                <field name="daily_report_id" optional="hide"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Daily Expense Form View -->
+    <record id="view_ffm_daily_expense_form" model="ir.ui.view">
+        <field name="name">ffm.daily.expense.form</field>
+        <field name="model">ffm.daily.expense</field>
+        <field name="arch" type="xml">
+            <form string="Daily Expense">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="employee_id" string="Employee"/>
+                        <h1><field name="employee_id" options="{'no_create': True}"/></h1>
+                    </div>
+                    <group>
+                        <group string="Expense Overview">
+                            <field name="date"/>
+                            <field name="daily_report_id" options="{'no_create': True}"/>
+                            <field name="total_amount" readonly="1" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group string="Submission Meta">
+                            <field name="client_uuid" readonly="1" groups="base.group_no_one"/>
+                            <field name="note" placeholder="Any details or remarks..."/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Expense Categories" name="expense_categories">
+                            <group>
+                                <group string="Major Expenses (Voucher Required)">
+                                    <field name="entertainment"/>
+                                    <field name="courier"/>
+                                    <field name="photocopy"/>
+                                    <field name="hotel_rent"/>
+                                </group>
+                                <group string="General &amp; Office Expenses">
+                                    <field name="promotion"/>
+                                    <field name="stationery"/>
+                                    <field name="carrying"/>
+                                    <field name="banking"/>
+                                    <field name="bike"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Voucher Images" name="voucher_images">
+                            <group>
+                                <group string="Entertainment &amp; Courier Vouchers">
+                                    <field name="voucher_entertainment" widget="image" options="{'size': [280, 280]}"/>
+                                    <field name="voucher_entertainment_filename" invisible="1"/>
+                                    <field name="voucher_courier" widget="image" options="{'size': [280, 280]}"/>
+                                    <field name="voucher_courier_filename" invisible="1"/>
+                                </group>
+                                <group string="Photocopy &amp; Hotel Rent Vouchers">
+                                    <field name="voucher_photocopy" widget="image" options="{'size': [280, 280]}"/>
+                                    <field name="voucher_photocopy_filename" invisible="1"/>
+                                    <field name="voucher_hotel_rent" widget="image" options="{'size': [280, 280]}"/>
+                                    <field name="voucher_hotel_rent_filename" invisible="1"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Daily Expense Search View -->
+    <record id="view_ffm_daily_expense_search" model="ir.ui.view">
+        <field name="name">ffm.daily.expense.search</field>
+        <field name="model">ffm.daily.expense</field>
+        <field name="arch" type="xml">
+            <search string="Search Daily Expenses">
+                <field name="employee_id"/>
+                <field name="date"/>
+                <field name="daily_report_id"/>
+                <filter string="Today" name="filter_today" domain="[('date', '=', context_today().strftime('%Y-%m-%d'))]"/>
+                <separator/>
+                <filter string="Has Vouchers" name="filter_vouchers"
+                    domain="['|', '|', '|', ('voucher_entertainment', '!=', False), ('voucher_courier', '!=', False), ('voucher_photocopy', '!=', False), ('voucher_hotel_rent', '!=', False)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Employee" name="group_by_employee" context="{'group_by': 'employee_id'}"/>
+                    <filter string="Date" name="group_by_date" context="{'group_by': 'date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_ffm_daily_expense" model="ir.actions.act_window">
+        <field name="name">Daily Expenses</field>
+        <field name="res_model">ffm.daily.expense</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{'search_default_filter_today': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No daily expense records found.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menuitem -->
+    <menuitem id="menu_ffm_daily_expense"
+        name="Daily Expenses"
+        parent="field_force_management.menu_ffm_root"
+        sequence="25"
+        action="action_ffm_daily_expense"
+        groups="field_force_management.group_ffm_field_person"/>
+
+</odoo>

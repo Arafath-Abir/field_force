@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+import base64
 from datetime import datetime, date
 import json
 import pytz
@@ -10,6 +10,36 @@ from odoo.addons.web.controllers.main import Home
 from odoo.exceptions import UserError, ValidationError
 
 _logger = logging.getLogger(__name__)
+
+MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024  # 5 MB
+
+def _clean_base64_image(data_str):
+    if not data_str or not isinstance(data_str, str):
+        return False
+    data_str = data_str.strip()
+    if not data_str:
+        return False
+    if ',' in data_str and 'data:' in data_str[:25]:
+        data_str = data_str.split(',', 1)[1]
+    return data_str
+
+def _check_and_validate_voucher(binary_b64, field_label):
+    if not binary_b64:
+        raise ValidationError(_('%s: ভাউচারের ছবি আবশ্যক।') % field_label)
+    try:
+        raw_bytes = base64.b64decode(binary_b64)
+    except Exception:
+        raise ValidationError(_('%s: ছবির বাইনারি ডেটা সঠিক নয়।') % field_label)
+
+    if len(raw_bytes) > MAX_IMAGE_SIZE_BYTES:
+        raise ValidationError(_('%s: ফাইলের আকার ৫ মেগাবাইটের বেশি হতে পারবে না।') % field_label)
+
+    is_jpeg = raw_bytes.startswith(b'\xff\xd8\xff')
+    is_png = raw_bytes.startswith(b'\x89PNG\r\n\x1a\n')
+    is_webp = raw_bytes[:4] == b'RIFF' and len(raw_bytes) > 12 and raw_bytes[8:12] == b'WEBP'
+
+    if not (is_jpeg or is_png or is_webp):
+        raise ValidationError(_('%s: শুধুমাত্র ছবি ফাইল (JPEG, PNG, WebP) গ্রহণযোগ্য।') % field_label)
 
 TRANSPORT_MODES = [
     ('bus', 'Bus (বাস)'),
@@ -72,7 +102,7 @@ class FFMController(http.Controller):
     def ff_dashboard(self, **kw):
         """Marketer mobile start page with the 8 tiles."""
         ctx = self._get_app_context()
-        today_date, _ = self._get_dhaka_date_and_time()
+        today_date, _now_time = self._get_dhaka_date_and_time()
         employee = ctx['employee']
 
         attendance_today = False
@@ -98,7 +128,7 @@ class FFMController(http.Controller):
     @http.route('/ff/attendance', type='http', auth='user')
     def ff_attendance(self, **kw):
         ctx = self._get_app_context()
-        today_date, _ = self._get_dhaka_date_and_time()
+        today_date, _now_time = self._get_dhaka_date_and_time()
         employee = ctx['employee']
 
         attendance = False
@@ -141,7 +171,7 @@ class FFMController(http.Controller):
     def ff_daily_report(self, **kw):
         """View or initialize today's daily report."""
         ctx = self._get_app_context()
-        today_date, _ = self._get_dhaka_date_and_time()
+        today_date, _now_time = self._get_dhaka_date_and_time()
         employee = ctx['employee']
 
         report = False
@@ -183,7 +213,7 @@ class FFMController(http.Controller):
     def ff_daily_report_submit(self, **payload):
         """Final submit today's daily report."""
         try:
-            today_date, _ = self._get_dhaka_date_and_time()
+            today_date, _now_time = self._get_dhaka_date_and_time()
             user = request.env.user
             employee = user.employee_id or request.env['hr.employee'].sudo().search([('user_id', '=', user.id)], limit=1)
             report = request.env['ffm.daily.report'].sudo().search([
@@ -203,7 +233,7 @@ class FFMController(http.Controller):
     @http.route('/ff/visit/chemist', type='http', auth='user')
     def ff_visit_chemist(self, **kw):
         ctx = self._get_app_context()
-        today_date, _ = self._get_dhaka_date_and_time()
+        today_date, _now_time = self._get_dhaka_date_and_time()
         employee = ctx['employee']
 
         report = request.env['ffm.daily.report'].get_or_create_today_report()
@@ -312,7 +342,7 @@ class FFMController(http.Controller):
     @http.route('/ff/visit/doctor', type='http', auth='user')
     def ff_visit_doctor(self, **kw):
         ctx = self._get_app_context()
-        today_date, _ = self._get_dhaka_date_and_time()
+        today_date, _now_time = self._get_dhaka_date_and_time()
         employee = ctx['employee']
 
         report = request.env['ffm.daily.report'].get_or_create_today_report()
@@ -417,7 +447,7 @@ class FFMController(http.Controller):
     @http.route('/ff/visit/farm', type='http', auth='user')
     def ff_visit_farm(self, **kw):
         ctx = self._get_app_context()
-        today_date, _ = self._get_dhaka_date_and_time()
+        today_date, _now_time = self._get_dhaka_date_and_time()
         employee = ctx['employee']
 
         report = request.env['ffm.daily.report'].get_or_create_today_report()
@@ -510,12 +540,146 @@ class FFMController(http.Controller):
             _logger.exception("Error submitting farm visit")
             return {'status': 'error', 'message': str(exc)}
 
-    # ── 7. Today's Entries & Date/Month/Year Summary ────────────────────────
+    # ── 7. Daily Expense (Phase 4) ──────────────────────────────────────────
+    @http.route('/ff/expense', type='http', auth='user')
+    def ff_daily_expense_page(self, **kw):
+        """Marketer Daily Expense form and today's submitted expenses."""
+        ctx = self._get_app_context()
+        today_date, _now_time = self._get_dhaka_date_and_time()
+        employee = ctx['employee']
+
+        today_expenses = []
+        day_expense_total = 0.0
+        if employee:
+            today_expenses = request.env['ffm.daily.expense'].sudo().search([
+                ('employee_id', '=', employee.id),
+                ('date', '=', today_date)
+            ], order='id desc')
+            day_expense_total = sum(today_expenses.mapped('total_amount'))
+
+        ctx.update({
+            'today_str': today_date.strftime('%d %B, %Y'),
+            'today_expenses': today_expenses,
+            'day_expense_total': day_expense_total,
+        })
+        return request.render('ffm_daily_report.ff_daily_expense', ctx)
+
+    @http.route('/ff/expense/submit', type='json', auth='user', methods=['POST'])
+    def ff_expense_submit(self, **payload):
+        try:
+            client_uuid = (payload.get('client_uuid') or '').strip()
+            if client_uuid:
+                existing = request.env['ffm.daily.expense'].sudo().search([('client_uuid', '=', client_uuid)], limit=1)
+                if existing:
+                    return {
+                        'status': 'success',
+                        'expense_id': existing.id,
+                        'message': _('দৈনিক খরচ ইতিমধ্যে সংরক্ষিত আছে।')
+                    }
+
+            user = request.env.user
+            employee = user.employee_id or request.env['hr.employee'].sudo().search([('user_id', '=', user.id)], limit=1)
+            if not employee:
+                return {'status': 'error', 'message': _('বর্তমান ব্যবহারকারীর জন্য কোনো কর্মী রেকর্ড পাওয়া যায়নি।')}
+
+            today_date, _now_time = self._get_dhaka_date_and_time()
+
+            try:
+                entertainment = float(payload.get('entertainment', 0) or 0.0)
+                courier = float(payload.get('courier', 0) or 0.0)
+                photocopy = float(payload.get('photocopy', 0) or 0.0)
+                promotion = float(payload.get('promotion', 0) or 0.0)
+                stationery = float(payload.get('stationery', 0) or 0.0)
+                carrying = float(payload.get('carrying', 0) or 0.0)
+                banking = float(payload.get('banking', 0) or 0.0)
+                hotel_rent = float(payload.get('hotel_rent', 0) or 0.0)
+                bike = float(payload.get('bike', 0) or 0.0)
+            except (ValueError, TypeError):
+                return {'status': 'error', 'message': _('খরচের টাকার পরিমাণ সঠিক সংখ্যায় হতে হবে।')}
+
+            amounts = [entertainment, courier, photocopy, promotion, stationery, carrying, banking, hotel_rent, bike]
+            if any(val < 0 for val in amounts):
+                return {'status': 'error', 'message': _('খরচের পরিমাণ ঋণাত্মক হতে পারে না।')}
+
+            if sum(amounts) <= 0:
+                return {'status': 'error', 'message': _('অন্তত একটি খাতের খরচের পরিমাণ শূন্যের বেশি হতে হবে।')}
+
+            # Clean and validate vouchers
+            v_entertainment = _clean_base64_image(payload.get('voucher_entertainment'))
+            v_courier = _clean_base64_image(payload.get('voucher_courier'))
+            v_photocopy = _clean_base64_image(payload.get('voucher_photocopy'))
+            v_hotel_rent = _clean_base64_image(payload.get('voucher_hotel_rent'))
+
+            if entertainment > 0:
+                if not v_entertainment:
+                    return {'status': 'error', 'message': _('আপ্যায়ন (Entertainment) খরচের ভাউচার ছবি আবশ্যক।')}
+                _check_and_validate_voucher(v_entertainment, _('আপ্যায়ন ভাউচার'))
+
+            if courier > 0:
+                if not v_courier:
+                    return {'status': 'error', 'message': _('কুরিয়ার খরচের ভাউচার ছবি আবশ্যক।')}
+                _check_and_validate_voucher(v_courier, _('কুরিয়ার ভাউচার'))
+
+            if photocopy > 0:
+                if not v_photocopy:
+                    return {'status': 'error', 'message': _('ফটোকপি খরচের ভাউচার ছবি আবশ্যক।')}
+                _check_and_validate_voucher(v_photocopy, _('ফটোকপি ভাউচার'))
+
+            if hotel_rent > 0:
+                if not v_hotel_rent:
+                    return {'status': 'error', 'message': _('হোটেল ভাড়া খরচের ভাউচার ছবি আবশ্যক।')}
+                _check_and_validate_voucher(v_hotel_rent, _('হোটেল ভাড়া ভাউচার'))
+
+            # Search today's report if any
+            report = request.env['ffm.daily.report'].sudo().search([
+                ('employee_id', '=', employee.id),
+                ('date', '=', today_date)
+            ], limit=1)
+
+            vals = {
+                'employee_id': employee.id,
+                'date': today_date,
+                'daily_report_id': report.id if report else False,
+                'entertainment': entertainment,
+                'courier': courier,
+                'photocopy': photocopy,
+                'promotion': promotion,
+                'stationery': stationery,
+                'carrying': carrying,
+                'banking': banking,
+                'hotel_rent': hotel_rent,
+                'bike': bike,
+                'note': (payload.get('note') or '').strip(),
+                'client_uuid': client_uuid or False,
+                'voucher_entertainment': v_entertainment or False,
+                'voucher_entertainment_filename': 'voucher_entertainment.jpg' if v_entertainment else False,
+                'voucher_courier': v_courier or False,
+                'voucher_courier_filename': 'voucher_courier.jpg' if v_courier else False,
+                'voucher_photocopy': v_photocopy or False,
+                'voucher_photocopy_filename': 'voucher_photocopy.jpg' if v_photocopy else False,
+                'voucher_hotel_rent': v_hotel_rent or False,
+                'voucher_hotel_rent_filename': 'voucher_hotel_rent.jpg' if v_hotel_rent else False,
+            }
+
+            expense = request.env['ffm.daily.expense'].sudo().create(vals)
+
+            return {
+                'status': 'success',
+                'expense_id': expense.id,
+                'message': _('দৈনিক খরচ ও ভাউচার সফলভাবে সংরক্ষিত হয়েছে।'),
+            }
+        except ValidationError as ve:
+            return {'status': 'error', 'message': ve.name or str(ve)}
+        except Exception as exc:
+            _logger.exception("Error submitting daily expense")
+            return {'status': 'error', 'message': str(exc)}
+
+    # ── 8. Today's Entries & Date/Month/Year Summary ────────────────────────
     @http.route('/ff/entries/today', type='http', auth='user')
     def ff_entries_today(self, **kw):
         """View today's submitted visit lines and summary metrics."""
         ctx = self._get_app_context()
-        today_date, _ = self._get_dhaka_date_and_time()
+        today_date, _now_time = self._get_dhaka_date_and_time()
         employee = ctx['employee']
 
         selected_date_str = kw.get('date')
@@ -532,6 +696,8 @@ class FFMController(http.Controller):
         doctor_visits = []
         farm_visits = []
         journey_legs = []
+        daily_expenses = []
+        day_expense_total = 0.0
 
         if employee:
             report = request.env['ffm.daily.report'].sudo().search([
@@ -545,6 +711,12 @@ class FFMController(http.Controller):
                 travel_log = report.travel_log_ids[:1]
                 if travel_log:
                     journey_legs = travel_log.journey_ids
+
+            daily_expenses = request.env['ffm.daily.expense'].sudo().search([
+                ('employee_id', '=', employee.id),
+                ('date', '=', query_date)
+            ], order='id desc')
+            day_expense_total = sum(daily_expenses.mapped('total_amount'))
 
         # Breakdown doctor counts by grade
         grade_counts = {'a_plus': 0, 'a': 0, 'b': 0, 'c': 0}
@@ -574,6 +746,8 @@ class FFMController(http.Controller):
             'doctor_visits': doctor_visits,
             'farm_visits': farm_visits,
             'journey_legs': journey_legs,
+            'daily_expenses': daily_expenses,
+            'day_expense_total': day_expense_total,
             'grade_counts': grade_counts,
             'month_order': month_order,
             'month_sale': month_sale,

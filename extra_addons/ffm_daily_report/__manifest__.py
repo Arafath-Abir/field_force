@@ -25,6 +25,7 @@
         'views/hr_employee_views.xml',
         'views/res_config_settings_views.xml',
         'views/daily_report_views.xml',
+        'views/daily_expense_views.xml',
         'views/web_templates.xml',
     ],
     'installable': True,

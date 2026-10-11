@@ -14,11 +14,20 @@ class DailyReport(models.Model):
         'ffm.farm.visit', 'report_id', string='Farm Visits')
     total_farm_visited = fields.Integer(
         string='Farms Visited', compute='_compute_farm_totals', store=True)
+    expense_ids = fields.One2many(
+        'ffm.daily.expense', 'daily_report_id', string='Daily Expenses')
+    total_expense_tk = fields.Float(
+        string='Total Daily Expense (Tk)', compute='_compute_expense_totals', store=True)
 
     @api.depends('farm_visit_ids.farm_name')
     def _compute_farm_totals(self):
         for rec in self:
             rec.total_farm_visited = len(rec.farm_visit_ids.filtered(lambda f: bool(f.farm_name)))
+
+    @api.depends('expense_ids.total_amount')
+    def _compute_expense_totals(self):
+        for rec in self:
+            rec.total_expense_tk = sum(rec.expense_ids.mapped('total_amount'))
 
     @classmethod
     def get_dhaka_today(cls):
