@@ -128,11 +128,11 @@
                     <div class="ffm-tile-subtitle">Monthly Statement</div>
                 </div>
 
-                <!-- 8. Approvals & Summary (Active) -->
-                <a href="/ff/entries/today" class="ffm-tile">
-                    <div class="ffm-tile-icon">📋</div>
-                    <div class="ffm-tile-title">আজকের এন্ট্রি ও সামারি</div>
-                    <div class="ffm-tile-subtitle">Summary Card</div>
+                <!-- 8. Reports & Summary (Active) -->
+                <a href="/ff/report/cards" class="ffm-tile">
+                    <div class="ffm-tile-icon">📊</div>
+                    <div class="ffm-tile-title">রিপোর্ট ও সামারি কার্ড</div>
+                    <div class="ffm-tile-subtitle">Daily &amp; Monthly Cards</div>
                 </a>
             </div>
         </t>
@@ -1648,6 +1648,417 @@
                     return false;
                 }
             </script>
+        </t>
+    </template>
+
+    <!-- Daily & Monthly Report Cards Template (Phase 5) -->
+    <template id="ff_report_cards" name="FFM Marketer Report Cards">
+        <t t-call="ffm_daily_report.ff_layout">
+            <a href="/ff" class="ffm-back-link">← ড্যাশবোর্ডে ফিরে যান (Back to Home)</a>
+
+            <div class="ffm-form-card" style="padding: 16px;">
+                <!-- Header & Mode Tabs -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
+                    <div>
+                        <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 2px;">
+                            <t t-if="mode == 'daily'">📅 দৈনিক রিপোর্ট কার্ড (Daily Report Card)</t>
+                            <t t-else="">🗓️ মাসিক রিপোর্ট কার্ড (Monthly Report Card)</t>
+                        </h2>
+                        <div style="font-size: 0.8rem; color: var(--ffm-text-muted);">
+                            সময়কাল: <strong t-esc="period_label"/>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 6px;">
+                        <a t-attf-href="/ff/report/cards?mode=daily&amp;report_type=#{report_type}&amp;date=#{query_date}&amp;employee_id=#{target_employee.id if target_employee else ''}"
+                           t-attf-class="ffm-badge #{'ffm-badge-success' if mode == 'daily' else 'ffm-btn-secondary'}"
+                           style="padding: 6px 12px; font-size: 0.82rem; text-decoration: none; border-radius: 6px;">
+                            দৈনিক কার্ড
+                        </a>
+                        <a t-attf-href="/ff/report/cards?mode=monthly&amp;report_type=#{report_type}&amp;period=current&amp;employee_id=#{target_employee.id if target_employee else ''}"
+                           t-attf-class="ffm-badge #{'ffm-badge-success' if mode == 'monthly' else 'ffm-btn-secondary'}"
+                           style="padding: 6px 12px; font-size: 0.82rem; text-decoration: none; border-radius: 6px;">
+                            মাসিক কার্ড
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Filter Form (Never hiding buttons or options, server enforces permissions) -->
+                <form method="get" action="/ff/report/cards" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 20px;">
+                    <input type="hidden" name="mode" t-att-value="mode"/>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr; gap: 10px;">
+                        <!-- Report Type Selector -->
+                        <div class="ffm-form-group" style="margin-bottom: 6px;">
+                            <label class="ffm-form-label" style="font-size: 0.82rem;">রিপোর্ট নির্বাচন (Report Option):</label>
+                            <select name="report_type" class="ffm-form-control" style="padding: 8px 10px; font-size: 0.88rem;" onchange="this.form.submit()">
+                                <option value="personal" t-att-selected="'selected' if report_type == 'personal' else None">
+                                    👤 ব্যক্তিগত রিপোর্ট (Personal Report)
+                                </option>
+                                <option value="asm" t-att-selected="'selected' if report_type == 'asm' else None">
+                                    👥 এএসএম টিম রিপোর্ট (ASM Team Report)
+                                </option>
+                                <option value="attendance" t-att-selected="'selected' if report_type == 'attendance' else None">
+                                    📍 টেরিটরি দৈনিক হাজিরা (Territory Attendance)
+                                </option>
+                                <option value="individual" t-att-selected="'selected' if report_type == 'individual' else None">
+                                    🎯 নির্দিষ্ট কর্মীর রিপোর্ট (Individual Marketer)
+                                </option>
+                                <option value="rsm" t-att-selected="'selected' if report_type == 'rsm' else None">
+                                    🌍 আরএসএম অঞ্চল রিপোর্ট (RSM Regional Report)
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Date / Period Selector -->
+                        <t t-if="mode == 'daily'">
+                            <div class="ffm-form-group" style="margin-bottom: 6px;">
+                                <label class="ffm-form-label" style="font-size: 0.82rem;">তারিখ (Date):</label>
+                                <input type="date" name="date" t-att-value="query_date" class="ffm-form-control" style="padding: 8px 10px; font-size: 0.88rem;" onchange="this.form.submit()"/>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <div class="ffm-form-group" style="margin-bottom: 6px;">
+                                <label class="ffm-form-label" style="font-size: 0.82rem;">সময়কাল (Period):</label>
+                                <select name="period" class="ffm-form-control" style="padding: 8px 10px; font-size: 0.88rem;" onchange="this.form.submit()">
+                                    <option value="current">চলতি মাস (Current Month)</option>
+                                    <option value="last_30_days">গত ৩০ দিন (Last 30 Days)</option>
+                                    <option value="prev">পূর্ববর্তী মাস (Previous Month)</option>
+                                </select>
+                            </div>
+                        </t>
+
+                        <!-- Person Picker (Shown for individual report) -->
+                        <t t-if="report_type == 'individual'">
+                            <div class="ffm-form-group" style="margin-bottom: 6px;">
+                                <label class="ffm-form-label" style="font-size: 0.82rem;">কর্মী নির্বাচন (Select Marketer):</label>
+                                <select name="employee_id" class="ffm-form-control" style="padding: 8px 10px; font-size: 0.88rem;" onchange="this.form.submit()">
+                                    <t t-foreach="allowed_subordinates" t-as="sub">
+                                        <option t-att-value="sub.id" t-att-selected="'selected' if target_employee and target_employee.id == sub.id else None">
+                                            <t t-esc="sub.name"/> (<t t-esc="sub.job_id.name or 'Marketer'"/>)
+                                        </option>
+                                    </t>
+                                </select>
+                            </div>
+                        </t>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                        <button type="submit" class="ffm-btn ffm-btn-primary" style="min-height: 38px; padding: 6px 14px; font-size: 0.85rem; width: auto;">
+                            🔍 তথ্য দেখুন (Apply)
+                        </button>
+                        <t t-if="report_type in ('personal', 'individual') and mode == 'daily'">
+                            <a t-attf-href="/ff/report/daily/pdf?date=#{query_date}&amp;employee_id=#{target_employee.id if target_employee else ''}"
+                               class="ffm-btn ffm-btn-secondary" style="min-height: 38px; padding: 6px 14px; font-size: 0.82rem; width: auto; text-decoration: none;">
+                                📥 PDF ডাউনলোড
+                            </a>
+                        </t>
+                    </div>
+                </form>
+
+                <!-- ══════════════════════════════════════════════════════════ -->
+                <!-- CONTENT SECTION A: Territory Attendance                    -->
+                <!-- ══════════════════════════════════════════════════════════ -->
+                <t t-if="report_type == 'attendance'">
+                    <div style="background: #ffffff; border: 1.5px solid var(--ffm-border); border-radius: 8px; padding: 14px; margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">
+                            <h3 style="font-size: 0.95rem; font-weight: 700; color: #1e293b;">
+                                📍 টিম দৈনিক হাজিরা তালিকা (<t t-esc="period_label"/>)
+                            </h3>
+                            <div style="font-size: 0.82rem;">
+                                মোট সদস্য: <strong><t t-esc="attendance_summary['total_strength']"/></strong> জন
+                            </div>
+                        </div>
+
+                        <!-- Counters -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+                            <div style="background: #def7ec; padding: 10px; border-radius: 6px; text-align: center;">
+                                <div style="font-size: 0.78rem; color: #03543f;">✓ উপস্থিত (Present)</div>
+                                <div style="font-size: 1.25rem; font-weight: 800; color: #03543f;"><t t-esc="attendance_summary['present_count']"/> জন</div>
+                            </div>
+                            <div style="background: #fee2e2; padding: 10px; border-radius: 6px; text-align: center;">
+                                <div style="font-size: 0.78rem; color: #991b1b;">⚠ অনুপস্থিত / বাকি (Absent)</div>
+                                <div style="font-size: 1.25rem; font-weight: 800; color: #991b1b;"><t t-esc="attendance_summary['absent_count']"/> জন</div>
+                            </div>
+                        </div>
+
+                        <!-- 1. Present List -->
+                        <h4 style="font-size: 0.88rem; font-weight: 700; color: #065f46; margin: 12px 0 6px;">
+                            ✓ উপস্থিত সদস্যবৃন্দ (<t t-esc="attendance_summary['present_count']"/> জন)
+                        </h4>
+                        <t t-if="attendance_summary['present_list']">
+                            <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;">
+                                <t t-foreach="attendance_summary['present_list']" t-as="item">
+                                    <div style="border: 1px solid #bbf7d0; background: #f0fdf4; border-radius: 6px; padding: 10px; font-size: 0.82rem;">
+                                        <div style="display: flex; justify-content: space-between; font-weight: 700;">
+                                            <span><t t-esc="item['employee'].name"/></span>
+                                            <span class="ffm-badge ffm-badge-success">উপস্থিত</span>
+                                        </div>
+                                        <div style="color: #166534; font-size: 0.76rem; margin-top: 4px;">
+                                            পদবী: <t t-esc="item['employee'].job_id.name or 'Marketer'"/>
+                                            <t t-if="item['attendance'].place_name"> | স্থান: <t t-esc="item['attendance'].place_name"/></t>
+                                            <t t-if="item['attendance'].reporting_time"> | সময়: <t t-esc="item['attendance'].reporting_time.strftime('%I:%M %p') if item['attendance'].reporting_time else ''"/></t>
+                                            <t t-if="item['attendance'].accuracy"> | ±<t t-esc="'%.0f' % item['attendance'].accuracy"/>m</t>
+                                        </div>
+                                    </div>
+                                </t>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <div style="font-size: 0.8rem; color: var(--ffm-text-muted); font-style: italic; margin-bottom: 14px;">আজকে এখনও কেউ হাজিরা দেননি।</div>
+                        </t>
+
+                        <!-- 2. Absent List -->
+                        <h4 style="font-size: 0.88rem; font-weight: 700; color: #991b1b; margin: 12px 0 6px;">
+                            ⚠ অনুপস্থিত সদস্যবৃন্দ (<t t-esc="attendance_summary['absent_count']"/> জন)
+                        </h4>
+                        <t t-if="attendance_summary['absent_list']">
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <t t-foreach="attendance_summary['absent_list']" t-as="item">
+                                    <div style="border: 1px solid #fecaca; background: #fef2f2; border-radius: 6px; padding: 10px; font-size: 0.82rem;">
+                                        <div style="display: flex; justify-content: space-between; font-weight: 700;">
+                                            <span><t t-esc="item['employee'].name"/></span>
+                                            <span class="ffm-badge" style="background: #fee2e2; color: #991b1b;">বাকি</span>
+                                        </div>
+                                        <div style="color: #7f1d1d; font-size: 0.76rem; margin-top: 4px;">
+                                            পদবী: <t t-esc="item['employee'].job_id.name or 'Marketer'"/>
+                                            <t t-if="item['employee'].hq"> | HQ: <t t-esc="item['employee'].hq"/></t>
+                                            <t t-if="item['employee'].ffm_phone or item['employee'].mobile_phone"> | ফোন: <t t-esc="item['employee'].ffm_phone or item['employee'].mobile_phone"/></t>
+                                        </div>
+                                    </div>
+                                </t>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <div style="font-size: 0.8rem; color: var(--ffm-text-muted); font-style: italic;">সকল সদস্যের হাজিরা সম্পন্ন হয়েছে!</div>
+                        </t>
+                    </div>
+                </t>
+
+                <!-- ══════════════════════════════════════════════════════════ -->
+                <!-- CONTENT SECTION B: Team Summary & Member Breakdown         -->
+                <!-- ══════════════════════════════════════════════════════════ -->
+                <t t-elif="report_type in ('asm', 'rsm')">
+                    <!-- Team Aggregate Box -->
+                    <div style="background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 14px; margin-bottom: 20px;">
+                        <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 8px; color: #1e293b;">
+                            📊 সার্বিক টিম পারফরম্যান্স সারসংক্ষেপ
+                        </h3>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; margin-bottom: 10px;">
+                            <div style="background: #ecfdf5; padding: 8px; border-radius: 6px;">
+                                <div style="font-size: 0.72rem; color: #047857;">অর্ডার</div>
+                                <div style="font-size: 0.95rem; font-weight: 700; color: #065f46;">৳<t t-esc="'%.0f' % total_order"/></div>
+                            </div>
+                            <div style="background: #eff6ff; padding: 8px; border-radius: 6px;">
+                                <div style="font-size: 0.72rem; color: #1d4ed8;">সেল</div>
+                                <div style="font-size: 0.95rem; font-weight: 700; color: #1e40af;">৳<t t-esc="'%.0f' % total_sale"/></div>
+                            </div>
+                            <div style="background: #fefce8; padding: 8px; border-radius: 6px;">
+                                <div style="font-size: 0.72rem; color: #a16207;">কালেকশন</div>
+                                <div style="font-size: 0.95rem; font-weight: 700; color: #854d0e;">৳<t t-esc="'%.0f' % total_coll"/></div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; font-size: 0.78rem; color: #475569; padding-top: 6px; border-top: 1px solid #e2e8f0;">
+                            <span>কেমিস্ট: <strong><t t-esc="total_chemists_count"/></strong></span>
+                            <span>ডাক্তার: <strong><t t-esc="total_doctors_count"/></strong></span>
+                            <span>যাতায়াত: <strong>৳<t t-esc="'%.0f' % total_fare"/></strong> (<t t-esc="'%.0f' % total_distance"/>km)</span>
+                            <span>খরচ: <strong>৳<t t-esc="'%.0f' % total_expense"/></strong></span>
+                        </div>
+                    </div>
+
+                    <!-- Member Wise Breakdown -->
+                    <h3 style="font-size: 0.95rem; font-weight: 700; margin: 16px 0 8px; color: #1e293b; display: flex; justify-content: space-between;">
+                        <span>👥 সদস্যভিত্তিক বিবরণ (<t t-esc="total_items"/> জন)</span>
+                        <span style="font-size: 0.8rem; color: var(--ffm-text-muted);">পৃষ্ঠা <t t-esc="page"/> / <t t-esc="total_pages"/></span>
+                    </h3>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <t t-foreach="team_members_data" t-as="m">
+                            <div style="border: 1px solid var(--ffm-border); border-radius: 8px; padding: 12px; background: #fff;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                    <strong><t t-esc="m['employee'].name"/></strong>
+                                    <span style="font-size: 0.78rem; color: #1e40af; font-weight: 700;">
+                                        সেল: ৳<t t-esc="'%.0f' % m['sale']"/>
+                                    </span>
+                                </div>
+                                <div style="font-size: 0.78rem; color: var(--ffm-text-muted); line-height: 1.6;">
+                                    অর্ডার: ৳<t t-esc="'%.0f' % m['order']"/> | কালেকশন: ৳<t t-esc="'%.0f' % m['coll']"/> | খরচ: ৳<t t-esc="'%.0f' % m['expense']"/>
+                                    <br/>
+                                    ভিজিট: কেমিস্ট <t t-esc="m['chemists']"/> টি, ডাক্তার <t t-esc="m['doctors']"/> টি, খামার <t t-esc="m['farms']"/> টি
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+
+                    <!-- Pagination Navigation -->
+                    <t t-if="total_pages &gt; 1">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px;">
+                            <t t-if="has_prev">
+                                <a t-attf-href="/ff/report/cards?mode=#{mode}&amp;report_type=#{report_type}&amp;date=#{query_date}&amp;page=#{page - 1}"
+                                   class="ffm-btn ffm-btn-secondary" style="min-height: 34px; padding: 4px 12px; font-size: 0.8rem; width: auto;">
+                                    ← পূর্ববর্তী
+                                </a>
+                            </t>
+                            <t t-else=""><span/></t>
+                            <span style="font-size: 0.82rem; color: var(--ffm-text-muted);">পৃষ্ঠা <t t-esc="page"/> / <t t-esc="total_pages"/></span>
+                            <t t-if="has_next">
+                                <a t-attf-href="/ff/report/cards?mode=#{mode}&amp;report_type=#{report_type}&amp;date=#{query_date}&amp;page=#{page + 1}"
+                                   class="ffm-btn ffm-btn-secondary" style="min-height: 34px; padding: 4px 12px; font-size: 0.8rem; width: auto;">
+                                    পরবর্তী →
+                                </a>
+                            </t>
+                            <t t-else=""><span/></t>
+                        </div>
+                    </t>
+                </t>
+
+                <!-- ══════════════════════════════════════════════════════════ -->
+                <!-- CONTENT SECTION C: Personal / Individual Report Card       -->
+                <!-- ══════════════════════════════════════════════════════════ -->
+                <t t-else="">
+                    <!-- Financial Summary Box -->
+                    <div style="background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 14px; margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">
+                            <span style="font-size: 0.88rem; font-weight: 700; color: #1e293b;">
+                                📊 আর্থিক ও ভিজিট সারসংক্ষেপ (<t t-esc="target_employee.name if target_employee else ''"/>)
+                            </span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; margin-bottom: 10px;">
+                            <div style="background: #ecfdf5; padding: 8px; border-radius: 6px;">
+                                <div style="font-size: 0.72rem; color: #047857;">অর্ডার</div>
+                                <div style="font-size: 0.95rem; font-weight: 700; color: #065f46;">৳<t t-esc="'%.0f' % total_order"/></div>
+                            </div>
+                            <div style="background: #eff6ff; padding: 8px; border-radius: 6px;">
+                                <div style="font-size: 0.72rem; color: #1d4ed8;">সেল</div>
+                                <div style="font-size: 0.95rem; font-weight: 700; color: #1e40af;">৳<t t-esc="'%.0f' % total_sale"/></div>
+                            </div>
+                            <div style="background: #fefce8; padding: 8px; border-radius: 6px;">
+                                <div style="font-size: 0.72rem; color: #a16207;">কালেকশন</div>
+                                <div style="font-size: 0.95rem; font-weight: 700; color: #854d0e;">৳<t t-esc="'%.0f' % total_coll"/></div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; font-size: 0.78rem; color: #475569; padding-top: 6px; border-top: 1px solid #e2e8f0;">
+                            <span>কেমিস্ট: <strong><t t-esc="total_chemists_count"/></strong></span>
+                            <span>ডাক্তার: <strong><t t-esc="total_doctors_count"/></strong> (A+: <t t-esc="grade_counts['a_plus']"/>, A: <t t-esc="grade_counts['a']"/>)</span>
+                            <span>খামার: <strong><t t-esc="total_farms_count"/></strong></span>
+                            <span>খরচ: <strong>৳<t t-esc="'%.0f' % total_expense"/></strong></span>
+                        </div>
+                    </div>
+
+                    <!-- Single Day Attendance Snapshot (if daily mode) -->
+                    <t t-if="mode == 'daily'">
+                        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 10px; margin-bottom: 16px; font-size: 0.82rem;">
+                            <strong style="color: #15803d;">📍 ফিল্ড হাজিরা স্থিতি:</strong>
+                            <t t-if="single_day_attendance">
+                                <span style="color: #166534; margin-left: 6px;">
+                                    ✓ সম্পন্ন (<t t-esc="single_day_attendance.place_name or 'Bangladesh'"/>, সময়: <t t-esc="single_day_attendance.reporting_time.strftime('%I:%M %p') if single_day_attendance.reporting_time else ''"/>)
+                                </span>
+                            </t>
+                            <t t-else="">
+                                <span style="color: #991b1b; margin-left: 6px;">⚠ হাজিরা রেকর্ড পাওয়া যায়নি</span>
+                            </t>
+                        </div>
+                    </t>
+
+                    <!-- Chemist Visits -->
+                    <h3 style="font-size: 0.95rem; font-weight: 700; margin: 16px 0 8px; color: #1e293b;">
+                        💊 কেমিস্ট ভিজিট (<t t-esc="total_chemists_count"/> টি)
+                    </h3>
+                    <t t-if="chemist_visits">
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <t t-foreach="chemist_visits" t-as="c">
+                                <div style="border: 1px solid var(--ffm-border); border-radius: 6px; padding: 10px; font-size: 0.82rem;">
+                                    <div style="display: flex; justify-content: space-between; font-weight: 700;">
+                                        <span><t t-esc="c.chemist_id.name or c.chemist_name_manual"/></span>
+                                        <span style="color: var(--ffm-primary);">৳<t t-esc="'%.0f' % c.order_tk"/> (অর্ডার)</span>
+                                    </div>
+                                    <div style="color: var(--ffm-text-muted); font-size: 0.76rem; margin-top: 2px;">
+                                        সেল: ৳<t t-esc="'%.0f' % c.sale_tk"/> | কালেকশন: ৳<t t-esc="'%.0f' % c.coll_tk"/>
+                                        <t t-if="c.address"> | <t t-esc="c.address"/></t>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
+                    <t t-else="">
+                        <div style="font-size: 0.8rem; color: var(--ffm-text-muted); font-style: italic;">কোনো কেমিস্ট ভিজিট নেই।</div>
+                    </t>
+
+                    <!-- Doctor Visits -->
+                    <h3 style="font-size: 0.95rem; font-weight: 700; margin: 20px 0 8px; color: #1e293b;">
+                        🩺 ডাক্তার ভিজিট (<t t-esc="total_doctors_count"/> টি)
+                    </h3>
+                    <t t-if="doctor_visits">
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <t t-foreach="doctor_visits" t-as="d">
+                                <div style="border: 1px solid var(--ffm-border); border-radius: 6px; padding: 10px; font-size: 0.82rem;">
+                                    <div style="display: flex; justify-content: space-between; font-weight: 700;">
+                                        <span><t t-esc="d.prescriber_id.name or d.prescriber_name_manual"/></span>
+                                        <span class="ffm-badge" style="background: #e0e7ff; color: #3730a3;">গ্রেড <t t-esc="d.grade.upper() if d.grade else ''"/></span>
+                                    </div>
+                                    <div style="color: var(--ffm-text-muted); font-size: 0.76rem; margin-top: 2px;">
+                                        আলোচনা: <t t-esc="d.product_discussion"/> | স্যাম্পল: <t t-esc="d.sample"/>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
+                    <t t-else="">
+                        <div style="font-size: 0.8rem; color: var(--ffm-text-muted); font-style: italic;">কোনো ডাক্তার ভিজিট নেই।</div>
+                    </t>
+
+                    <!-- Travel Legs -->
+                    <h3 style="font-size: 0.95rem; font-weight: 700; margin: 20px 0 8px; color: #1e293b;">
+                        🚗 যাতায়াত বিবরণ (<t t-esc="len(journey_legs)"/> টি লেগ)
+                    </h3>
+                    <t t-if="journey_legs">
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <t t-foreach="journey_legs" t-as="j">
+                                <div style="border: 1px solid var(--ffm-border); border-radius: 6px; padding: 10px; font-size: 0.82rem;">
+                                    <div style="display: flex; justify-content: space-between; font-weight: 700;">
+                                        <span><t t-esc="j.place_from_id.name"/> → <t t-esc="j.place_to_id.name"/></span>
+                                        <span style="color: #b45309;">৳<t t-esc="'%.0f' % j.fare_tk"/></span>
+                                    </div>
+                                    <div style="color: var(--ffm-text-muted); font-size: 0.76rem; margin-top: 2px;">
+                                        মাধ্যম: <t t-esc="j.mode.title()"/> | দূরত্ব: <t t-esc="j.distance_km"/> km
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
+                    <t t-else="">
+                        <div style="font-size: 0.8rem; color: var(--ffm-text-muted); font-style: italic;">কোনো যাতায়াত রেকর্ড নেই।</div>
+                    </t>
+
+                    <!-- Daily Expenses -->
+                    <h3 style="font-size: 0.95rem; font-weight: 700; margin: 20px 0 8px; color: #1e293b;">
+                        💵 দৈনিক খরচ (<t t-esc="len(daily_expenses)"/> টি এন্ট্রি - মোট: ৳<t t-esc="'%.0f' % total_expense"/>)
+                    </h3>
+                    <t t-if="daily_expenses">
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <t t-foreach="daily_expenses" t-as="exp">
+                                <div style="border: 1px solid var(--ffm-border); border-radius: 6px; padding: 10px; font-size: 0.82rem;">
+                                    <div style="display: flex; justify-content: space-between; font-weight: 700;">
+                                        <span>এন্ট্রি #<t t-esc="exp.id"/></span>
+                                        <span style="color: #047857;">৳<t t-esc="'%.0f' % exp.total_amount"/></span>
+                                    </div>
+                                    <div style="color: var(--ffm-text-muted); font-size: 0.76rem; margin-top: 2px;">
+                                        <t t-if="exp.entertainment">আপ্যায়ন: ৳<t t-esc="'%.0f' % exp.entertainment"/> • </t>
+                                        <t t-if="exp.courier">কুরিয়ার: ৳<t t-esc="'%.0f' % exp.courier"/> • </t>
+                                        <t t-if="exp.photocopy">ফটোকপি: ৳<t t-esc="'%.0f' % exp.photocopy"/> • </t>
+                                        <t t-if="exp.hotel_rent">হোটেল: ৳<t t-esc="'%.0f' % exp.hotel_rent"/> • </t>
+                                        <t t-if="exp.bike">বাইক: ৳<t t-esc="'%.0f' % exp.bike"/> • </t>
+                                        <t t-if="exp.promotion">প্রমোশন: ৳<t t-esc="'%.0f' % exp.promotion"/></t>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
+                    <t t-else="">
+                        <div style="font-size: 0.8rem; color: var(--ffm-text-muted); font-style: italic;">কোনো দৈনিক খরচ নেই।</div>
+                    </t>
+                </t>
+            </div>
         </t>
     </template>
 

@@ -146,5 +146,194 @@
             <field name="perm_unlink" eval="1"/>
         </record>
 
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <!-- Analytical Reporting Record Rules (Phase 5)                     -->
+        <!-- ════════════════════════════════════════════════════════════════ -->
+
+        <!-- 10. Daily Report Analysis Rules -->
+        <record id="ffm_daily_report_analysis_rule_fp" model="ir.rule">
+            <field name="name">FFM Report Analysis: Field Person Own</field>
+            <field name="model_id" ref="model_ffm_daily_report_analysis"/>
+            <field name="domain_force">[('employee_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('field_force_management.group_ffm_field_person'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+        <record id="ffm_daily_report_analysis_rule_mgr" model="ir.rule">
+            <field name="name">FFM Report Analysis: Manager Subtree</field>
+            <field name="model_id" ref="model_ffm_daily_report_analysis"/>
+            <field name="domain_force">['|', '|', ('employee_id.user_id', '=', user.id), ('employee_id.parent_id.user_id', '=', user.id), ('employee_id', 'child_of', [user.employee_id.id] if user.employee_id and user.env['ir.config_parameter'].sudo().get_param('field_force_management.subtree_visibility') else [0])]</field>
+            <field name="groups" eval="[(4, ref('field_force_management.group_ffm_asm')),
+                                        (4, ref('field_force_management.group_ffm_rsm')),
+                                        (4, ref('field_force_management.group_ffm_dsm'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+        <record id="ffm_daily_report_analysis_rule_all" model="ir.rule">
+            <field name="name">FFM Report Analysis: Higher Roles All</field>
+            <field name="model_id" ref="model_ffm_daily_report_analysis"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('field_force_management.group_ffm_nsm')),
+                                        (4, ref('field_force_management.group_ffm_director')),
+                                        (4, ref('field_force_management.group_ffm_accounts')),
+                                        (4, ref('field_force_management.group_ffm_admin'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- 11. Territory Attendance Report Rules -->
+        <record id="ffm_report_territory_attendance_rule_fp" model="ir.rule">
+            <field name="name">FFM Territory Attendance: Field Person Own</field>
+            <field name="model_id" ref="model_ffm_report_territory_attendance"/>
+            <field name="domain_force">[('employee_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('field_force_management.group_ffm_field_person'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+        <record id="ffm_report_territory_attendance_rule_mgr" model="ir.rule">
+            <field name="name">FFM Territory Attendance: Manager Subtree</field>
+            <field name="model_id" ref="model_ffm_report_territory_attendance"/>
+            <field name="domain_force">['|', '|', ('employee_id.user_id', '=', user.id), ('employee_id.parent_id.user_id', '=', user.id), ('employee_id', 'child_of', [user.employee_id.id] if user.employee_id and user.env['ir.config_parameter'].sudo().get_param('field_force_management.subtree_visibility') else [0])]</field>
+            <field name="groups" eval="[(4, ref('field_force_management.group_ffm_asm')),
+                                        (4, ref('field_force_management.group_ffm_rsm')),
+                                        (4, ref('field_force_management.group_ffm_dsm'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+        <record id="ffm_report_territory_attendance_rule_all" model="ir.rule">
+            <field name="name">FFM Territory Attendance: Higher Roles All</field>
+            <field name="model_id" ref="model_ffm_report_territory_attendance"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('field_force_management.group_ffm_nsm')),
+                                        (4, ref('field_force_management.group_ffm_director')),
+                                        (4, ref('field_force_management.group_ffm_accounts')),
+                                        (4, ref('field_force_management.group_ffm_admin'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- 12. Visit Analysis Rules -->
+        <record id="ffm_report_visit_analysis_rule_fp" model="ir.rule">
+            <field name="name">FFM Visit Analysis: Field Person Own</field>
+            <field name="model_id" ref="model_ffm_report_visit_analysis"/>
+            <field name="domain_force">[('employee_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('field_force_management.group_ffm_field_person'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+        <record id="ffm_report_visit_analysis_rule_mgr" model="ir.rule">
+            <field name="name">FFM Visit Analysis: Manager Subtree</field>
+            <field name="model_id" ref="model_ffm_report_visit_analysis"/>
+            <field name="domain_force">['|', '|', ('employee_id.user_id', '=', user.id), ('employee_id.parent_id.user_id', '=', user.id), ('employee_id', 'child_of', [user.employee_id.id] if user.employee_id and user.env['ir.config_parameter'].sudo().get_param('field_force_management.subtree_visibility') else [0])]</field>
+            <field name="groups" eval="[(4, ref('field_force_management.group_ffm_asm')),
+                                        (4, ref('field_force_management.group_ffm_rsm')),
+                                        (4, ref('field_force_management.group_ffm_dsm'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+        <record id="ffm_report_visit_analysis_rule_all" model="ir.rule">
+            <field name="name">FFM Visit Analysis: Higher Roles All</field>
+            <field name="model_id" ref="model_ffm_report_visit_analysis"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('field_force_management.group_ffm_nsm')),
+                                        (4, ref('field_force_management.group_ffm_director')),
+                                        (4, ref('field_force_management.group_ffm_accounts')),
+                                        (4, ref('field_force_management.group_ffm_admin'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- 13. Journey Analysis Rules -->
+        <record id="ffm_report_journey_analysis_rule_fp" model="ir.rule">
+            <field name="name">FFM Journey Analysis: Field Person Own</field>
+            <field name="model_id" ref="model_ffm_report_journey_analysis"/>
+            <field name="domain_force">[('employee_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('field_force_management.group_ffm_field_person'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+        <record id="ffm_report_journey_analysis_rule_mgr" model="ir.rule">
+            <field name="name">FFM Journey Analysis: Manager Subtree</field>
+            <field name="model_id" ref="model_ffm_report_journey_analysis"/>
+            <field name="domain_force">['|', '|', ('employee_id.user_id', '=', user.id), ('employee_id.parent_id.user_id', '=', user.id), ('employee_id', 'child_of', [user.employee_id.id] if user.employee_id and user.env['ir.config_parameter'].sudo().get_param('field_force_management.subtree_visibility') else [0])]</field>
+            <field name="groups" eval="[(4, ref('field_force_management.group_ffm_asm')),
+                                        (4, ref('field_force_management.group_ffm_rsm')),
+                                        (4, ref('field_force_management.group_ffm_dsm'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+        <record id="ffm_report_journey_analysis_rule_all" model="ir.rule">
+            <field name="name">FFM Journey Analysis: Higher Roles All</field>
+            <field name="model_id" ref="model_ffm_report_journey_analysis"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('field_force_management.group_ffm_nsm')),
+                                        (4, ref('field_force_management.group_ffm_director')),
+                                        (4, ref('field_force_management.group_ffm_accounts')),
+                                        (4, ref('field_force_management.group_ffm_admin'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- 14. Expense Analysis Rules -->
+        <record id="ffm_report_expense_analysis_rule_fp" model="ir.rule">
+            <field name="name">FFM Expense Analysis: Field Person Own</field>
+            <field name="model_id" ref="model_ffm_report_expense_analysis"/>
+            <field name="domain_force">[('employee_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('field_force_management.group_ffm_field_person'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+        <record id="ffm_report_expense_analysis_rule_mgr" model="ir.rule">
+            <field name="name">FFM Expense Analysis: Manager Subtree</field>
+            <field name="model_id" ref="model_ffm_report_expense_analysis"/>
+            <field name="domain_force">['|', '|', ('employee_id.user_id', '=', user.id), ('employee_id.parent_id.user_id', '=', user.id), ('employee_id', 'child_of', [user.employee_id.id] if user.employee_id and user.env['ir.config_parameter'].sudo().get_param('field_force_management.subtree_visibility') else [0])]</field>
+            <field name="groups" eval="[(4, ref('field_force_management.group_ffm_asm')),
+                                        (4, ref('field_force_management.group_ffm_rsm')),
+                                        (4, ref('field_force_management.group_ffm_dsm'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+        <record id="ffm_report_expense_analysis_rule_all" model="ir.rule">
+            <field name="name">FFM Expense Analysis: Higher Roles All</field>
+            <field name="model_id" ref="model_ffm_report_expense_analysis"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('field_force_management.group_ffm_nsm')),
+                                        (4, ref('field_force_management.group_ffm_director')),
+                                        (4, ref('field_force_management.group_ffm_accounts')),
+                                        (4, ref('field_force_management.group_ffm_admin'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
     </data>
 </odoo>

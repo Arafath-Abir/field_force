@@ -1,6 +1,7 @@
 import base64
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 import json
+import math
 import pytz
 import logging
 
@@ -757,7 +758,319 @@ class FFMController(http.Controller):
         })
         return request.render('ffm_daily_report.ff_entries_today', ctx)
 
-    # ── 8. Rapid Local Places & Customers API ───────────────────────────────
+    # ── 8. Daily & Monthly Report Cards (Phase 5) ───────────────────────────
+    @http.route('/ff/report/cards', type='http', auth='user')
+    def ff_report_cards(self, **kw):
+        """Daily & Monthly Report Cards with role scoping, team attendance, and pagination."""
+        ctx = self._get_app_context()
+        today_date, _now_time = self._get_dhaka_date_and_time()
+        employee = ctx['employee']
+        user = request.env.user
+
+        mode = kw.get('mode') or 'daily'  # 'daily' or 'monthly'
+        report_type = kw.get('report_type') or 'personal'  # 'personal', 'asm', 'attendance', 'individual', 'rsm'
+
+        # Date calculations
+        if mode == 'daily':
+            date_str = kw.get('date')
+            if date_str:
+                try:
+                    query_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+                except ValueError:
+                    query_date = today_date
+            else:
+                query_date = today_date
+            date_start = query_date
+            date_end = query_date
+            period_label = query_date.strftime('%d %B, %Y')
+        else:
+            # Monthly
+            period = kw.get('period') or 'current'  # 'current', 'last_30_days', 'prev'
+            if period == 'last_30_days':
+                date_start = today_date - timedelta(days=30)
+                date_end = today_date
+                period_label = f"গত ৩০ দিন ({date_start.strftime('%d %b')} - {date_end.strftime('%d %b, %Y')})"
+            elif period == 'prev':
+                first_this_month = today_date.replace(day=1)
+                last_prev_month = first_this_month - timedelta(days=1)
+                date_start = last_prev_month.replace(day=1)
+                date_end = last_prev_month
+                period_label = date_start.strftime('%B, %Y')
+            else:
+                # Current month
+                date_start = today_date.replace(day=1)
+                date_end = today_date
+                period_label = date_start.strftime('%B, %Y')
+
+        # Subordinates & Scoping (strict adherence to hierarchy)
+        is_higher_role = (
+            user.has_group('field_force_management.group_ffm_admin') or
+            user.has_group('field_force_management.group_ffm_director') or
+            user.has_group('field_force_management.group_ffm_nsm')
+        )
+        if is_higher_role:
+            allowed_subordinates = request.env['hr.employee'].sudo().search([('active', '=', True)], order='name asc')
+        elif employee:
+            allowed_subordinates = request.env['hr.employee'].sudo().search([('id', 'child_of', employee.id), ('active', '=', True)], order='name asc')
+        else:
+            allowed_subordinates = request.env['hr.employee'].sudo().browse([])
+
+        # Target employee for individual / personal report
+        target_employee = employee
+        if report_type == 'individual':
+            target_emp_id = kw.get('employee_id')
+            if target_emp_id:
+                try:
+                    found = allowed_subordinates.filtered(lambda e: e.id == int(target_emp_id))
+                    if found:
+                        target_employee = found[0]
+                except (ValueError, TypeError):
+                    pass
+
+        # Pagination setup
+        page = max(1, int(kw.get('page') or 1))
+        limit = 10
+
+        # Context output variables
+        attendance_summary = {}
+        target_reports = []
+        chemist_visits = []
+        doctor_visits = []
+        farm_visits = []
+        journey_legs = []
+        daily_expenses = []
+        team_members_data = []
+
+        total_order = 0.0
+        total_sale = 0.0
+        total_coll = 0.0
+        total_fare = 0.0
+        total_distance = 0.0
+        total_expense = 0.0
+        total_chemists_count = 0
+        total_doctors_count = 0
+        total_farms_count = 0
+        total_pages = 1
+        total_items = 0
+
+        # ── Scenario A: Territory Attendance ──────────────────────────────
+        if report_type == 'attendance':
+            emp_ids = allowed_subordinates.ids
+            attendances = request.env['ffm.attendance'].sudo().search([
+                ('employee_id', 'in', emp_ids),
+                ('date', '=', date_start)
+            ])
+            att_map = {att.employee_id.id: att for att in attendances}
+            present_list = []
+            absent_list = []
+            for emp in allowed_subordinates:
+                if emp.id in att_map:
+                    present_list.append({
+                        'employee': emp,
+                        'attendance': att_map[emp.id],
+                    })
+                else:
+                    absent_list.append({
+                        'employee': emp,
+                    })
+
+            attendance_summary = {
+                'total_strength': len(allowed_subordinates),
+                'present_count': len(present_list),
+                'absent_count': len(absent_list),
+                'present_list': present_list,
+                'absent_list': absent_list,
+            }
+
+        # ── Scenario B: ASM / RSM Team Reports ────────────────────────────
+        elif report_type in ('asm', 'rsm'):
+            emp_ids = allowed_subordinates.ids
+            reports = request.env['ffm.daily.report'].sudo().search([
+                ('employee_id', 'in', emp_ids),
+                ('date', '>=', date_start),
+                ('date', '<=', date_end),
+            ], order='date desc')
+
+            # Aggregate per employee
+            emp_metrics = {}
+            for emp in allowed_subordinates:
+                emp_metrics[emp.id] = {
+                    'employee': emp,
+                    'reports_count': 0,
+                    'order': 0.0,
+                    'sale': 0.0,
+                    'coll': 0.0,
+                    'chemists': 0,
+                    'doctors': 0,
+                    'farms': 0,
+                    'distance': 0.0,
+                    'fare': 0.0,
+                    'expense': 0.0,
+                }
+
+            for rep in reports:
+                eid = rep.employee_id.id
+                if eid in emp_metrics:
+                    m = emp_metrics[eid]
+                    m['reports_count'] += 1
+                    m['order'] += rep.total_order_tk
+                    m['sale'] += rep.total_sale_tk
+                    m['coll'] += rep.total_coll_tk
+                    m['chemists'] += rep.total_chemist_visited
+                    m['doctors'] += rep.total_prescriber_visited
+                    m['farms'] += rep.total_farm_visited
+                    m['expense'] += rep.total_expense_tk
+                    tl = rep.travel_log_ids[:1]
+                    if tl:
+                        m['distance'] += tl.total_distance_km
+                        m['fare'] += tl.total_fare_tk
+
+                total_order += rep.total_order_tk
+                total_sale += rep.total_sale_tk
+                total_coll += rep.total_coll_tk
+                total_chemists_count += rep.total_chemist_visited
+                total_doctors_count += rep.total_prescriber_visited
+                total_farms_count += rep.total_farm_visited
+                total_expense += rep.total_expense_tk
+                tl = rep.travel_log_ids[:1]
+                if tl:
+                    total_distance += tl.total_distance_km
+                    total_fare += tl.total_fare_tk
+
+            all_team_list = list(emp_metrics.values())
+            total_items = len(all_team_list)
+            total_pages = max(1, math.ceil(total_items / limit))
+            team_members_data = all_team_list[(page - 1) * limit : page * limit]
+
+        # ── Scenario C: Personal / Individual Report ──────────────────────
+        else:
+            if target_employee:
+                target_reports = request.env['ffm.daily.report'].sudo().search([
+                    ('employee_id', '=', target_employee.id),
+                    ('date', '>=', date_start),
+                    ('date', '<=', date_end),
+                ], order='date desc')
+
+                for rep in target_reports:
+                    total_order += rep.total_order_tk
+                    total_sale += rep.total_sale_tk
+                    total_coll += rep.total_coll_tk
+                    total_chemists_count += rep.total_chemist_visited
+                    total_doctors_count += rep.total_prescriber_visited
+                    total_farms_count += rep.total_farm_visited
+                    total_expense += rep.total_expense_tk
+                    tl = rep.travel_log_ids[:1]
+                    if tl:
+                        total_distance += tl.total_distance_km
+                        total_fare += tl.total_fare_tk
+                        journey_legs.extend(tl.journey_ids)
+
+                    chemist_visits.extend(rep.chemist_visit_ids)
+                    doctor_visits.extend(rep.prescriber_visit_ids)
+                    farm_visits.extend(rep.farm_visit_ids)
+
+                expenses = request.env['ffm.daily.expense'].sudo().search([
+                    ('employee_id', '=', target_employee.id),
+                    ('date', '>=', date_start),
+                    ('date', '<=', date_end),
+                ], order='date desc, id desc')
+                daily_expenses = expenses
+
+                # Paginate chemist visits if many
+                total_items = len(chemist_visits)
+                total_pages = max(1, math.ceil(total_items / limit))
+                chemist_visits = chemist_visits[(page - 1) * limit : page * limit]
+
+        # Doctor grades count
+        grade_counts = {'a_plus': 0, 'a': 0, 'b': 0, 'c': 0}
+        for d in doctor_visits:
+            if d.grade in grade_counts:
+                grade_counts[d.grade] += 1
+
+        # Attendance record for single day view
+        single_day_attendance = False
+        if mode == 'daily' and target_employee:
+            single_day_attendance = request.env['ffm.attendance'].sudo().search([
+                ('employee_id', '=', target_employee.id),
+                ('date', '=', date_start)
+            ], limit=1)
+
+        ctx.update({
+            'mode': mode,
+            'report_type': report_type,
+            'query_date': str(date_start),
+            'period_label': period_label,
+            'allowed_subordinates': allowed_subordinates,
+            'target_employee': target_employee,
+            'attendance_summary': attendance_summary,
+            'single_day_attendance': single_day_attendance,
+            'team_members_data': team_members_data,
+            'chemist_visits': chemist_visits,
+            'doctor_visits': doctor_visits,
+            'farm_visits': farm_visits,
+            'journey_legs': journey_legs,
+            'daily_expenses': daily_expenses,
+            'grade_counts': grade_counts,
+            'total_order': total_order,
+            'total_sale': total_sale,
+            'total_coll': total_coll,
+            'total_fare': total_fare,
+            'total_distance': total_distance,
+            'total_expense': total_expense,
+            'total_chemists_count': total_chemists_count,
+            'total_doctors_count': total_doctors_count,
+            'total_farms_count': total_farms_count,
+            'page': page,
+            'total_pages': total_pages,
+            'total_items': total_items,
+            'has_prev': page > 1,
+            'has_next': page < total_pages,
+        })
+        return request.render('ffm_daily_report.ff_report_cards', ctx)
+
+    @http.route('/ff/report/daily/pdf', type='http', auth='user')
+    def ff_report_daily_pdf(self, **kw):
+        """Direct stream download of Daily Report PDF with Bengali font."""
+        user = request.env.user
+        employee = user.employee_id or request.env['hr.employee'].sudo().search([('user_id', '=', user.id)], limit=1)
+        target_emp_id = kw.get('employee_id')
+        if target_emp_id:
+            target_emp = request.env['hr.employee'].sudo().browse(int(target_emp_id))
+            allowed = request.env['hr.employee'].search([('id', 'child_of', employee.id)]).ids
+            if (target_emp.id in allowed or
+                user.has_group('field_force_management.group_ffm_nsm') or
+                user.has_group('field_force_management.group_ffm_director') or
+                user.has_group('field_force_management.group_ffm_admin')):
+                employee = target_emp
+
+        query_date_str = kw.get('date')
+        if query_date_str:
+            try:
+                q_date = datetime.strptime(query_date_str, '%Y-%m-%d').date()
+            except ValueError:
+                q_date = date.today()
+        else:
+            q_date = date.today()
+
+        report = request.env['ffm.daily.report'].sudo().search([
+            ('employee_id', '=', employee.id),
+            ('date', '=', q_date)
+        ], limit=1)
+
+        if not report:
+            return request.not_found()
+
+        pdf_content, _ = request.env.ref('ffm_daily_report.action_report_ffm_daily_report_pdf').sudo()._render_qweb_pdf(report.ids)
+        pdf_filename = f"Daily_Report_{employee.name}_{q_date}.pdf"
+        return Response(
+            pdf_content,
+            headers=[
+                ('Content-Type', 'application/pdf'),
+                ('Content-Disposition', f'attachment; filename="{pdf_filename}"'),
+            ]
+        )
+
+    # ── 9. Rapid Local Places & Customers API ───────────────────────────────
     @http.route('/ff/api/places/search', type='json', auth='user', methods=['POST'])
     def ff_api_places_search(self, **kw):
         """Search local ffm.place database only. No external API call."""

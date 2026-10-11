@@ -7,3 +7,4 @@ from . import attendance
 from . import daily_expense
 from . import farm_visit
 from . import daily_report_ext
+from . import report_analysis

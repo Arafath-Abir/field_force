@@ -1,0 +1,420 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <!-- 1. Daily Report & Sales Analysis Views                                 -->
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <record id="view_ffm_daily_report_analysis_tree" model="ir.ui.view">
+        <field name="name">ffm.daily.report.analysis.tree</field>
+        <field name="model">ffm.daily.report.analysis</field>
+        <field name="arch" type="xml">
+            <tree string="Daily Report Analysis" create="false" edit="false" delete="false">
+                <field name="date"/>
+                <field name="employee_id"/>
+                <field name="asm_id"/>
+                <field name="rsm_id" optional="hide"/>
+                <field name="territory_id" optional="show"/>
+                <field name="working_place_id" optional="show"/>
+                <field name="total_order_tk" sum="Total Order"/>
+                <field name="total_sale_tk" sum="Total Sale"/>
+                <field name="total_coll_tk" sum="Total Collection"/>
+                <field name="total_chemist_visited" sum="Total Chemists"/>
+                <field name="total_prescriber_visited" sum="Total Doctors"/>
+                <field name="total_farm_visited" sum="Total Farms" optional="hide"/>
+                <field name="total_distance_km" sum="Total Distance" optional="hide"/>
+                <field name="total_fare_tk" sum="Total TA" optional="hide"/>
+                <field name="total_expense_tk" sum="Total Expense"/>
+                <field name="state" widget="badge" decoration-success="state == 'approved'" decoration-info="state == 'submitted'" decoration-muted="state == 'draft'"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_ffm_daily_report_analysis_pivot" model="ir.ui.view">
+        <field name="name">ffm.daily.report.analysis.pivot</field>
+        <field name="model">ffm.daily.report.analysis</field>
+        <field name="arch" type="xml">
+            <pivot string="Daily Performance Pivot" display_quantity="false">
+                <field name="rsm_id" type="row"/>
+                <field name="asm_id" type="row"/>
+                <field name="employee_id" type="row"/>
+                <field name="date" interval="month" type="col"/>
+                <field name="total_order_tk" type="measure"/>
+                <field name="total_sale_tk" type="measure"/>
+                <field name="total_coll_tk" type="measure"/>
+                <field name="total_expense_tk" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_ffm_daily_report_analysis_graph" model="ir.ui.view">
+        <field name="name">ffm.daily.report.analysis.graph</field>
+        <field name="model">ffm.daily.report.analysis</field>
+        <field name="arch" type="xml">
+            <graph string="Sales Performance Graph" type="bar">
+                <field name="employee_id"/>
+                <field name="total_sale_tk" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_ffm_daily_report_analysis_search" model="ir.ui.view">
+        <field name="name">ffm.daily.report.analysis.search</field>
+        <field name="model">ffm.daily.report.analysis</field>
+        <field name="arch" type="xml">
+            <search string="Search Daily Analysis">
+                <field name="employee_id" string="Employee"/>
+                <field name="asm_id" string="ASM / Area"/>
+                <field name="rsm_id" string="RSM / Region"/>
+                <field name="territory_id" string="Territory"/>
+                <field name="working_place_id" string="Working Place"/>
+                
+                <separator/>
+                <filter string="Today" name="filter_today" domain="[('date', '=', context_today())]"/>
+                <filter string="This Month" name="filter_this_month" domain="[('date', '&gt;=', context_today().strftime('%Y-%m-01'))]"/>
+                <filter string="Approved" name="filter_approved" domain="[('state', '=', 'approved')]"/>
+                <filter string="Submitted" name="filter_submitted" domain="[('state', '=', 'submitted')]"/>
+
+                <group expand="1" string="Group By">
+                    <filter string="RSM / Region" name="group_rsm" context="{'group_by': 'rsm_id'}"/>
+                    <filter string="ASM / Area" name="group_asm" context="{'group_by': 'asm_id'}"/>
+                    <filter string="Marketer / Employee" name="group_employee" context="{'group_by': 'employee_id'}"/>
+                    <filter string="Territory" name="group_territory" context="{'group_by': 'territory_id'}"/>
+                    <filter string="Working Place" name="group_working_place" context="{'group_by': 'working_place_id'}"/>
+                    <filter string="Date (Month)" name="group_date_month" context="{'group_by': 'date:month'}"/>
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_ffm_daily_report_analysis" model="ir.actions.act_window">
+        <field name="name">Daily Report &amp; Sales Analysis</field>
+        <field name="res_model">ffm.daily.report.analysis</field>
+        <field name="view_mode">tree,pivot,graph</field>
+        <field name="search_view_id" ref="view_ffm_daily_report_analysis_search"/>
+        <field name="context">{'search_default_filter_this_month': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                কোনো রিপোর্ট পাওয়া যায়নি (No daily analysis records found).
+            </p>
+        </field>
+    </record>
+
+
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <!-- 2. Territory Attendance Report Views                                   -->
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <record id="view_ffm_report_territory_attendance_tree" model="ir.ui.view">
+        <field name="name">ffm.report.territory.attendance.tree</field>
+        <field name="model">ffm.report.territory.attendance</field>
+        <field name="arch" type="xml">
+            <tree string="Daily Territory Attendance" create="false" edit="false" delete="false"
+                  decoration-success="status == 'present'" decoration-danger="status == 'absent'">
+                <field name="date"/>
+                <field name="employee_id"/>
+                <field name="asm_id"/>
+                <field name="rsm_id" optional="hide"/>
+                <field name="territory_id"/>
+                <field name="status" widget="badge" decoration-success="status == 'present'" decoration-danger="status == 'absent'"/>
+                <field name="reporting_time"/>
+                <field name="working_place_id"/>
+                <field name="mode_of_journey" optional="show"/>
+                <field name="accuracy" optional="show"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_ffm_report_territory_attendance_pivot" model="ir.ui.view">
+        <field name="name">ffm.report.territory.attendance.pivot</field>
+        <field name="model">ffm.report.territory.attendance</field>
+        <field name="arch" type="xml">
+            <pivot string="Territory Attendance Pivot">
+                <field name="rsm_id" type="row"/>
+                <field name="asm_id" type="row"/>
+                <field name="employee_id" type="row"/>
+                <field name="date" interval="day" type="col"/>
+                <field name="is_present" type="measure"/>
+                <field name="is_absent" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_ffm_report_territory_attendance_search" model="ir.ui.view">
+        <field name="name">ffm.report.territory.attendance.search</field>
+        <field name="model">ffm.report.territory.attendance</field>
+        <field name="arch" type="xml">
+            <search string="Search Territory Attendance">
+                <field name="employee_id" string="Employee"/>
+                <field name="asm_id" string="ASM / Area"/>
+                <field name="rsm_id" string="RSM / Region"/>
+                <field name="territory_id" string="Territory"/>
+                
+                <separator/>
+                <filter string="Today" name="filter_today" domain="[('date', '=', context_today())]"/>
+                <filter string="Present (উপস্থিত)" name="filter_present" domain="[('status', '=', 'present')]"/>
+                <filter string="Absent / Pending (অনুপস্থিত)" name="filter_absent" domain="[('status', '=', 'absent')]"/>
+
+                <group expand="1" string="Group By">
+                    <filter string="Date" name="group_date" context="{'group_by': 'date'}"/>
+                    <filter string="ASM / Area" name="group_asm" context="{'group_by': 'asm_id'}"/>
+                    <filter string="Territory" name="group_territory" context="{'group_by': 'territory_id'}"/>
+                    <filter string="Status" name="group_status" context="{'group_by': 'status'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_ffm_report_territory_attendance" model="ir.actions.act_window">
+        <field name="name">Daily Territory Attendance Report</field>
+        <field name="res_model">ffm.report.territory.attendance</field>
+        <field name="view_mode">tree,pivot</field>
+        <field name="search_view_id" ref="view_ffm_report_territory_attendance_search"/>
+        <field name="context">{'search_default_filter_today': 1}</field>
+    </record>
+
+
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <!-- 3. Field Visits Analysis Views                                         -->
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <record id="view_ffm_report_visit_analysis_tree" model="ir.ui.view">
+        <field name="name">ffm.report.visit.analysis.tree</field>
+        <field name="model">ffm.report.visit.analysis</field>
+        <field name="arch" type="xml">
+            <tree string="Field Visits Analysis" create="false" edit="false" delete="false">
+                <field name="date"/>
+                <field name="employee_id"/>
+                <field name="asm_id"/>
+                <field name="visit_type" widget="badge"/>
+                <field name="partner_name"/>
+                <field name="grade" optional="show"/>
+                <field name="order_tk" sum="Total Order"/>
+                <field name="sale_tk" sum="Total Sale"/>
+                <field name="coll_tk" sum="Total Collection"/>
+                <field name="bird_count" optional="hide"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_ffm_report_visit_analysis_pivot" model="ir.ui.view">
+        <field name="name">ffm.report.visit.analysis.pivot</field>
+        <field name="model">ffm.report.visit.analysis</field>
+        <field name="arch" type="xml">
+            <pivot string="Visits Pivot">
+                <field name="asm_id" type="row"/>
+                <field name="employee_id" type="row"/>
+                <field name="visit_type" type="col"/>
+                <field name="visit_count" type="measure"/>
+                <field name="order_tk" type="measure"/>
+                <field name="sale_tk" type="measure"/>
+                <field name="coll_tk" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_ffm_report_visit_analysis_graph" model="ir.ui.view">
+        <field name="name">ffm.report.visit.analysis.graph</field>
+        <field name="model">ffm.report.visit.analysis</field>
+        <field name="arch" type="xml">
+            <graph string="Visits Graph" type="bar">
+                <field name="employee_id"/>
+                <field name="visit_count" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_ffm_report_visit_analysis_search" model="ir.ui.view">
+        <field name="name">ffm.report.visit.analysis.search</field>
+        <field name="model">ffm.report.visit.analysis</field>
+        <field name="arch" type="xml">
+            <search string="Search Visits Analysis">
+                <field name="employee_id" string="Employee"/>
+                <field name="asm_id" string="ASM"/>
+                <field name="partner_name" string="Customer / Facility"/>
+                <filter string="Today" name="filter_today" domain="[('date', '=', context_today())]"/>
+                <filter string="Chemist Visits" name="filter_chemist" domain="[('visit_type', '=', 'chemist')]"/>
+                <filter string="Doctor Visits" name="filter_doctor" domain="[('visit_type', '=', 'doctor')]"/>
+                <filter string="Farm Visits" name="filter_farm" domain="[('visit_type', '=', 'farm')]"/>
+                <group expand="1" string="Group By">
+                    <filter string="Visit Type" name="group_type" context="{'group_by': 'visit_type'}"/>
+                    <filter string="ASM / Area" name="group_asm" context="{'group_by': 'asm_id'}"/>
+                    <filter string="Employee" name="group_emp" context="{'group_by': 'employee_id'}"/>
+                    <filter string="Doctor Grade" name="group_grade" context="{'group_by': 'grade'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_ffm_report_visit_analysis" model="ir.actions.act_window">
+        <field name="name">Field Visits Analysis</field>
+        <field name="res_model">ffm.report.visit.analysis</field>
+        <field name="view_mode">tree,pivot,graph</field>
+        <field name="search_view_id" ref="view_ffm_report_visit_analysis_search"/>
+    </record>
+
+
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <!-- 4. Journey & Travel Analysis Views                                     -->
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <record id="view_ffm_report_journey_analysis_tree" model="ir.ui.view">
+        <field name="name">ffm.report.journey.analysis.tree</field>
+        <field name="model">ffm.report.journey.analysis</field>
+        <field name="arch" type="xml">
+            <tree string="Journey &amp; Travel Analysis" create="false" edit="false" delete="false">
+                <field name="date"/>
+                <field name="employee_id"/>
+                <field name="asm_id"/>
+                <field name="place_from_id"/>
+                <field name="place_to_id"/>
+                <field name="mode"/>
+                <field name="distance_km" sum="Total km"/>
+                <field name="fare_tk" sum="Total Fare"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_ffm_report_journey_analysis_pivot" model="ir.ui.view">
+        <field name="name">ffm.report.journey.analysis.pivot</field>
+        <field name="model">ffm.report.journey.analysis</field>
+        <field name="arch" type="xml">
+            <pivot string="Journey Pivot">
+                <field name="asm_id" type="row"/>
+                <field name="employee_id" type="row"/>
+                <field name="mode" type="col"/>
+                <field name="distance_km" type="measure"/>
+                <field name="fare_tk" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_ffm_report_journey_analysis_search" model="ir.ui.view">
+        <field name="name">ffm.report.journey.analysis.search</field>
+        <field name="model">ffm.report.journey.analysis</field>
+        <field name="arch" type="xml">
+            <search string="Search Journey Analysis">
+                <field name="employee_id" string="Employee"/>
+                <field name="asm_id" string="ASM"/>
+                <filter string="Today" name="filter_today" domain="[('date', '=', context_today())]"/>
+                <group expand="1" string="Group By">
+                    <filter string="ASM" name="group_asm" context="{'group_by': 'asm_id'}"/>
+                    <filter string="Employee" name="group_emp" context="{'group_by': 'employee_id'}"/>
+                    <filter string="Mode" name="group_mode" context="{'group_by': 'mode'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_ffm_report_journey_analysis" model="ir.actions.act_window">
+        <field name="name">Journey &amp; Travel Analysis</field>
+        <field name="res_model">ffm.report.journey.analysis</field>
+        <field name="view_mode">tree,pivot</field>
+        <field name="search_view_id" ref="view_ffm_report_journey_analysis_search"/>
+    </record>
+
+
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <!-- 5. Field Expense Analysis Views                                        -->
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <record id="view_ffm_report_expense_analysis_tree" model="ir.ui.view">
+        <field name="name">ffm.report.expense.analysis.tree</field>
+        <field name="model">ffm.report.expense.analysis</field>
+        <field name="arch" type="xml">
+            <tree string="Expense Analysis" create="false" edit="false" delete="false">
+                <field name="date"/>
+                <field name="employee_id"/>
+                <field name="asm_id"/>
+                <field name="entertainment" sum="Total"/>
+                <field name="courier" sum="Total"/>
+                <field name="photocopy" sum="Total"/>
+                <field name="hotel_rent" sum="Total"/>
+                <field name="promotion" sum="Total"/>
+                <field name="stationery" sum="Total" optional="hide"/>
+                <field name="carrying" sum="Total" optional="hide"/>
+                <field name="banking" sum="Total" optional="hide"/>
+                <field name="bike" sum="Total"/>
+                <field name="total_amount" sum="Grand Total"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_ffm_report_expense_analysis_pivot" model="ir.ui.view">
+        <field name="name">ffm.report.expense.analysis.pivot</field>
+        <field name="model">ffm.report.expense.analysis</field>
+        <field name="arch" type="xml">
+            <pivot string="Expense Pivot">
+                <field name="asm_id" type="row"/>
+                <field name="employee_id" type="row"/>
+                <field name="date" interval="month" type="col"/>
+                <field name="entertainment" type="measure"/>
+                <field name="hotel_rent" type="measure"/>
+                <field name="bike" type="measure"/>
+                <field name="total_amount" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_ffm_report_expense_analysis_search" model="ir.ui.view">
+        <field name="name">ffm.report.expense.analysis.search</field>
+        <field name="model">ffm.report.expense.analysis</field>
+        <field name="arch" type="xml">
+            <search string="Search Expense Analysis">
+                <field name="employee_id" string="Employee"/>
+                <field name="asm_id" string="ASM"/>
+                <filter string="Today" name="filter_today" domain="[('date', '=', context_today())]"/>
+                <filter string="This Month" name="filter_this_month" domain="[('date', '&gt;=', context_today().strftime('%Y-%m-01'))]"/>
+                <group expand="1" string="Group By">
+                    <filter string="ASM" name="group_asm" context="{'group_by': 'asm_id'}"/>
+                    <filter string="Employee" name="group_emp" context="{'group_by': 'employee_id'}"/>
+                    <filter string="Date (Month)" name="group_month" context="{'group_by': 'date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_ffm_report_expense_analysis" model="ir.actions.act_window">
+        <field name="name">Field Expense Analysis</field>
+        <field name="res_model">ffm.report.expense.analysis</field>
+        <field name="view_mode">tree,pivot</field>
+        <field name="search_view_id" ref="view_ffm_report_expense_analysis_search"/>
+    </record>
+
+
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <!-- 6. Reporting Menus (Accessible by Managers & Higher Roles)              -->
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <menuitem id="menu_ffm_reporting_root"
+              name="Reporting"
+              parent="field_force_management.menu_ffm_root"
+              sequence="50"
+              groups="field_force_management.group_ffm_asm,field_force_management.group_ffm_rsm,field_force_management.group_ffm_dsm,field_force_management.group_ffm_nsm,field_force_management.group_ffm_director,field_force_management.group_ffm_admin"/>
+
+    <menuitem id="menu_ffm_daily_report_analysis"
+              name="Daily Report &amp; Sales Analysis"
+              parent="menu_ffm_reporting_root"
+              action="action_ffm_daily_report_analysis"
+              sequence="10"/>
+
+    <menuitem id="menu_ffm_report_territory_attendance"
+              name="Daily Territory Attendance"
+              parent="menu_ffm_reporting_root"
+              action="action_ffm_report_territory_attendance"
+              sequence="20"/>
+
+    <menuitem id="menu_ffm_report_visit_analysis"
+              name="Field Visits Analysis"
+              parent="menu_ffm_reporting_root"
+              action="action_ffm_report_visit_analysis"
+              sequence="30"/>
+
+    <menuitem id="menu_ffm_report_journey_analysis"
+              name="Travel &amp; Journey Analysis"
+              parent="menu_ffm_reporting_root"
+              action="action_ffm_report_journey_analysis"
+              sequence="40"/>
+
+    <menuitem id="menu_ffm_report_expense_analysis"
+              name="Field Expense Analysis"
+              parent="menu_ffm_reporting_root"
+              action="action_ffm_report_expense_analysis"
+              sequence="50"/>
+
+</odoo>

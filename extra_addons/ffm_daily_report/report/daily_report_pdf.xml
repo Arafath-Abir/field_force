@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Report Action Definition -->
+    <record id="action_report_ffm_daily_report_pdf" model="ir.actions.report">
+        <field name="name">Daily Report (PDF)</field>
+        <field name="model">ffm.daily.report</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">ffm_daily_report.report_daily_report_pdf_document</field>
+        <field name="report_file">ffm_daily_report.report_daily_report_pdf_document</field>
+        <field name="print_report_name">'Daily_Report_%s_%s' % (object.employee_id.name, object.date)</field>
+        <field name="binding_model_id" ref="field_force_management.model_ffm_daily_report"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- QWeb PDF Document Template -->
+    <template id="report_daily_report_pdf_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <div class="article" style="font-family: 'Nirmala UI', 'Vrinda', 'Segoe UI', Arial, sans-serif; font-size: 12px; color: #111; line-height: 1.35; padding: 10px;">
+                    <style type="text/css">
+                        @font-face {
+                            font-family: 'Nirmala UI';
+                            src: local('Nirmala UI'), local('Vrinda');
+                        }
+                        body, table, td, th, p, span, div, h1, h2, h3, h4 {
+                            font-family: 'Nirmala UI', 'Vrinda', 'Segoe UI', Arial, sans-serif !important;
+                        }
+                        .report-header {
+                            text-align: center;
+                            border-bottom: 2px solid #107c41;
+                            padding-bottom: 8px;
+                            margin-bottom: 12px;
+                        }
+                        .report-title {
+                            font-size: 18px;
+                            font-weight: bold;
+                            color: #107c41;
+                            margin: 0;
+                            text-transform: uppercase;
+                        }
+                        .report-subtitle {
+                            font-size: 13px;
+                            font-weight: 600;
+                            color: #333;
+                            margin-top: 2px;
+                        }
+                        .info-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-bottom: 14px;
+                            background-color: #fafafa;
+                            border: 1px solid #ccc;
+                        }
+                        .info-table td {
+                            padding: 5px 8px;
+                            font-size: 11px;
+                        }
+                        .data-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-bottom: 14px;
+                        }
+                        .data-table th, .data-table td {
+                            border: 1px solid #777;
+                            padding: 4px 6px;
+                            font-size: 10.5px;
+                        }
+                        .data-table th {
+                            background-color: #e8f5e9;
+                            color: #1b5e20;
+                            font-weight: bold;
+                            text-align: center;
+                        }
+                        .section-title {
+                            font-size: 12px;
+                            font-weight: bold;
+                            color: #107c41;
+                            margin: 10px 0 4px;
+                            border-bottom: 1px solid #e0e0e0;
+                            padding-bottom: 2px;
+                        }
+                        .total-row td {
+                            font-weight: bold;
+                            background-color: #f5f5f5;
+                        }
+                        .sign-box {
+                            margin-top: 35px;
+                            width: 100%;
+                        }
+                        .sign-box td {
+                            width: 33.33%;
+                            text-align: center;
+                            font-size: 11px;
+                            vertical-align: bottom;
+                            padding-top: 25px;
+                        }
+                        .sign-line {
+                            border-top: 1px dashed #444;
+                            display: inline-block;
+                            width: 80%;
+                            padding-top: 4px;
+                        }
+                    </style>
+
+                    <!-- Header -->
+                    <div class="report-header">
+                        <div class="report-title">Newtec Pharmaceuticals Limited</div>
+                        <div class="report-subtitle">Daily Field Activity &amp; Expense Report (দৈনিক ফিল্ড রিপোর্ট)</div>
+                    </div>
+
+                    <!-- Employee & Date Metadata -->
+                    <table class="info-table">
+                        <tr>
+                            <td style="width: 18%;"><strong>Employee Name:</strong></td>
+                            <td style="width: 32%;"><span t-esc="doc.employee_id.name"/></td>
+                            <td style="width: 18%;"><strong>Date:</strong></td>
+                            <td style="width: 32%;"><span t-esc="doc.date"/></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Designation:</strong></td>
+                            <td><span t-esc="doc.employee_id.job_title or doc.employee_id.job_id.name or 'Field Marketer'"/></td>
+                            <td><strong>Working Place:</strong></td>
+                            <td><span t-esc="doc.working_place_id.name or doc.working_place or 'N/A'"/></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Territory:</strong></td>
+                            <td><span t-esc="doc.territory_id.name or 'N/A'"/></td>
+                            <td><strong>Report Status:</strong></td>
+                            <td><strong><span t-esc="doc.state.upper()"/></strong></td>
+                        </tr>
+                    </table>
+
+                    <!-- 1. Chemist Visits Table -->
+                    <div class="section-title">1. Chemist Shop Visits (কেমিস্ট ও ফার্মেসি পরিদর্শন)</div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 5%;">SL</th>
+                                <th style="width: 35%;">Chemist / Pharmacy Name</th>
+                                <th style="width: 24%;">Address / Location</th>
+                                <th style="width: 12%; text-align: right;">Order (Tk)</th>
+                                <th style="width: 12%; text-align: right;">Sale (Tk)</th>
+                                <th style="width: 12%; text-align: right;">Collection (Tk)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-if="doc.chemist_visit_ids">
+                                <t t-set="sl" t-value="1"/>
+                                <t t-foreach="doc.chemist_visit_ids" t-as="c">
+                                    <tr>
+                                        <td style="text-align: center;"><t t-esc="sl"/></td>
+                                        <td><t t-esc="c.chemist_id.name or c.chemist_name_manual"/></td>
+                                        <td><t t-esc="c.address or ''"/></td>
+                                        <td style="text-align: right;">৳<t t-esc="'%.0f' % c.order_tk"/></td>
+                                        <td style="text-align: right;">৳<t t-esc="'%.0f' % c.sale_tk"/></td>
+                                        <td style="text-align: right;">৳<t t-esc="'%.0f' % c.coll_tk"/></td>
+                                    </tr>
+                                    <t t-set="sl" t-value="sl + 1"/>
+                                </t>
+                                <tr class="total-row">
+                                    <td colspan="3" style="text-align: right;">Total Chemist (<t t-esc="len(doc.chemist_visit_ids)"/> shops):</td>
+                                    <td style="text-align: right;">৳<t t-esc="'%.0f' % doc.total_order_tk"/></td>
+                                    <td style="text-align: right;">৳<t t-esc="'%.0f' % doc.total_sale_tk"/></td>
+                                    <td style="text-align: right;">৳<t t-esc="'%.0f' % doc.total_coll_tk"/></td>
+                                </tr>
+                            </t>
+                            <t t-else="">
+                                <tr>
+                                    <td colspan="6" style="text-align: center; color: #777;">কোনো কেমিস্ট ভিজিট রেকর্ড নেই (No chemist visits recorded).</td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+
+                    <!-- 2. Doctor / Prescriber Visits Table -->
+                    <div class="section-title">2. Doctor / Prescriber Visits (ডাক্তার পরিদর্শন)</div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 5%;">SL</th>
+                                <th style="width: 25%;">Doctor / Prescriber Name</th>
+                                <th style="width: 25%;">Mailing Address / Chamber</th>
+                                <th style="width: 25%;">Product Discussion</th>
+                                <th style="width: 12%;">Sample / Gift</th>
+                                <th style="width: 8%; text-align: center;">Grade</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-if="doc.prescriber_visit_ids">
+                                <t t-set="dsl" t-value="1"/>
+                                <t t-foreach="doc.prescriber_visit_ids" t-as="d">
+                                    <tr>
+                                        <td style="text-align: center;"><t t-esc="dsl"/></td>
+                                        <td><t t-esc="d.prescriber_id.name or d.prescriber_name_manual"/></td>
+                                        <td><t t-esc="d.mailing_address or ''"/></td>
+                                        <td><t t-esc="d.product_discussion or ''"/></td>
+                                        <td><t t-esc="d.sample or ''"/></td>
+                                        <td style="text-align: center; font-weight: bold;"><t t-esc="d.grade.upper() if d.grade else ''"/></td>
+                                    </tr>
+                                    <t t-set="dsl" t-value="dsl + 1"/>
+                                </t>
+                            </t>
+                            <t t-else="">
+                                <tr>
+                                    <td colspan="6" style="text-align: center; color: #777;">কোনো ডাক্তার ভিজিট রেকর্ড নেই (No doctor visits recorded).</td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+
+                    <!-- 3. Farm & Others Visits Table (if any) -->
+                    <t t-if="doc.farm_visit_ids">
+                        <div class="section-title">3. Farm &amp; Others Visits (খামার ও অন্যান্য পরিদর্শন)</div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 5%;">SL</th>
+                                    <th style="width: 35%;">Farm / Client Name</th>
+                                    <th style="width: 30%;">Address</th>
+                                    <th style="width: 15%; text-align: center;">Bird / Animal Count</th>
+                                    <th style="width: 15%;">Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="fsl" t-value="1"/>
+                                <t t-foreach="doc.farm_visit_ids" t-as="f">
+                                    <tr>
+                                        <td style="text-align: center;"><t t-esc="fsl"/></td>
+                                        <td><t t-esc="f.farm_name"/></td>
+                                        <td><t t-esc="f.address or ''"/></td>
+                                        <td style="text-align: center;"><t t-esc="f.bird_count or 0"/></td>
+                                        <td><t t-esc="f.note or ''"/></td>
+                                    </tr>
+                                    <t t-set="fsl" t-value="fsl + 1"/>
+                                </t>
+                            </tbody>
+                        </table>
+                    </t>
+
+                    <!-- 4. Visited Market & Travel Log Table -->
+                    <div class="section-title">4. Market Travel &amp; Journey Log (যাতায়াত বিবরণ)</div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 5%;">SL</th>
+                                <th style="width: 30%;">From Place</th>
+                                <th style="width: 30%;">To Place</th>
+                                <th style="width: 15%; text-align: center;">Mode</th>
+                                <th style="width: 10%; text-align: right;">Distance (km)</th>
+                                <th style="width: 10%; text-align: right;">Fare (Tk)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-set="travel_log" t-value="doc.travel_log_ids[:1]"/>
+                            <t t-if="travel_log and travel_log.journey_ids">
+                                <t t-set="jsl" t-value="1"/>
+                                <t t-foreach="travel_log.journey_ids" t-as="j">
+                                    <tr>
+                                        <td style="text-align: center;"><t t-esc="jsl"/></td>
+                                        <td><t t-esc="j.place_from_id.name"/></td>
+                                        <td><t t-esc="j.place_to_id.name"/></td>
+                                        <td style="text-align: center;"><t t-esc="j.mode.title()"/></td>
+                                        <td style="text-align: right;"><t t-esc="'%.1f' % j.distance_km"/></td>
+                                        <td style="text-align: right;">৳<t t-esc="'%.0f' % j.fare_tk"/></td>
+                                    </tr>
+                                    <t t-set="jsl" t-value="jsl + 1"/>
+                                </t>
+                                <tr class="total-row">
+                                    <td colspan="4" style="text-align: right;">Total Journey (<t t-esc="len(travel_log.journey_ids)"/> legs):</td>
+                                    <td style="text-align: right;"><t t-esc="'%.1f' % travel_log.total_distance_km"/> km</td>
+                                    <td style="text-align: right;">৳<t t-esc="'%.0f' % travel_log.total_fare_tk"/></td>
+                                </tr>
+                            </t>
+                            <t t-else="">
+                                <tr>
+                                    <td colspan="6" style="text-align: center; color: #777;">কোনো যাতায়াত রেকর্ড নেই (No journey legs recorded).</td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+
+                    <!-- 5. Daily Expenses Summary -->
+                    <t t-if="doc.expense_ids">
+                        <div class="section-title">5. Daily Expenses Summary (দৈনিক খরচ বিবরণী)</div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 10%;">Entry #</th>
+                                    <th style="width: 10%; text-align: right;">Entert.</th>
+                                    <th style="width: 10%; text-align: right;">Courier</th>
+                                    <th style="width: 10%; text-align: right;">Photo.</th>
+                                    <th style="width: 10%; text-align: right;">Hotel</th>
+                                    <th style="width: 10%; text-align: right;">Promo.</th>
+                                    <th style="width: 10%; text-align: right;">Stationery</th>
+                                    <th style="width: 10%; text-align: right;">Carrying</th>
+                                    <th style="width: 10%; text-align: right;">Bike</th>
+                                    <th style="width: 10%; text-align: right;">Total (Tk)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="doc.expense_ids" t-as="exp">
+                                    <tr>
+                                        <td style="text-align: center;">#<t t-esc="exp.id"/></td>
+                                        <td style="text-align: right;">৳<t t-esc="'%.0f' % exp.entertainment"/></td>
+                                        <td style="text-align: right;">৳<t t-esc="'%.0f' % exp.courier"/></td>
+                                        <td style="text-align: right;">৳<t t-esc="'%.0f' % exp.photocopy"/></td>
+                                        <td style="text-align: right;">৳<t t-esc="'%.0f' % exp.hotel_rent"/></td>
+                                        <td style="text-align: right;">৳<t t-esc="'%.0f' % exp.promotion"/></td>
+                                        <td style="text-align: right;">৳<t t-esc="'%.0f' % exp.stationery"/></td>
+                                        <td style="text-align: right;">৳<t t-esc="'%.0f' % exp.carrying"/></td>
+                                        <td style="text-align: right;">৳<t t-esc="'%.0f' % exp.bike"/></td>
+                                        <td style="text-align: right; font-weight: bold;">৳<t t-esc="'%.0f' % exp.total_amount"/></td>
+                                    </tr>
+                                </t>
+                                <tr class="total-row">
+                                    <td colspan="9" style="text-align: right;">Total Daily Expense:</td>
+                                    <td style="text-align: right; color: #107c41;">৳<t t-esc="'%.0f' % doc.total_expense_tk"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </t>
+
+                    <!-- Financial Summary Box -->
+                    <div style="background-color: #f0fdf4; border: 1.5px solid #86efac; border-radius: 4px; padding: 8px 12px; margin-top: 12px;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+                            <tr>
+                                <td style="width: 20%;">Total Order: <strong>৳<t t-esc="'%.0f' % doc.total_order_tk"/></strong></td>
+                                <td style="width: 20%;">Total Sale: <strong>৳<t t-esc="'%.0f' % doc.total_sale_tk"/></strong></td>
+                                <td style="width: 20%;">Collection: <strong>৳<t t-esc="'%.0f' % doc.total_coll_tk"/></strong></td>
+                                <td style="width: 20%;">TA Fare Bill: <strong>৳<t t-esc="'%.0f' % (travel_log.total_fare_tk if travel_log else 0)"/></strong></td>
+                                <td style="width: 20%; text-align: right;">Total Expense: <strong>৳<t t-esc="'%.0f' % doc.total_expense_tk"/></strong></td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- Signatures -->
+                    <table class="sign-box">
+                        <tr>
+                            <td>
+                                <div class="sign-line">
+                                    <strong><span t-esc="doc.employee_id.name"/></strong><br/>
+                                    Prepared By (Field Person)
+                                </div>
+                            </td>
+                            <td>
+                                <div class="sign-line">
+                                    Checked By (ASM)
+                                </div>
+                            </td>
+                            <td>
+                                <div class="sign-line">
+                                    Approved By (RSM / DSM / NSM)
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+
+                </div>
+            </t>
+        </t>
+    </template>
+
+</odoo>

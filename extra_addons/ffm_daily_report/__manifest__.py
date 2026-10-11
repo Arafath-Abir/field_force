@@ -26,6 +26,8 @@
         'views/res_config_settings_views.xml',
         'views/daily_report_views.xml',
         'views/daily_expense_views.xml',
+        'views/report_analysis_views.xml',
+        'report/daily_report_pdf.xml',
         'views/web_templates.xml',
     ],
     'installable': True,
