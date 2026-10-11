@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Inherit Employee Form View -->
+    <record id="view_employee_form_inherit_ffm" model="ir.ui.view">
+        <field name="name">hr.employee.form.inherit.ffm</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <!-- Add Helper Button to Header -->
+            <xpath expr="//header" position="inside">
+                <button name="action_create_or_link_user"
+                    string="Link / Create FFM User"
+                    type="object"
+                    class="btn-secondary"
+                    groups="field_force_management.group_ffm_admin"
+                    help="Automatically create or link the portal/internal user account with the correct FFM role."/>
+            </xpath>
+
+            <!-- Add HQ and FFM Phone -->
+            <xpath expr="//field[@name='work_email']" position="after">
+                <field name="hq"/>
+                <field name="ffm_phone"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
