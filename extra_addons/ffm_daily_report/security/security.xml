@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Attendance Record Rules -->
+
+        <!-- 1. Field Person: can only view own attendance -->
+        <record id="ffm_attendance_rule_field_person" model="ir.rule">
+            <field name="name">FFM Attendance: Field Person Own</field>
+            <field name="model_id" ref="model_ffm_attendance"/>
+            <field name="domain_force">['|', ('employee_id.user_id', '=', user.id), ('employee_id', '=', False)]</field>
+            <field name="groups" eval="[(4, ref('field_force_management.group_ffm_field_person'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- 2. ASM / RSM / DSM: view own + direct reports (or full subtree if enabled) -->
+        <record id="ffm_attendance_rule_manager" model="ir.rule">
+            <field name="name">FFM Attendance: Manager Subtree/Direct Reports</field>
+            <field name="model_id" ref="model_ffm_attendance"/>
+            <field name="domain_force">
+                ['|', '|',
+                 ('employee_id.user_id', '=', user.id),
+                 ('employee_id.parent_id.user_id', '=', user.id),
+                 ('employee_id', 'child_of', [user.employee_id.id] if user.employee_id and user.env['ir.config_parameter'].sudo().get_param('field_force_management.subtree_visibility') else [0])]
+            </field>
+            <field name="groups" eval="[(4, ref('field_force_management.group_ffm_asm')),
+                                        (4, ref('field_force_management.group_ffm_rsm')),
+                                        (4, ref('field_force_management.group_ffm_dsm'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- 3. Higher Authorities: NSM, Director, Accounts, Admin can view all attendance -->
+        <record id="ffm_attendance_rule_all" model="ir.rule">
+            <field name="name">FFM Attendance: Higher Roles All Records</field>
+            <field name="model_id" ref="model_ffm_attendance"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('field_force_management.group_ffm_nsm')),
+                                        (4, ref('field_force_management.group_ffm_director')),
+                                        (4, ref('field_force_management.group_ffm_accounts')),
+                                        (4, ref('field_force_management.group_ffm_admin'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
+    </data>
+</odoo>

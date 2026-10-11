@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Attendance Tree View -->
+    <record id="view_ffm_attendance_tree" model="ir.ui.view">
+        <field name="name">ffm.attendance.tree</field>
+        <field name="model">ffm.attendance</field>
+        <field name="arch" type="xml">
+            <tree string="Daily Attendance" create="0" edit="0" delete="0">
+                <field name="date"/>
+                <field name="reporting_time"/>
+                <field name="employee_id"/>
+                <field name="designation"/>
+                <field name="territory_id"/>
+                <field name="latitude"/>
+                <field name="longitude"/>
+                <field name="accuracy"/>
+                <field name="mode_of_journey"/>
+                <field name="map_url" widget="url" string="Map"/>
+                <field name="state" widget="badge" decoration-success="state == 'submitted'"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Attendance Form View -->
+    <record id="view_ffm_attendance_form" model="ir.ui.view">
+        <field name="name">ffm.attendance.form</field>
+        <field name="model">ffm.attendance</field>
+        <field name="arch" type="xml">
+            <form string="Daily Attendance Record" create="0" edit="0" delete="0">
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="submitted"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only" string="Marketer"/>
+                        <h1><field name="name" readonly="1"/></h1>
+                        <h3><field name="designation" readonly="1"/></h3>
+                    </div>
+                    <group>
+                        <group string="Attendance &amp; Schedule">
+                            <field name="employee_id" readonly="1"/>
+                            <field name="date" readonly="1"/>
+                            <field name="reporting_time" readonly="1"/>
+                            <field name="territory_id" readonly="1"/>
+                            <field name="mode_of_journey" readonly="1"/>
+                        </group>
+                        <group string="GPS Geolocation Verification">
+                            <field name="latitude" readonly="1"/>
+                            <field name="longitude" readonly="1"/>
+                            <field name="accuracy" readonly="1"/>
+                            <field name="map_url" widget="url" readonly="1" text="Open in Google Maps"/>
+                            <field name="client_uuid" readonly="1" groups="base.group_no_one"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Attendance Search View -->
+    <record id="view_ffm_attendance_search" model="ir.ui.view">
+        <field name="name">ffm.attendance.search</field>
+        <field name="model">ffm.attendance</field>
+        <field name="arch" type="xml">
+            <search string="Search Attendance">
+                <field name="employee_id"/>
+                <field name="designation"/>
+                <field name="territory_id"/>
+                <field name="mode_of_journey"/>
+                <filter string="Today" name="today" domain="[('date', '=', context_today().strftime('%Y-%m-%d'))]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Employee" name="group_by_employee" context="{'group_by': 'employee_id'}"/>
+                    <filter string="Territory" name="group_by_territory" context="{'group_by': 'territory_id'}"/>
+                    <filter string="Date" name="group_by_date" context="{'group_by': 'date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_ffm_attendance" model="ir.actions.act_window">
+        <field name="name">Daily Attendance</field>
+        <field name="res_model">ffm.attendance</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{'search_default_today': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No attendance records found for today.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menuitem -->
+    <menuitem id="menu_ffm_attendance"
+        name="Attendance"
+        parent="field_force_management.menu_ffm_root"
+        sequence="5"
+        action="action_ffm_attendance"
+        groups="field_force_management.group_ffm_field_person"/>
+
+</odoo>
