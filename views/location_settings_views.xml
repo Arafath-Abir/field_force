@@ -64,6 +64,10 @@
                                         <label for="ffm_travel_auto_bill" class="col-lg-5 o_light_label"/>
                                         <field name="ffm_travel_auto_bill" class="oe_inline"/>
                                     </div>
+                                    <div class="row mt8">
+                                        <label for="ffm_subtree_visibility" class="col-lg-5 o_light_label"/>
+                                        <field name="ffm_subtree_visibility" class="oe_inline"/>
+                                    </div>
                                     <button name="action_test_ffm_location_services"
                                             type="object"
                                             string="Test Geoapify Connections"

@@ -52,6 +52,12 @@ class ResConfigSettings(models.TransientModel):
         config_parameter='field_force_management.travel_auto_bill',
         help='Automatically create draft Vendor Bill when confirming Travel Log',
     )
+    ffm_subtree_visibility = fields.Boolean(
+        string='RSM/ASM See Full Subtree',
+        default=False,
+        config_parameter='field_force_management.subtree_visibility',
+        help='If enabled, ASM/RSM/DSM see full subordinate subtree (child_of) instead of only direct reports.',
+    )
 
     @staticmethod
     def _error_text(response):
