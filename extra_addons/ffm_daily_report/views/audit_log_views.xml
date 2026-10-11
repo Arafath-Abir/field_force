@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Audit Log Tree View (Read-Only) -->
+    <record id="view_ffm_audit_log_tree" model="ir.ui.view">
+        <field name="name">ffm.audit.log.tree</field>
+        <field name="model">ffm.audit.log</field>
+        <field name="arch" type="xml">
+            <tree string="FFM Audit Trail" create="0" edit="0" delete="0">
+                <field name="timestamp"/>
+                <field name="user_id"/>
+                <field name="action" widget="badge" decoration-info="action == 'create'" decoration-warning="action == 'write'" decoration-danger="action == 'unlink'" decoration-success="action in ('approve', 'pay')"/>
+                <field name="model_name"/>
+                <field name="res_id"/>
+                <field name="res_name"/>
+                <field name="ip_address"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Audit Log Form View (Read-Only) -->
+    <record id="view_ffm_audit_log_form" model="ir.ui.view">
+        <field name="name">ffm.audit.log.form</field>
+        <field name="model">ffm.audit.log</field>
+        <field name="arch" type="xml">
+            <form string="Audit Event" create="0" edit="0" delete="0">
+                <sheet>
+                    <group>
+                        <group string="Event Details">
+                            <field name="timestamp" readonly="1"/>
+                            <field name="user_id" readonly="1"/>
+                            <field name="action" readonly="1"/>
+                            <field name="ip_address" readonly="1"/>
+                        </group>
+                        <group string="Target Record">
+                            <field name="model_name" readonly="1"/>
+                            <field name="res_id" readonly="1"/>
+                            <field name="res_name" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Changes Logged">
+                        <field name="old_values" readonly="1"/>
+                        <field name="new_values" readonly="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Audit Log Search View -->
+    <record id="view_ffm_audit_log_search" model="ir.ui.view">
+        <field name="name">ffm.audit.log.search</field>
+        <field name="model">ffm.audit.log</field>
+        <field name="arch" type="xml">
+            <search string="Search Audit Logs">
+                <field name="user_id"/>
+                <field name="model_name"/>
+                <field name="action"/>
+                <field name="res_name"/>
+                <filter string="Today" name="today" domain="[('timestamp', '&gt;=', context_today().strftime('%Y-%m-%d 00:00:00'))]"/>
+                <group expand="0" string="Group By">
+                    <filter string="User" name="group_by_user" context="{'group_by': 'user_id'}"/>
+                    <filter string="Action" name="group_by_action" context="{'group_by': 'action'}"/>
+                    <filter string="Model" name="group_by_model" context="{'group_by': 'model_name'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_ffm_audit_log" model="ir.actions.act_window">
+        <field name="name">Audit Trail</field>
+        <field name="res_model">ffm.audit.log</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Tamper-evident audit log of field force operations.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menuitem under Configuration -->
+    <menuitem id="menu_ffm_config_audit_log"
+        name="Audit Logs"
+        parent="field_force_management.menu_ffm_config"
+        sequence="50"
+        action="action_ffm_audit_log"
+        groups="field_force_management.group_ffm_admin"/>
+
+</odoo>
