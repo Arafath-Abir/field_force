@@ -28,7 +28,8 @@
         <field name="arch" type="xml">
             <tree editable="bottom" string="Chemist Visits">
                 <field name="sequence" widget="handle"/>
-                <field name="chemist_id" options="{'no_create': False}"/>
+                <field name="chemist_id" options="{'no_create': True}" domain="[('type','=','chemist'),('active','=',True)]"/>
+                <field name="chemist_name_manual" optional="show"/>
                 <field name="address" optional="show"/>
                 <field name="order_tk" sum="Total Order"/>
                 <field name="sale_tk" sum="Total Sale"/>
@@ -45,7 +46,8 @@
         <field name="arch" type="xml">
             <tree editable="bottom" string="Prescriber Visits">
                 <field name="sequence" widget="handle"/>
-                <field name="prescriber_id" options="{'no_create': False}"/>
+                <field name="prescriber_id" options="{'no_create': True}" domain="[('type','=','doctor'),('active','=',True)]"/>
+                <field name="prescriber_name_manual" optional="show"/>
                 <field name="mailing_address" optional="show"/>
                 <field name="product_discussion"/>
                 <field name="sample"/>
@@ -125,8 +127,9 @@
                                 <tree editable="bottom" string="Chemist Visits">
                                     <field name="sequence" widget="handle"/>
                                     <field name="chemist_id"
-                                        options="{'no_create': False}"
-                                        domain="[('type','=','chetra'),('field_person_id','=',parent.employee_id)]"/>
+                                        options="{'no_create': True}"
+                                        domain="[('type','=','chemist'),('active','=',True)]"/>
+                                    <field name="chemist_name_manual" placeholder="Or manual chemist name"/>
                                     <field name="address" optional="show"/>
                                     <field name="order_tk" sum="Total Order"/>
                                     <field name="sale_tk" sum="Total Sale"/>
@@ -147,8 +150,9 @@
                                 <tree editable="bottom" string="Prescriber Visits">
                                     <field name="sequence" widget="handle"/>
                                     <field name="prescriber_id"
-                                        options="{'no_create': False}"
-                                        domain="[('type','=','docvet'),('field_person_id','=',parent.employee_id)]"/>
+                                        options="{'no_create': True}"
+                                        domain="[('type','=','doctor'),('active','=',True)]"/>
+                                    <field name="prescriber_name_manual" placeholder="Or manual doctor name"/>
                                     <field name="mailing_address" optional="show"/>
                                     <field name="product_discussion"/>
                                     <field name="sample"/>

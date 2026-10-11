@@ -19,3 +19,5 @@ class CustomerInformation(models.Model):
         ('draft', 'Draft'),
         ('confirmed', 'Confirmed'),
     ], string='State', default='draft')
+    active = fields.Boolean(default=True)
+

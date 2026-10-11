@@ -1,5 +1,5 @@
 from odoo import models, fields, api, _
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 
 class DailyReport(models.Model):
@@ -107,7 +107,8 @@ class DailyReport(models.Model):
     @api.depends('chemist_visit_ids.order_tk',
                  'chemist_visit_ids.sale_tk',
                  'chemist_visit_ids.coll_tk',
-                 'chemist_visit_ids.chemist_id')
+                 'chemist_visit_ids.chemist_id',
+                 'chemist_visit_ids.chemist_name_manual')
     def _compute_chemist_totals(self):
         for rec in self:
             lines = rec.chemist_visit_ids
@@ -115,13 +116,14 @@ class DailyReport(models.Model):
             rec.total_sale_tk = sum(lines.mapped('sale_tk'))
             rec.total_coll_tk = sum(lines.mapped('coll_tk'))
             rec.total_chemist_visited = len(
-                lines.filtered(lambda l: l.chemist_id))
+                lines.filtered(lambda l: l.chemist_id or l.chemist_name_manual))
 
-    @api.depends('prescriber_visit_ids.prescriber_id')
+    @api.depends('prescriber_visit_ids.prescriber_id',
+                 'prescriber_visit_ids.prescriber_name_manual')
     def _compute_prescriber_totals(self):
         for rec in self:
             rec.total_prescriber_visited = len(
-                rec.prescriber_visit_ids.filtered(lambda l: l.prescriber_id))
+                rec.prescriber_visit_ids.filtered(lambda l: l.prescriber_id or l.prescriber_name_manual))
 
     # ── Constraints ─────────────────────────────────────────────────────────
     _sql_constraints = [
@@ -160,10 +162,10 @@ class ChemistVisit(models.Model):
         required=True, ondelete='cascade')
     sequence = fields.Integer(string='#', default=10)
 
-    # Filter by employee's field_person_id or territory
     chemist_id = fields.Many2one(
         'customer.information', string='Chemist Name',
     )
+    chemist_name_manual = fields.Char(string='Manual Chemist Name')
     address = fields.Text(
         string='Address', related='chemist_id.address',
         readonly=True, store=False)
@@ -173,6 +175,21 @@ class ChemistVisit(models.Model):
     coll_tk = fields.Float(string='Collection (Tk)', digits=(16, 2))
 
     note = fields.Char(string='Note')
+
+    @api.constrains('chemist_id', 'chemist_name_manual')
+    def _check_chemist_presence(self):
+        for rec in self:
+            if not rec.chemist_id and not (rec.chemist_name_manual and rec.chemist_name_manual.strip()):
+                raise ValidationError(_('Either select a Chemist or provide a Manual Chemist Name.'))
+
+    @api.constrains('order_tk', 'sale_tk', 'coll_tk')
+    def _check_amounts(self):
+        for rec in self:
+            for val, label in [(rec.order_tk, _('Order')), (rec.sale_tk, _('Sale')), (rec.coll_tk, _('Collection'))]:
+                if val < 0:
+                    raise ValidationError(_('%s Tk cannot be negative.') % label)
+                if not float(val).is_integer():
+                    raise ValidationError(_('%s Tk must be a whole number.') % label)
 
 
 class PrescriberVisit(models.Model):
@@ -188,6 +205,7 @@ class PrescriberVisit(models.Model):
     prescriber_id = fields.Many2one(
         'customer.information', string="Prescriber's Name",
     )
+    prescriber_name_manual = fields.Char(string='Manual Doctor / Prescriber Name')
     mailing_address = fields.Text(
         string='Mailing Address', related='prescriber_id.address',
         readonly=True, store=False)
@@ -201,6 +219,12 @@ class PrescriberVisit(models.Model):
         ('b', 'B'),
         ('c', 'C'),
     ], string='Grade')
+
+    @api.constrains('prescriber_id', 'prescriber_name_manual')
+    def _check_prescriber_presence(self):
+        for rec in self:
+            if not rec.prescriber_id and not (rec.prescriber_name_manual and rec.prescriber_name_manual.strip()):
+                raise ValidationError(_('Either select a Doctor or provide a Manual Doctor Name.'))
 
 
 # Injected by travel_log upgrade: back-relation to travel logs for this report
