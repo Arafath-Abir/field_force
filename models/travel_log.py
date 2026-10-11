@@ -46,7 +46,7 @@ class TravelLog(models.Model):
     state = fields.Selection([
         ('draft', 'Draft'),
         ('confirmed', 'Confirmed'),
-    ], string='Status', default='draft', tracking=True)
+    ], string='Status', default='draft', tracking=False)
 
     # ── Vendor Bill link ──────────────────────────────────────────────────
     vendor_bill_id = fields.Many2one(

@@ -13,7 +13,7 @@ class DailyReport(models.Model):
     employee_id = fields.Many2one(
         'hr.employee', string='Employee',
         default=lambda self: self._default_employee(),
-        required=True, tracking=True,
+        required=True, tracking=False,
     )
     name = fields.Char(
         string='Name', related='employee_id.name', store=True, readonly=True)
@@ -26,7 +26,7 @@ class DailyReport(models.Model):
     working_place = fields.Char(string='Working Place')
     date = fields.Date(
         string='Date', required=True,
-        default=fields.Date.today, tracking=True)
+        default=fields.Date.today, tracking=False)
     branch_id = fields.Many2one(
         'aam.branch', string='Branch',
         related='employee_id.branch_id', store=True, readonly=True)
@@ -36,7 +36,7 @@ class DailyReport(models.Model):
         ('submitted', 'Submitted'),
         ('approved', 'Approved'),
         ('rejected', 'Rejected'),
-    ], string='Status', default='draft', tracking=True)
+    ], string='Status', default='draft', tracking=False)
 
     display_name = fields.Char(
         string='Report', compute='_compute_display_name', store=True)
