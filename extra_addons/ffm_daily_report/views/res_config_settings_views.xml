@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="res_config_settings_view_form_inherit_ffm" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.ffm</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="90"/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('settings')]" position="inside">
+                <div class="app_settings_block" data-string="Field Force Settings" string="Field Force Settings" data-key="ffm_daily_report">
+                    <h2>Field Force Mobile Web App (/ff)</h2>
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <span class="o_form_label">App Branding</span>
+                                <div class="text-muted">
+                                    Display title and assets for the /ff mobile shell.
+                                </div>
+                                <div class="content-group mt8">
+                                    <div class="row mt4">
+                                        <label for="ffm_app_name" class="col-4 col-lg-4 o_light_label"/>
+                                        <field name="ffm_app_name" class="col-8 col-lg-8"/>
+                                    </div>
+                                    <div class="row mt4">
+                                        <label for="ffm_app_logo" class="col-4 col-lg-4 o_light_label"/>
+                                        <field name="ffm_app_logo" widget="image" class="col-8 col-lg-8" style="max-height: 50px;"/>
+                                    </div>
+                                    <div class="row mt4">
+                                        <label for="ffm_app_icon" class="col-4 col-lg-4 o_light_label"/>
+                                        <field name="ffm_app_icon" widget="image" class="col-8 col-lg-8" style="max-height: 50px;"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <field name="ffm_travel_auto_bill"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="ffm_travel_auto_bill"/>
+                                <div class="text-muted">
+                                    Automatically create draft vendor bill when approving travel log. Default is OFF.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <field name="ffm_subtree_visibility"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="ffm_subtree_visibility"/>
+                                <div class="text-muted">
+                                    Allow ASM/RSM/DSM to see the full hierarchy tree below them (child_of) instead of only direct reports.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <span class="o_form_label">Routing Provider Status</span>
+                                <div class="text-muted">
+                                    Geoapify location and distance routing API status.
+                                </div>
+                                <div class="content-group mt8">
+                                    <field name="ffm_routing_key_status" readonly="1" class="font-weight-bold"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
