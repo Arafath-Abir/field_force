@@ -358,14 +358,23 @@
             <field name="perm_create" eval="1"/>
             <field name="perm_unlink" eval="0"/>
         </record>
+        <record id="ffm_expense_statement_rule_accounts" model="ir.rule">
+            <field name="name">FFM Statement: Accounts Approved and Paid Only</field>
+            <field name="model_id" ref="model_ffm_expense_statement"/>
+            <field name="domain_force">[('state', 'in', ['approved', 'paid'])]</field>
+            <field name="groups" eval="[(6, 0, [ref('field_force_management.group_ffm_accounts')])]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
         <record id="ffm_expense_statement_rule_all" model="ir.rule">
-            <field name="name">FFM Statement: Higher Roles &amp; Accounts All</field>
+            <field name="name">FFM Statement: Higher Roles All Records</field>
             <field name="model_id" ref="model_ffm_expense_statement"/>
             <field name="domain_force">[(1, '=', 1)]</field>
-            <field name="groups" eval="[(4, ref('field_force_management.group_ffm_nsm')),
-                                        (4, ref('field_force_management.group_ffm_director')),
-                                        (4, ref('field_force_management.group_ffm_accounts')),
-                                        (4, ref('field_force_management.group_ffm_admin'))]"/>
+            <field name="groups" eval="[(6, 0, [ref('field_force_management.group_ffm_nsm'),
+                                                ref('field_force_management.group_ffm_director'),
+                                                ref('field_force_management.group_ffm_admin')])]"/>
             <field name="perm_read" eval="1"/>
             <field name="perm_write" eval="1"/>
             <field name="perm_create" eval="1"/>

@@ -50,6 +50,7 @@ class TestFFMStatementModels(TransactionCase):
         self.user_nsm = self.Users.create({
             'name': 'Stmt NSM User',
             'login': 'stmt_nsm_user',
+            'email': 'stmt_nsm@example.com',
             'groups_id': [(6, 0, [self.grp_nsm.id])],
         })
         self.emp_nsm = self.Employee.create({
@@ -60,6 +61,7 @@ class TestFFMStatementModels(TransactionCase):
         self.user_asm = self.Users.create({
             'name': 'Stmt ASM User',
             'login': 'stmt_asm_user',
+            'email': 'stmt_asm@example.com',
             'groups_id': [(6, 0, [self.grp_asm.id])],
         })
         self.emp_asm = self.Employee.create({
@@ -71,6 +73,7 @@ class TestFFMStatementModels(TransactionCase):
         self.user_fp1 = self.Users.create({
             'name': 'Stmt FP1 User',
             'login': 'stmt_fp1_user',
+            'email': 'stmt_fp1@example.com',
             'groups_id': [(6, 0, [self.grp_fp.id])],
         })
         self.emp_fp1 = self.Employee.create({
@@ -83,6 +86,7 @@ class TestFFMStatementModels(TransactionCase):
         self.user_fp2 = self.Users.create({
             'name': 'Stmt FP2 User',
             'login': 'stmt_fp2_user',
+            'email': 'stmt_fp2@example.com',
             'groups_id': [(6, 0, [self.grp_fp.id])],
         })
         self.emp_fp2 = self.Employee.create({
@@ -95,6 +99,7 @@ class TestFFMStatementModels(TransactionCase):
         self.user_accounts = self.Users.create({
             'name': 'Stmt Accounts User',
             'login': 'stmt_accounts_user',
+            'email': 'stmt_accounts@example.com',
             'groups_id': [(6, 0, [self.grp_accounts.id])],
         })
 
@@ -196,13 +201,36 @@ class TestFFMStatementModels(TransactionCase):
         expected_grand = 950.0 + expected_other
         self.assertEqual(stmt.grand_total, expected_grand)
 
+        # Test clear error when employee has no job_id
+        emp_no_job = self.Employee.create({'name': 'Test No Job Emp', 'job_id': False})
+        stmt_no_job = self.Statement.sudo().create({
+            'employee_id': emp_no_job.id,
+            'month': '09',
+            'year': 2026,
+        })
+        with self.assertRaises(UserError):
+            stmt_no_job.action_generate_or_refresh()
+
+        # Test clear error when job has no allowance rate configured
+        job_no_rate = self.Job.create({'name': 'Job Without Rate'})
+        emp_no_rate = self.Employee.create({'name': 'Test No Rate Emp', 'job_id': job_no_rate.id})
+        stmt_no_rate = self.Statement.sudo().create({
+            'employee_id': emp_no_rate.id,
+            'month': '09',
+            'year': 2026,
+        })
+        with self.assertRaises(UserError):
+            stmt_no_rate.action_generate_or_refresh()
+
         # Test unique constraint (employee, month, year)
-        with self.assertRaises(IntegrityError), mute_logger('odoo.sql_db'):
-            self.Statement.sudo().create({
-                'employee_id': self.emp_fp1.id,
-                'month': target_month,
-                'year': target_year,
-            })
+        with mute_logger('odoo.sql_db'):
+            with self.assertRaises(IntegrityError):
+                with self.cr.savepoint():
+                    self.Statement.sudo().create({
+                        'employee_id': self.emp_fp1.id,
+                        'month': target_month,
+                        'year': target_year,
+                    })
 
     def test_02_statement_workflow_full_lifecycle(self):
         """Test complete workflow: draft -> submitted -> checked -> approved -> paid with audit logs."""
@@ -331,6 +359,29 @@ class TestFFMStatementModels(TransactionCase):
         nsm_visible = self.Statement.with_user(self.user_nsm).search([])
         self.assertIn(stmt_fp1, nsm_visible)
         self.assertIn(stmt_fp2, nsm_visible)
+
+        # Accounts view: sees only approved and paid statements
+        stmt_fp1.write({'state': 'approved'})
+        acc_visible = self.Statement.with_user(self.user_accounts).search([])
+        self.assertIn(stmt_fp1, acc_visible)
+        self.assertNotIn(stmt_fp2, acc_visible, "Accounts must not see draft/submitted statements.")
+
+    def test_05_skip_check_step_for_top_level_user(self):
+        """Top-level employees without a parent_id skip the 'submitted' check step directly to 'checked'."""
+        self.emp_nsm.job_id = self.job_mio.id
+        stmt_top = self.Statement.sudo().create({
+            'employee_id': self.emp_nsm.id,
+            'month': '11',
+            'year': 2026,
+            'other_entertainment': 150.0,
+        })
+        self.assertFalse(self.emp_nsm.parent_id, "Top level user must have no manager.")
+
+        # Submit as top level user
+        stmt_top.with_user(self.user_nsm).action_submit()
+        self.assertEqual(stmt_top.state, 'checked', "Top-level statement must skip check and transition directly to checked.")
+        self.assertEqual(stmt_top.submitted_by, self.user_nsm)
+        self.assertEqual(stmt_top.checked_by, self.user_nsm)
 
 
 @tagged('-at_install', 'post_install')

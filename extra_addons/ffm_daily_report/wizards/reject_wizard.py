@@ -32,4 +32,18 @@ class FFMExpenseStatementRejectWizard(models.TransientModel):
             new_values={'reason': self.reason.strip()},
             res_name=statement.name
         )
+
+        try:
+            statement.with_context(mail_activity_quick_update=True).activity_feedback(['mail.mail_activity_data_todo'])
+        except Exception:
+            pass
+
+        if statement.employee_id.user_id:
+            statement.with_context(mail_activity_quick_update=True).activity_schedule(
+                'mail.mail_activity_data_todo',
+                user_id=statement.employee_id.user_id.id,
+                summary=_('Correct & Resubmit Statement: %s') % statement.name,
+                note=_('Statement was rejected. Reason: %s') % self.reason.strip()
+            )
+
         return {'type': 'ir.actions.act_window_close'}

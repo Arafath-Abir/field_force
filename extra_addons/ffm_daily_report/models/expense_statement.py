@@ -184,15 +184,18 @@ class FFMExpenseStatement(models.Model):
                 raise UserError(_("You can only generate or refresh statements in Draft or Rejected state."))
 
             # 1. Fetch allowance rate by designation
-            rate = False
-            if rec.employee_id.job_id:
-                rate = self.env['ffm.allowance.rate'].sudo().search([
-                    ('job_id', '=', rec.employee_id.job_id.id),
-                    ('active', '=', True)
-                ], limit=1)
+            if not rec.employee_id.job_id:
+                raise UserError(_("Employee '%s' has no designation (Job Position) set. Please ask Super Admin to assign a Job Position in Employees.") % rec.employee_id.name)
 
-            da_rate = rate.da_per_day if rate else 0.0
-            motorcycle_maint = rate.motorcycle_maintenance_per_month if rate else 0.0
+            rate = self.env['ffm.allowance.rate'].sudo().search([
+                ('job_id', '=', rec.employee_id.job_id.id),
+                ('active', '=', True)
+            ], limit=1)
+            if not rate:
+                raise UserError(_("No active Allowance Rate found for designation '%s'. Please ask Super Admin to configure an Allowance Rate under Field Force Management > Configuration > Allowance Rates.") % rec.employee_id.job_id.name)
+
+            da_rate = rate.da_per_day
+            motorcycle_maint = rate.motorcycle_maintenance_per_month
 
             # 2. Daily reports for this employee within the month
             reports = self.env['ffm.daily.report'].sudo().search([
@@ -263,25 +266,62 @@ class FFMExpenseStatement(models.Model):
             )
 
     def action_submit(self):
-        """Submit the statement for superior checking."""
+        """Submit the statement for superior checking (skip check if employee has no superior)."""
         for rec in self:
             if rec.state not in ('draft', 'rejected'):
                 raise UserError(_("Only Draft or Rejected statements can be submitted."))
             if not rec.line_ids and rec.total_other_expenses <= 0:
                 raise UserError(_("Cannot submit an empty statement. Please click 'Generate / Refresh' first."))
 
-            rec.write({
-                'state': 'submitted',
-                'submitted_by': self.env.user.id,
-                'submitted_date': fields.Datetime.now(),
-                'rejection_reason': False,
-            })
-            self.env['ffm.audit.log'].log_action(
-                model_name='ffm.expense.statement',
-                res_id=rec.id,
-                action='submit',
-                res_name=rec.name
-            )
+            # Skip of the check step for top level users (no superior)
+            if not rec.employee_id.parent_id:
+                rec.write({
+                    'state': 'checked',
+                    'submitted_by': self.env.user.id,
+                    'submitted_date': fields.Datetime.now(),
+                    'checked_by': self.env.user.id,
+                    'checked_date': fields.Datetime.now(),
+                    'rejection_reason': False,
+                })
+                self.env['ffm.audit.log'].log_action(
+                    model_name='ffm.expense.statement',
+                    res_id=rec.id,
+                    action='submit',
+                    new_values={'step': 'checked_skipped_superior'},
+                    res_name=rec.name
+                )
+                approver = self.env['res.users'].search([
+                    '|',
+                    ('groups_id', 'in', self.env.ref('field_force_management.group_ffm_nsm').ids),
+                    ('groups_id', 'in', self.env.ref('field_force_management.group_ffm_director').ids),
+                ], limit=1)
+                if approver:
+                    rec.with_context(mail_activity_quick_update=True).activity_schedule(
+                        'mail.mail_activity_data_todo',
+                        user_id=approver.id,
+                        summary=_('Approve Monthly Expense Statement: %s') % rec.name,
+                        note=_('Top-level statement submitted directly for executive approval.')
+                    )
+            else:
+                rec.write({
+                    'state': 'submitted',
+                    'submitted_by': self.env.user.id,
+                    'submitted_date': fields.Datetime.now(),
+                    'rejection_reason': False,
+                })
+                self.env['ffm.audit.log'].log_action(
+                    model_name='ffm.expense.statement',
+                    res_id=rec.id,
+                    action='submit',
+                    res_name=rec.name
+                )
+                if rec.employee_id.parent_id.user_id:
+                    rec.with_context(mail_activity_quick_update=True).activity_schedule(
+                        'mail.mail_activity_data_todo',
+                        user_id=rec.employee_id.parent_id.user_id.id,
+                        summary=_('Check Monthly Expense Statement: %s') % rec.name,
+                        note=_('Please review and check the daily visits, travel allowances, and vouchers.')
+                    )
 
     def action_check(self):
         """Direct superior (ASM, RSM, DSM, NSM) checks the statement."""
@@ -322,6 +362,24 @@ class FFMExpenseStatement(models.Model):
                 res_name=rec.name
             )
 
+            try:
+                rec.with_context(mail_activity_quick_update=True).activity_feedback(['mail.mail_activity_data_todo'])
+            except Exception:
+                pass
+
+            approver = self.env['res.users'].search([
+                '|',
+                ('groups_id', 'in', self.env.ref('field_force_management.group_ffm_nsm').ids),
+                ('groups_id', 'in', self.env.ref('field_force_management.group_ffm_director').ids),
+            ], limit=1)
+            if approver:
+                rec.with_context(mail_activity_quick_update=True).activity_schedule(
+                    'mail.mail_activity_data_todo',
+                    user_id=approver.id,
+                    summary=_('Approve Monthly Expense Statement: %s') % rec.name,
+                    note=_('Statement checked by supervisor. Please review and approve.')
+                )
+
     def action_approve(self):
         """NSM, MM, Director or Super Admin approves the statement."""
         for rec in self:
@@ -347,6 +405,24 @@ class FFMExpenseStatement(models.Model):
                 res_name=rec.name
             )
 
+            try:
+                rec.with_context(mail_activity_quick_update=True).activity_feedback(['mail.mail_activity_data_todo'])
+            except Exception:
+                pass
+
+            acc_user = self.env['res.users'].search([
+                '|',
+                ('groups_id', 'in', self.env.ref('field_force_management.group_ffm_accounts').ids),
+                ('groups_id', 'in', self.env.ref('account.group_account_user').ids),
+            ], limit=1)
+            if acc_user:
+                rec.with_context(mail_activity_quick_update=True).activity_schedule(
+                    'mail.mail_activity_data_todo',
+                    user_id=acc_user.id,
+                    summary=_('Disburse Payment for Statement: %s') % rec.name,
+                    note=_('Statement approved. Please disburse payment and mark as paid.')
+                )
+
     def action_pay(self):
         """Accounts marks the statement as paid."""
         for rec in self:
@@ -370,6 +446,11 @@ class FFMExpenseStatement(models.Model):
                 action='pay',
                 res_name=rec.name
             )
+
+            try:
+                rec.with_context(mail_activity_quick_update=True).activity_feedback(['mail.mail_activity_data_todo'])
+            except Exception:
+                pass
 
     def action_open_reject_wizard(self):
         """Open the reject wizard with mandatory reason."""

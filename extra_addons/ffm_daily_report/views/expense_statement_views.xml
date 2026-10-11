@@ -56,7 +56,7 @@
                             attrs="{'invisible': [('state', '!=', 'checked')]}"/>
                     <button name="action_pay" string="Mark as Paid"
                             type="object" class="btn-success"
-                            groups="account.group_account_user,field_force_management.group_ffm_admin"
+                            groups="field_force_management.group_ffm_accounts,account.group_account_user,field_force_management.group_ffm_admin"
                             attrs="{'invisible': [('state', '!=', 'approved')]}"/>
                     <button name="action_open_reject_wizard" string="Reject"
                             type="object" class="btn-danger"
@@ -228,7 +228,7 @@
               name="Accounts Statements (To Pay)"
               parent="field_force_management.menu_ffm_root"
               sequence="35"
-              groups="account.group_account_user,field_force_management.group_ffm_admin"
+              groups="field_force_management.group_ffm_accounts,account.group_account_user,field_force_management.group_ffm_admin"
               action="action_ffm_expense_statement_accounts"/>
 
 </odoo>
