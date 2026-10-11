@@ -46,6 +46,12 @@ class ResConfigSettings(models.TransientModel):
         default=8,
         config_parameter='field_force_management.geoapify_autocomplete_limit',
     )
+    ffm_travel_auto_bill = fields.Boolean(
+        string='Auto Vendor Bill on Travel Confirm',
+        default=False,
+        config_parameter='field_force_management.travel_auto_bill',
+        help='Automatically create draft Vendor Bill when confirming Travel Log',
+    )
 
     @staticmethod
     def _error_text(response):

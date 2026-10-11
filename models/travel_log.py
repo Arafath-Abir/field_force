@@ -83,17 +83,21 @@ class TravelLog(models.Model):
 
 
     def action_confirm(self):
+        auto_bill_param = self.env['ir.config_parameter'].sudo().get_param(
+            'field_force_management.travel_auto_bill', False
+        )
+        auto_bill = auto_bill_param in (True, 'True', 'true', '1', 1)
         for rec in self:
             if rec.state != 'draft':
                 raise UserError(_('Only draft travel logs can be confirmed.'))
             if not rec.journey_ids:
                 raise UserError(_('Add at least one journey leg before confirming.'))
 
-            bill = rec._create_vendor_bill()
-            rec.write({'state': 'confirmed', 'vendor_bill_id': bill.id})
-            rec.message_post(
-                body=_('Travel log confirmed. Vendor bill <a href="#id=%s">%s</a> created.') % (
-                    bill.id, bill.name or bill.ref or 'Draft'))
+            vals = {'state': 'confirmed'}
+            if auto_bill:
+                bill = rec._create_vendor_bill()
+                vals['vendor_bill_id'] = bill.id
+            rec.write(vals)
 
     def action_reset_draft(self):
         for rec in self:
