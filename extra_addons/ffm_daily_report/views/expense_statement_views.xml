@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Tree View -->
+    <record id="view_ffm_expense_statement_tree" model="ir.ui.view">
+        <field name="name">ffm.expense.statement.tree</field>
+        <field name="model">ffm.expense.statement</field>
+        <field name="arch" type="xml">
+            <tree string="Monthly Expense Statements"
+                  decoration-muted="state == 'draft'"
+                  decoration-info="state == 'submitted'"
+                  decoration-warning="state == 'checked'"
+                  decoration-primary="state == 'approved'"
+                  decoration-success="state == 'paid'"
+                  decoration-danger="state == 'rejected'">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="job_id"/>
+                <field name="territory_id"/>
+                <field name="month"/>
+                <field name="year"/>
+                <field name="total_daily_table" sum="Daily Table Total"/>
+                <field name="total_other_expenses" sum="Other Expenses Total"/>
+                <field name="grand_total" sum="Grand Total"/>
+                <field name="state" widget="badge"
+                       decoration-muted="state == 'draft'"
+                       decoration-info="state == 'submitted'"
+                       decoration-warning="state == 'checked'"
+                       decoration-primary="state == 'approved'"
+                       decoration-success="state == 'paid'"
+                       decoration-danger="state == 'rejected'"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_ffm_expense_statement_form" model="ir.ui.view">
+        <field name="name">ffm.expense.statement.form</field>
+        <field name="model">ffm.expense.statement</field>
+        <field name="arch" type="xml">
+            <form string="Monthly Expense Statement">
+                <header>
+                    <button name="action_generate_or_refresh" string="Generate / Refresh"
+                            type="object" class="btn-primary"
+                            attrs="{'invisible': [('state', 'not in', ('draft', 'rejected'))]}"/>
+                    <button name="action_submit" string="Submit"
+                            type="object" class="btn-success"
+                            attrs="{'invisible': [('state', 'not in', ('draft', 'rejected'))]}"/>
+                    <button name="action_check" string="Check (Superior)"
+                            type="object" class="btn-warning"
+                            groups="field_force_management.group_ffm_asm,field_force_management.group_ffm_rsm,field_force_management.group_ffm_dsm,field_force_management.group_ffm_nsm,field_force_management.group_ffm_director,field_force_management.group_ffm_admin"
+                            attrs="{'invisible': [('state', '!=', 'submitted')]}"/>
+                    <button name="action_approve" string="Approve"
+                            type="object" class="btn-primary"
+                            groups="field_force_management.group_ffm_nsm,field_force_management.group_ffm_director,field_force_management.group_ffm_admin"
+                            attrs="{'invisible': [('state', '!=', 'checked')]}"/>
+                    <button name="action_pay" string="Mark as Paid"
+                            type="object" class="btn-success"
+                            groups="account.group_account_user,field_force_management.group_ffm_admin"
+                            attrs="{'invisible': [('state', '!=', 'approved')]}"/>
+                    <button name="action_open_reject_wizard" string="Reject"
+                            type="object" class="btn-danger"
+                            groups="field_force_management.group_ffm_asm,field_force_management.group_ffm_rsm,field_force_management.group_ffm_dsm,field_force_management.group_ffm_nsm,field_force_management.group_ffm_director,field_force_management.group_ffm_admin"
+                            attrs="{'invisible': [('state', 'not in', ('submitted', 'checked'))]}"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,submitted,checked,approved,paid"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="employee_id" attrs="{'readonly': [('state', 'not in', ('draft', 'rejected'))]}"/>
+                            <field name="job_id"/>
+                            <field name="branch_id"/>
+                            <field name="territory_id"/>
+                        </group>
+                        <group>
+                            <field name="month" attrs="{'readonly': [('state', 'not in', ('draft', 'rejected'))]}"/>
+                            <field name="year" attrs="{'readonly': [('state', 'not in', ('draft', 'rejected'))]}"/>
+                            <field name="date_from" readonly="1"/>
+                            <field name="date_to" readonly="1"/>
+                        </group>
+                    </group>
+
+                    <group attrs="{'invisible': [('rejection_reason', '=', False)]}">
+                        <div class="alert alert-danger" role="alert" style="margin-bottom: 0;">
+                            <strong>Rejection Reason: </strong><field name="rejection_reason" readonly="1"/>
+                        </div>
+                    </group>
+
+                    <notebook>
+                        <page string="Daily Allowance &amp; T.A. Breakdown" name="daily_table">
+                            <field name="line_ids" attrs="{'readonly': [('state', 'not in', ('draft', 'rejected'))]}">
+                                <tree editable="bottom">
+                                    <field name="date"/>
+                                    <field name="visited_places"/>
+                                    <field name="ta_amount" sum="Total T.A."/>
+                                    <field name="da_amount" sum="Total D.A."/>
+                                    <field name="day_total" sum="Total Day Amount"/>
+                                </tree>
+                            </field>
+                            <group class="oe_subtotal_footer oe_right">
+                                <field name="total_daily_ta" readonly="1"/>
+                                <field name="total_daily_da" readonly="1"/>
+                                <div class="oe_subtotal_footer_separator oe_inline o_td_label">
+                                    <label for="total_daily_table"/>
+                                </div>
+                                <field name="total_daily_table" nolabel="1" class="oe_subtotal_footer_separator" readonly="1"/>
+                            </group>
+                        </page>
+
+                        <page string="Other Expenses (Vouchers 1 to 9)" name="other_expenses">
+                            <group>
+                                <group string="Daily Expenses Aggregate">
+                                    <field name="other_entertainment" attrs="{'readonly': [('state', 'not in', ('draft', 'rejected'))]}"/>
+                                    <field name="other_courier" attrs="{'readonly': [('state', 'not in', ('draft', 'rejected'))]}"/>
+                                    <field name="other_photocopy" attrs="{'readonly': [('state', 'not in', ('draft', 'rejected'))]}"/>
+                                    <field name="other_promotion" attrs="{'readonly': [('state', 'not in', ('draft', 'rejected'))]}"/>
+                                    <field name="other_stationery" attrs="{'readonly': [('state', 'not in', ('draft', 'rejected'))]}"/>
+                                    <field name="other_carrying" attrs="{'readonly': [('state', 'not in', ('draft', 'rejected'))]}"/>
+                                    <field name="other_banking" attrs="{'readonly': [('state', 'not in', ('draft', 'rejected'))]}"/>
+                                    <field name="other_hotel_rent" attrs="{'readonly': [('state', 'not in', ('draft', 'rejected'))]}"/>
+                                </group>
+                                <group string="Vehicle Allowance">
+                                    <field name="motorcycle_maintenance" attrs="{'readonly': [('state', 'not in', ('draft', 'rejected'))]}"/>
+                                </group>
+                            </group>
+                            <group class="oe_subtotal_footer oe_right">
+                                <field name="total_other_expenses" readonly="1"/>
+                                <div class="oe_subtotal_footer_separator oe_inline o_td_label">
+                                    <label for="grand_total"/>
+                                </div>
+                                <field name="grand_total" nolabel="1" class="oe_subtotal_footer_separator" readonly="1" style="font-size: 1.3em; font-weight: bold; color: #107c41;"/>
+                            </group>
+                        </page>
+
+                        <page string="Remarks &amp; Signatures" name="signatures">
+                            <group>
+                                <field name="remarks" placeholder="Enter any employee comments or justifications…"
+                                       attrs="{'readonly': [('state', 'not in', ('draft', 'rejected'))]}"/>
+                            </group>
+                            <group col="4">
+                                <field name="submitted_by" readonly="1"/>
+                                <field name="submitted_date" readonly="1"/>
+                                <field name="checked_by" readonly="1"/>
+                                <field name="checked_date" readonly="1"/>
+                                <field name="approved_by" readonly="1"/>
+                                <field name="approved_date" readonly="1"/>
+                                <field name="paid_by" readonly="1"/>
+                                <field name="paid_date" readonly="1"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_ffm_expense_statement_search" model="ir.ui.view">
+        <field name="name">ffm.expense.statement.search</field>
+        <field name="model">ffm.expense.statement</field>
+        <field name="arch" type="xml">
+            <search string="Search Monthly Expense Statements">
+                <field name="name" string="Statement Reference"/>
+                <field name="employee_id" string="Employee"/>
+                <field name="territory_id" string="Territory"/>
+                <field name="month"/>
+                <field name="year"/>
+                
+                <separator/>
+                <filter string="My Statements" name="filter_my" domain="[('user_id', '=', uid)]"/>
+                <filter string="To Check" name="filter_to_check" domain="[('state', '=', 'submitted')]"/>
+                <filter string="To Approve" name="filter_to_approve" domain="[('state', '=', 'checked')]"/>
+                <filter string="To Pay (Approved)" name="filter_to_pay" domain="[('state', '=', 'approved')]"/>
+                <filter string="Paid" name="filter_paid" domain="[('state', '=', 'paid')]"/>
+                <filter string="Draft / Rejected" name="filter_draft_rejected" domain="[('state', 'in', ('draft', 'rejected'))]"/>
+
+                <group expand="1" string="Group By">
+                    <filter string="Employee" name="group_employee" context="{'group_by': 'employee_id'}"/>
+                    <filter string="Status" name="group_status" context="{'group_by': 'state'}"/>
+                    <filter string="Month" name="group_month" context="{'group_by': 'month'}"/>
+                    <filter string="Year" name="group_year" context="{'group_by': 'year'}"/>
+                    <filter string="Territory" name="group_territory" context="{'group_by': 'territory_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action: All Statements -->
+    <record id="action_ffm_expense_statement" model="ir.actions.act_window">
+        <field name="name">Monthly Expense Statements</field>
+        <field name="res_model">ffm.expense.statement</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_ffm_expense_statement_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No monthly expense statements found. Create one and click "Generate / Refresh".
+            </p>
+        </field>
+    </record>
+
+    <!-- Action: Accounts Approved Statements To Pay -->
+    <record id="action_ffm_expense_statement_accounts" model="ir.actions.act_window">
+        <field name="name">Approved Statements (To Pay)</field>
+        <field name="res_model">ffm.expense.statement</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('state', '=', 'approved')]</field>
+        <field name="context">{'search_default_filter_to_pay': 1}</field>
+    </record>
+
+    <!-- Menu Items -->
+    <menuitem id="menu_ffm_expense_statement"
+              name="Monthly Expense Statements"
+              parent="field_force_management.menu_ffm_root"
+              sequence="30"
+              action="action_ffm_expense_statement"/>
+
+    <menuitem id="menu_ffm_expense_statement_accounts"
+              name="Accounts Statements (To Pay)"
+              parent="field_force_management.menu_ffm_root"
+              sequence="35"
+              groups="account.group_account_user,field_force_management.group_ffm_admin"
+              action="action_ffm_expense_statement_accounts"/>
+
+</odoo>

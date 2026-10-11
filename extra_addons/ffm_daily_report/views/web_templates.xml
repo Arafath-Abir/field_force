@@ -120,13 +120,12 @@
                     <div class="ffm-tile-subtitle">Daily Expense</div>
                 </a>
 
-                <!-- 7. Monthly Statement (Phase 5) -->
-                <div class="ffm-tile ffm-tile-disabled">
-                    <span class="ffm-tile-badge-soon">শীঘ্রই</span>
-                    <div class="ffm-tile-icon">📊</div>
-                    <div class="ffm-tile-title">মাসিক বিল</div>
+                <!-- 7. Monthly Statement (Active) -->
+                <a href="/ff/statement" class="ffm-tile">
+                    <div class="ffm-tile-icon">📑</div>
+                    <div class="ffm-tile-title">মাসিক বিল বিবরণী</div>
                     <div class="ffm-tile-subtitle">Monthly Statement</div>
-                </div>
+                </a>
 
                 <!-- 8. Reports & Summary (Active) -->
                 <a href="/ff/report/cards" class="ffm-tile">
@@ -2058,6 +2057,215 @@
                         <div style="font-size: 0.8rem; color: var(--ffm-text-muted); font-style: italic;">কোনো দৈনিক খরচ নেই।</div>
                     </t>
                 </t>
+            </div>
+        </t>
+    </template>
+
+    <!-- Monthly Expense Statement Portal Screen -->
+    <template id="ff_statement" name="FFM Monthly Statement">
+        <t t-call="ffm_daily_report.ff_layout">
+            <a href="/ff" class="ffm-back-link">← ড্যাশবোর্ডে ফিরে যান (Back)</a>
+
+            <div class="ffm-form-card" style="margin-bottom: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                    <div>
+                        <h2 style="font-size: 1.15rem; font-weight: 700; color: var(--ffm-text); margin-bottom: 4px;">মাসিক খরচের বিবরণী</h2>
+                        <div style="font-size: 0.8rem; color: var(--ffm-text-muted);">
+                            <span t-esc="employee.name"/> • <span t-esc="employee.job_id.name or 'Marketer'"/>
+                        </div>
+                    </div>
+                    <div>
+                        <t t-if="statement">
+                            <span t-attf-class="ffm-badge #{'ffm-badge-success' if statement.state == 'paid' else ('ffm-badge-warning' if statement.state in ('submitted', 'checked') else ('ffm-badge-danger' if statement.state == 'rejected' else 'ffm-badge-info'))}" style="text-transform: uppercase;">
+                                <t t-esc="statement.state"/>
+                            </span>
+                        </t>
+                        <t t-else="">
+                            <span class="ffm-badge ffm-badge-warning">নতুন (Not Created)</span>
+                        </t>
+                    </div>
+                </div>
+
+                <!-- Month / Year Selector -->
+                <form method="get" action="/ff/statement" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+                    <div style="display: flex; gap: 8px; align-items: flex-end;">
+                        <div style="flex: 1;">
+                            <label style="font-size: 0.78rem; font-weight: 600; color: #475569; display: block; margin-bottom: 4px;">মাস (Month)</label>
+                            <select name="month" class="ffm-form-control" style="padding: 8px 10px; font-size: 15px;">
+                                <t t-foreach="[('01', 'জানুয়ারি'), ('02', 'ফেব্রুয়ারি'), ('03', 'মার্চ'), ('04', 'এপ্রিল'), ('05', 'মে'), ('06', 'জুন'), ('07', 'জুলাই'), ('08', 'আগস্ট'), ('09', 'সেপ্টেম্বর'), ('10', 'অক্টোবর'), ('11', 'নভেম্বর'), ('12', 'ডিসেম্বর')]" t-as="m">
+                                    <option t-att-value="m[0]" t-att-selected="'selected' if m[0] == selected_month else None"><t t-esc="m[1]"/></option>
+                                </t>
+                            </select>
+                        </div>
+                        <div style="width: 90px;">
+                            <label style="font-size: 0.78rem; font-weight: 600; color: #475569; display: block; margin-bottom: 4px;">বছর (Year)</label>
+                            <input type="number" name="year" t-att-value="selected_year" class="ffm-form-control" style="padding: 8px 10px; font-size: 15px;"/>
+                        </div>
+                        <div>
+                            <button type="submit" class="ffm-btn ffm-btn-secondary" style="min-height: 42px; padding: 8px 16px; font-size: 0.88rem;">দেখুন</button>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Rejection Notice if rejected -->
+                <t t-if="statement and statement.state == 'rejected'">
+                    <div style="background: #fee2e2; border-left: 4px solid #ef4444; padding: 10px 14px; border-radius: 6px; margin-bottom: 16px; font-size: 0.85rem; color: #991b1b;">
+                        <strong>বাতিলের কারণ (Rejection Reason): </strong>
+                        <span t-esc="statement.rejection_reason or 'কোনো কারণ উল্লেখ করা হয়নি।'"/>
+                        <div style="margin-top: 4px; font-size: 0.78rem;">অনুগ্রহ করে তথ্য যাচাই করে পুনরায় রিফ্রেশ ও সাবমিট করুন।</div>
+                    </div>
+                </t>
+
+                <!-- Metric Summary Boxes -->
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px;">
+                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 10px;">
+                        <div style="font-size: 0.72rem; color: #166534; font-weight: 600;">দৈনিক টি.এ. মোট (T.A.)</div>
+                        <div style="font-size: 1.1rem; font-weight: 700; color: #15803d;">৳<t t-esc="'%.0f' % (statement.total_daily_ta if statement else 0)"/></div>
+                    </div>
+                    <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 10px;">
+                        <div style="font-size: 0.72rem; color: #1e40af; font-weight: 600;">দৈনিক ডি.এ. মোট (D.A.)</div>
+                        <div style="font-size: 1.1rem; font-weight: 700; color: #1d4ed8;">৳<t t-esc="'%.0f' % (statement.total_daily_da if statement else 0)"/></div>
+                    </div>
+                    <div style="background: #fefce8; border: 1px solid #fef08a; border-radius: 8px; padding: 10px;">
+                        <div style="font-size: 0.72rem; color: #854d0e; font-weight: 600;">অন্যান্য খরচ মোট (Other)</div>
+                        <div style="font-size: 1.1rem; font-weight: 700; color: #a16207;">৳<t t-esc="'%.0f' % (statement.total_other_expenses if statement else 0)"/></div>
+                    </div>
+                    <div style="background: #ecfdf5; border: 2px solid #107c41; border-radius: 8px; padding: 10px;">
+                        <div style="font-size: 0.72rem; color: #065f46; font-weight: 700;">সর্বমোট দাবি (Grand Total)</div>
+                        <div style="font-size: 1.2rem; font-weight: 800; color: #047857;">৳<t t-esc="'%.0f' % (statement.grand_total if statement else 0)"/></div>
+                    </div>
+                </div>
+
+                <!-- Primary Action Buttons -->
+                <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;">
+                    <form method="post" action="/ff/statement/generate" style="flex: 1; min-width: 140px;">
+                        <input type="hidden" name="month" t-att-value="selected_month"/>
+                        <input type="hidden" name="year" t-att-value="selected_year"/>
+                        <button type="submit" class="ffm-btn ffm-btn-secondary"
+                                t-att-disabled="'disabled' if statement and statement.state not in ('draft', 'rejected') else None"
+                                style="font-size: 0.88rem;">
+                            🔄 জেনারেট / রিফ্রেশ করুন
+                        </button>
+                    </form>
+                    <t t-if="statement">
+                        <a t-attf-href="/ff/statement/pdf?month=#{selected_month}&amp;year=#{selected_year}"
+                           target="_blank" class="ffm-btn ffm-btn-secondary" style="flex: 1; min-width: 140px; font-size: 0.88rem; background: #e0e7ff; color: #3730a3;">
+                            📄 PDF ডাউনলোড
+                        </a>
+                    </t>
+                </div>
+
+                <!-- Submission Form (when draft or rejected) -->
+                <t t-if="statement and statement.state in ('draft', 'rejected') and (statement.line_ids or statement.total_other_expenses &gt; 0)">
+                    <form method="post" action="/ff/statement/submit" style="background: #fff; border: 1.5px solid #107c41; border-radius: 8px; padding: 14px; margin-bottom: 20px;">
+                        <input type="hidden" name="statement_id" t-att-value="statement.id"/>
+                        <div class="ffm-form-group">
+                            <label class="ffm-form-label">আপনার মন্তব্য / জাস্টিফিকেশন (ঐচ্ছিক):</label>
+                            <textarea name="remarks" class="ffm-form-control" rows="2" placeholder="কোনো অতিরিক্ত মন্তব্য থাকলে লিখুন..."><t t-esc="statement.remarks or ''"/></textarea>
+                        </div>
+                        <button type="submit" class="ffm-btn ffm-btn-primary" style="font-size: 1rem;">
+                            ✓ ঊর্ধ্বতন কর্মকর্তার নিকট জমা দিন (Submit Statement)
+                        </button>
+                    </form>
+                </t>
+
+                <!-- 1. Daily Table Lines -->
+                <h3 style="font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 8px;">১. দৈনিক টি.এ. ও ডি.এ. বিবরণী</h3>
+                <div class="ffm-table-responsive">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.82rem; background: #fff;">
+                        <thead>
+                            <tr style="background: #f1f5f9; border-bottom: 1.5px solid #cbd5e1; text-align: left;">
+                                <th style="padding: 8px 10px;">তারিখ</th>
+                                <th style="padding: 8px 10px;">ভ্রমণকৃত স্থান</th>
+                                <th style="padding: 8px 10px; text-align: right;">টি.এ.</th>
+                                <th style="padding: 8px 10px; text-align: right;">ডি.এ.</th>
+                                <th style="padding: 8px 10px; text-align: right;">মোট</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-if="statement and statement.line_ids">
+                                <t t-foreach="statement.line_ids" t-as="l">
+                                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                                        <td style="padding: 8px 10px; white-space: nowrap;"><t t-esc="l.date"/></td>
+                                        <td style="padding: 8px 10px;"><t t-esc="l.visited_places"/></td>
+                                        <td style="padding: 8px 10px; text-align: right;">৳<t t-esc="'%.0f' % l.ta_amount"/></td>
+                                        <td style="padding: 8px 10px; text-align: right;">৳<t t-esc="'%.0f' % l.da_amount"/></td>
+                                        <td style="padding: 8px 10px; text-align: right; font-weight: 700; color: #047857;">৳<t t-esc="'%.0f' % l.day_total"/></td>
+                                    </tr>
+                                </t>
+                            </t>
+                            <t t-else="">
+                                <tr>
+                                    <td colspan="5" style="padding: 16px; text-align: center; color: var(--ffm-text-muted); font-style: italic;">
+                                        কোনো দৈনিক বিবরণী নেই। 'জেনারেট / রিফ্রেশ' বাটনে চাপুন।
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 2. Other Expenses Breakdown -->
+                <h3 style="font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 8px; margin-top: 14px;">২. অন্যান্য খরচসমূহ (ভাউচার ১ থেকে ৯)</h3>
+                <div class="ffm-table-responsive">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.82rem; background: #fff;">
+                        <thead>
+                            <tr style="background: #f1f5f9; border-bottom: 1.5px solid #cbd5e1; text-align: left;">
+                                <th style="padding: 8px 10px; width: 50px;">নং</th>
+                                <th style="padding: 8px 10px;">খরচের খাত</th>
+                                <th style="padding: 8px 10px; text-align: right;">পরিমাণ (টাকা)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid #f1f5f9;">
+                                <td style="padding: 8px 10px; text-align: center;">১</td>
+                                <td style="padding: 8px 10px;">আপ্যায়ন খরচ (Entertainment)</td>
+                                <td style="padding: 8px 10px; text-align: right;">৳<t t-esc="'%.0f' % (statement.other_entertainment if statement else 0)"/></td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #f1f5f9;">
+                                <td style="padding: 8px 10px; text-align: center;">২</td>
+                                <td style="padding: 8px 10px;">ডাক ও কুরিয়ার খরচ (Courier)</td>
+                                <td style="padding: 8px 10px; text-align: right;">৳<t t-esc="'%.0f' % (statement.other_courier if statement else 0)"/></td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #f1f5f9;">
+                                <td style="padding: 8px 10px; text-align: center;">৩</td>
+                                <td style="padding: 8px 10px;">ফটোকপি খরচ (Photocopy)</td>
+                                <td style="padding: 8px 10px; text-align: right;">৳<t t-esc="'%.0f' % (statement.other_photocopy if statement else 0)"/></td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #f1f5f9;">
+                                <td style="padding: 8px 10px; text-align: center;">৪</td>
+                                <td style="padding: 8px 10px;">প্রচার ও প্রমোশন খরচ (Promotion)</td>
+                                <td style="padding: 8px 10px; text-align: right;">৳<t t-esc="'%.0f' % (statement.other_promotion if statement else 0)"/></td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #f1f5f9;">
+                                <td style="padding: 8px 10px; text-align: center;">৫</td>
+                                <td style="padding: 8px 10px;">স্টেশনারি খরচ (Stationery)</td>
+                                <td style="padding: 8px 10px; text-align: right;">৳<t t-esc="'%.0f' % (statement.other_stationery if statement else 0)"/></td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #f1f5f9;">
+                                <td style="padding: 8px 10px; text-align: center;">৬</td>
+                                <td style="padding: 8px 10px;">বহন খরচ (Carrying)</td>
+                                <td style="padding: 8px 10px; text-align: right;">৳<t t-esc="'%.0f' % (statement.other_carrying if statement else 0)"/></td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #f1f5f9;">
+                                <td style="padding: 8px 10px; text-align: center;">৭</td>
+                                <td style="padding: 8px 10px;">ব্যাংকিং চার্জ (Banking)</td>
+                                <td style="padding: 8px 10px; text-align: right;">৳<t t-esc="'%.0f' % (statement.other_banking if statement else 0)"/></td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #f1f5f9;">
+                                <td style="padding: 8px 10px; text-align: center;">৮</td>
+                                <td style="padding: 8px 10px;">হোটেল ভাড়া (Hotel Rent)</td>
+                                <td style="padding: 8px 10px; text-align: right;">৳<t t-esc="'%.0f' % (statement.other_hotel_rent if statement else 0)"/></td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #f1f5f9;">
+                                <td style="padding: 8px 10px; text-align: center;">৯</td>
+                                <td style="padding: 8px 10px;">বাইক মেরামত (Motorcycle Maintenance)</td>
+                                <td style="padding: 8px 10px; text-align: right;">৳<t t-esc="'%.0f' % (statement.motorcycle_maintenance if statement else 0)"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
             </div>
         </t>
     </template>

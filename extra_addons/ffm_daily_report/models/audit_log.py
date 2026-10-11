@@ -18,6 +18,7 @@ class FFMAuditLog(models.Model):
         ('write', 'Update'),
         ('unlink', 'Delete'),
         ('submit', 'Submit'),
+        ('check', 'Check'),
         ('approve', 'Approve'),
         ('reject', 'Reject'),
         ('pay', 'Pay'),

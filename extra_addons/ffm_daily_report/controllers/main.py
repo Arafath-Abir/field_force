@@ -9,6 +9,7 @@ from odoo import http, fields, _
 from odoo.http import request, Response
 from odoo.addons.web.controllers.main import Home
 from odoo.exceptions import UserError, ValidationError
+import werkzeug.utils
 
 _logger = logging.getLogger(__name__)
 
@@ -74,7 +75,7 @@ class FFMHome(Home):
         if request.session.uid and not request.env.is_admin():
             user = request.env.user
             if user.has_group('field_force_management.group_ffm_field_person') and not user.has_group('field_force_management.group_ffm_asm') and not user.has_group('field_force_management.group_ffm_admin'):
-                return request.redirect('/ff')
+                return werkzeug.utils.redirect('/ff')
         return super(FFMHome, self).web_client(s_action=s_action, **kw)
 
 
@@ -1062,6 +1063,121 @@ class FFMController(http.Controller):
 
         pdf_content, _ = request.env.ref('ffm_daily_report.action_report_ffm_daily_report_pdf').sudo()._render_qweb_pdf(report.ids)
         pdf_filename = f"Daily_Report_{employee.name}_{q_date}.pdf"
+        return Response(
+            pdf_content,
+            headers=[
+                ('Content-Type', 'application/pdf'),
+                ('Content-Disposition', f'attachment; filename="{pdf_filename}"'),
+            ]
+        )
+
+    # ── 8b. Monthly Expense Statement Portal Routes ─────────────────────────
+    @http.route('/ff/statement', type='http', auth='user')
+    def ff_statement(self, **kw):
+        """View monthly expense statement for logged in marketer."""
+        ctx = self._get_app_context()
+        employee = ctx['employee']
+        today_date, _ = self._get_dhaka_date_and_time()
+
+        selected_month = kw.get('month') or f"{today_date.month:02d}"
+        try:
+            selected_year = int(kw.get('year') or today_date.year)
+        except (ValueError, TypeError):
+            selected_year = today_date.year
+
+        statement = False
+        if employee:
+            statement = request.env['ffm.expense.statement'].sudo().search([
+                ('employee_id', '=', employee.id),
+                ('month', '=', selected_month),
+                ('year', '=', selected_year),
+            ], limit=1)
+
+        ctx.update({
+            'selected_month': selected_month,
+            'selected_year': selected_year,
+            'statement': statement,
+        })
+        return request.render('ffm_daily_report.ff_statement', ctx)
+
+    @http.route('/ff/statement/generate', type='http', auth='user', methods=['POST'], csrf=False)
+    def ff_statement_generate(self, **kw):
+        """Generate or refresh monthly expense statement for the selected period."""
+        ctx = self._get_app_context()
+        employee = ctx['employee']
+        if not employee:
+            return werkzeug.utils.redirect('/ff')
+
+        today_date, _ = self._get_dhaka_date_and_time()
+        selected_month = kw.get('month') or f"{today_date.month:02d}"
+        try:
+            selected_year = int(kw.get('year') or today_date.year)
+        except (ValueError, TypeError):
+            selected_year = today_date.year
+
+        statement = request.env['ffm.expense.statement'].sudo().search([
+            ('employee_id', '=', employee.id),
+            ('month', '=', selected_month),
+            ('year', '=', selected_year),
+        ], limit=1)
+
+        if not statement:
+            statement = request.env['ffm.expense.statement'].sudo().create({
+                'employee_id': employee.id,
+                'month': selected_month,
+                'year': selected_year,
+                'state': 'draft',
+            })
+
+        if statement.state in ('draft', 'rejected'):
+            statement.sudo().action_generate_or_refresh()
+
+        return werkzeug.utils.redirect(f"/ff/statement?month={selected_month}&year={selected_year}")
+
+    @http.route('/ff/statement/submit', type='http', auth='user', methods=['POST'], csrf=False)
+    def ff_statement_submit(self, **kw):
+        """Submit the statement for superior approval."""
+        ctx = self._get_app_context()
+        employee = ctx['employee']
+        statement_id = kw.get('statement_id')
+        remarks = kw.get('remarks')
+
+        if statement_id and employee:
+            statement = request.env['ffm.expense.statement'].sudo().browse(int(statement_id))
+            if statement.exists() and statement.employee_id == employee:
+                if remarks is not None:
+                    statement.sudo().write({'remarks': remarks.strip()})
+                statement.sudo().action_submit()
+                return werkzeug.utils.redirect(f"/ff/statement?month={statement.month}&year={statement.year}")
+
+        return werkzeug.utils.redirect('/ff/statement')
+
+    @http.route('/ff/statement/pdf', type='http', auth='user')
+    def ff_statement_pdf(self, **kw):
+        """Download Monthly Expense Statement PDF."""
+        ctx = self._get_app_context()
+        employee = ctx['employee']
+        today_date, _ = self._get_dhaka_date_and_time()
+
+        selected_month = kw.get('month') or f"{today_date.month:02d}"
+        try:
+            selected_year = int(kw.get('year') or today_date.year)
+        except (ValueError, TypeError):
+            selected_year = today_date.year
+
+        statement = False
+        if employee:
+            statement = request.env['ffm.expense.statement'].sudo().search([
+                ('employee_id', '=', employee.id),
+                ('month', '=', selected_month),
+                ('year', '=', selected_year),
+            ], limit=1)
+
+        if not statement:
+            return request.not_found()
+
+        pdf_content, _ = request.env.ref('ffm_daily_report.action_report_ffm_expense_statement_pdf').sudo()._render_qweb_pdf(statement.ids)
+        pdf_filename = f"Monthly_Statement_{employee.name}_{selected_year}_{selected_month}.pdf"
         return Response(
             pdf_content,
             headers=[

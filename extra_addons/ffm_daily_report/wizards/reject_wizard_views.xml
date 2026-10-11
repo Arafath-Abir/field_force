@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_ffm_expense_statement_reject_wizard_form" model="ir.ui.view">
+        <field name="name">ffm.expense.statement.reject.wizard.form</field>
+        <field name="model">ffm.expense.statement.reject.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reject Expense Statement">
+                <group>
+                    <field name="statement_id" readonly="1"/>
+                    <field name="reason" placeholder="Enter mandatory rejection reason…" required="1"/>
+                </group>
+                <footer>
+                    <button name="action_reject" string="Reject Statement" type="object" class="btn-danger"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>

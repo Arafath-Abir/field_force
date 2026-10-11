@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Report Action -->
+    <record id="action_report_ffm_expense_statement_pdf" model="ir.actions.report">
+        <field name="name">Monthly Expense Statement (PDF)</field>
+        <field name="model">ffm.expense.statement</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">ffm_daily_report.report_expense_statement_pdf_document</field>
+        <field name="report_file">ffm_daily_report.report_expense_statement_pdf_document</field>
+        <field name="print_report_name">'Monthly_Statement_%s_%s_%s' % (object.employee_id.name, object.year, object.month)</field>
+        <field name="binding_model_id" ref="model_ffm_expense_statement"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Report Template -->
+    <template id="report_expense_statement_pdf_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <div class="article" style="font-family: 'Nirmala UI', 'Vrinda', 'Segoe UI', Arial, sans-serif; font-size: 11px; color: #111; line-height: 1.3; padding: 15px;">
+                    <style type="text/css">
+                        @font-face {
+                            font-family: 'Nirmala UI';
+                            src: local('Nirmala UI'), local('Vrinda');
+                        }
+                        body, table, td, th, p, span, div, h1, h2, h3, h4 {
+                            font-family: 'Nirmala UI', 'Vrinda', 'Segoe UI', Arial, sans-serif !important;
+                        }
+                        .statement-header {
+                            text-align: center;
+                            border-bottom: 2px solid #107c41;
+                            padding-bottom: 8px;
+                            margin-bottom: 12px;
+                        }
+                        .company-name {
+                            font-size: 18px;
+                            font-weight: bold;
+                            color: #107c41;
+                            margin: 0;
+                            text-transform: uppercase;
+                        }
+                        .report-title {
+                            font-size: 14px;
+                            font-weight: bold;
+                            color: #333;
+                            margin-top: 4px;
+                        }
+                        .info-table {
+                            width: 100%;
+                            margin-bottom: 12px;
+                            border-collapse: collapse;
+                        }
+                        .info-table td {
+                            padding: 3px 6px;
+                            font-size: 11px;
+                        }
+                        .info-label {
+                            font-weight: bold;
+                            color: #333;
+                            width: 15%;
+                        }
+                        .info-val {
+                            color: #111;
+                            width: 35%;
+                            border-bottom: 1px dotted #ccc;
+                        }
+                        .data-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-bottom: 12px;
+                            font-size: 10px;
+                        }
+                        .data-table th {
+                            background-color: #f2f7f4;
+                            color: #107c41;
+                            border: 1px solid #c2d9cc;
+                            padding: 4px 6px;
+                            text-align: center;
+                            font-weight: bold;
+                        }
+                        .data-table td {
+                            border: 1px solid #ddd;
+                            padding: 4px 6px;
+                        }
+                        .total-row {
+                            font-weight: bold;
+                            background-color: #f8fafc;
+                        }
+                        .summary-box {
+                            background-color: #e8f5e9;
+                            border: 2px solid #107c41;
+                            border-radius: 6px;
+                            padding: 10px;
+                            text-align: right;
+                            margin-bottom: 15px;
+                        }
+                        .sig-table {
+                            width: 100%;
+                            margin-top: 25px;
+                            border-collapse: collapse;
+                        }
+                        .sig-table td {
+                            text-align: center;
+                            width: 25%;
+                            vertical-align: top;
+                            padding: 0 10px;
+                        }
+                        .sig-line {
+                            border-top: 1px solid #555;
+                            margin-top: 35px;
+                            padding-top: 4px;
+                            font-size: 10px;
+                            font-weight: bold;
+                        }
+                    </style>
+
+                    <!-- Header -->
+                    <div class="statement-header">
+                        <div class="company-name">নিউটেক ফার্মাসিউটিক্যালস লিমিটেড</div>
+                        <div style="font-size: 11px; color: #666;">Newtec Pharmaceuticals Limited</div>
+                        <div class="report-title">মাসিক খরচের বিবরণী (MONTHLY EXPENSE STATEMENT)</div>
+                    </div>
+
+                    <!-- Meta Info Table -->
+                    <table class="info-table">
+                        <tr>
+                            <td class="info-label">কর্মকর্তার নাম:</td>
+                            <td class="info-val"><t t-esc="doc.employee_id.name"/></td>
+                            <td class="info-label">মাস ও বছর:</td>
+                            <td class="info-val">
+                                <t t-esc="doc.month"/>/<t t-esc="doc.year"/>
+                                (<t t-esc="dict(doc._fields['month'].selection).get(doc.month)"/>)
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="info-label">পদবি / Designation:</td>
+                            <td class="info-val"><t t-esc="doc.job_id.name or '-'"/></td>
+                            <td class="info-label">হেডকোয়ার্টার / ব্রাঞ্চ:</td>
+                            <td class="info-val"><t t-esc="doc.branch_id.name or '-'"/></td>
+                        </tr>
+                        <tr>
+                            <td class="info-label">টেরিটরি / অঞ্চল:</td>
+                            <td class="info-val"><t t-esc="doc.territory_id.name or '-'"/></td>
+                            <td class="info-label">স্ট্যাটাস / Status:</td>
+                            <td class="info-val" style="font-weight: bold; text-transform: uppercase;">
+                                <t t-esc="doc.state"/>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- 1. Daily Table (T.A. + D.A.) -->
+                    <div style="font-weight: bold; color: #107c41; margin-bottom: 4px; font-size: 11px;">
+                        ১. দৈনিক টি.এ. এবং ডি.এ. বিবরণী (Daily T.A. &amp; D.A. Breakdown)
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 10%;">তারিখ</th>
+                                <th style="width: 50%;">ভ্রমণকৃত স্থানসমূহ (Visited Places)</th>
+                                <th style="width: 12%; text-align: right;">ভ্রমণ ভাতা / T.A. (৳)</th>
+                                <th style="width: 12%; text-align: right;">দৈনিক ভাতা / D.A. (৳)</th>
+                                <th style="width: 16%; text-align: right;">মোট / Day Total (৳)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="doc.line_ids" t-as="line">
+                                <tr>
+                                    <td style="text-align: center;"><t t-esc="line.date"/></td>
+                                    <td><t t-esc="line.visited_places"/></td>
+                                    <td style="text-align: right;"><t t-esc="'%.2f' % line.ta_amount"/></td>
+                                    <td style="text-align: right;"><t t-esc="'%.2f' % line.da_amount"/></td>
+                                    <td style="text-align: right; font-weight: bold;"><t t-esc="'%.2f' % line.day_total"/></td>
+                                </tr>
+                            </t>
+                            <t t-if="not doc.line_ids">
+                                <tr>
+                                    <td colspan="5" style="text-align: center; color: #777;">কোনো দৈনিক বিবরণী পাওয়া যায়নি।</td>
+                                </tr>
+                            </t>
+                            <tr class="total-row">
+                                <td colspan="2" style="text-align: right;">দৈনিক টেবিল মোট (Daily Table Total):</td>
+                                <td style="text-align: right;"><t t-esc="'%.2f' % doc.total_daily_ta"/></td>
+                                <td style="text-align: right;"><t t-esc="'%.2f' % doc.total_daily_da"/></td>
+                                <td style="text-align: right; color: #107c41;"><t t-esc="'%.2f' % doc.total_daily_table"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- 2. Other Expenses (Vouchers 1-9) -->
+                    <div style="font-weight: bold; color: #107c41; margin-bottom: 4px; font-size: 11px;">
+                        ২. অন্যান্য খরচসমূহ (Other Expenses Breakdown - Vouchers 1 to 9)
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 10%;">ভাউচার নং</th>
+                                <th style="width: 65%;">খরচের খাত / Expense Category</th>
+                                <th style="width: 25%; text-align: right;">টাকার পরিমাণ / Amount (৳)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="text-align: center;">১</td>
+                                <td>আপ্যায়ন খরচ (Entertainment Expense - Voucher Required)</td>
+                                <td style="text-align: right;"><t t-esc="'%.2f' % doc.other_entertainment"/></td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: center;">২</td>
+                                <td>ডাক ও কুরিয়ার খরচ (Postage &amp; Courier Expense - Voucher Required)</td>
+                                <td style="text-align: right;"><t t-esc="'%.2f' % doc.other_courier"/></td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: center;">৩</td>
+                                <td>ফটোকপি খরচ (Photocopy Expense - Voucher Required)</td>
+                                <td style="text-align: right;"><t t-esc="'%.2f' % doc.other_photocopy"/></td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: center;">৪</td>
+                                <td>প্রচার ও প্রমোশন খরচ (Promotion Expense)</td>
+                                <td style="text-align: right;"><t t-esc="'%.2f' % doc.other_promotion"/></td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: center;">৫</td>
+                                <td>স্টেশনারি খরচ (Stationery Expense)</td>
+                                <td style="text-align: right;"><t t-esc="'%.2f' % doc.other_stationery"/></td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: center;">৬</td>
+                                <td>বহন খরচ (Carrying Charge)</td>
+                                <td style="text-align: right;"><t t-esc="'%.2f' % doc.other_carrying"/></td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: center;">৭</td>
+                                <td>ব্যাংকিং চার্জ (Banking Charge)</td>
+                                <td style="text-align: right;"><t t-esc="'%.2f' % doc.other_banking"/></td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: center;">৮</td>
+                                <td>হোটেল ভাড়া (Hotel Rent Expense - Voucher Required)</td>
+                                <td style="text-align: right;"><t t-esc="'%.2f' % doc.other_hotel_rent"/></td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: center;">৯</td>
+                                <td>মোটরসাইকেল রক্ষণাবেক্ষণ (Motorcycle Maintenance - Fixed by Designation)</td>
+                                <td style="text-align: right;"><t t-esc="'%.2f' % doc.motorcycle_maintenance"/></td>
+                            </tr>
+                            <tr class="total-row">
+                                <td colspan="2" style="text-align: right;">অন্যান্য খরচের মোট (Total Other Expenses):</td>
+                                <td style="text-align: right; color: #107c41;"><t t-esc="'%.2f' % doc.total_other_expenses"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Grand Total Summary Box -->
+                    <div class="summary-box">
+                        <span style="font-size: 13px; font-weight: bold; color: #107c41;">
+                            সর্বমোট দাবি / GRAND TOTAL EXPENSES:
+                        </span>
+                        <span style="font-size: 16px; font-weight: bold; color: #107c41; margin-left: 10px;">
+                            ৳ <t t-esc="'%.2f' % doc.grand_total"/>
+                        </span>
+                    </div>
+
+                    <!-- Remarks if any -->
+                    <t t-if="doc.remarks">
+                        <div style="font-size: 10px; margin-bottom: 12px; background: #fafafa; border: 1px solid #e0e0e0; padding: 6px; border-radius: 4px;">
+                            <strong>কর্মকর্তার মন্তব্য / Remarks: </strong><t t-esc="doc.remarks"/>
+                        </div>
+                    </t>
+
+                    <!-- Signatures Block -->
+                    <table class="sig-table">
+                        <tr>
+                            <td>
+                                <div class="sig-line">
+                                    আবেদনকারী কর্মকর্তা<br/>
+                                    <strong><t t-esc="doc.employee_id.name"/></strong><br/>
+                                    <span style="font-size: 8px; color: #666;">
+                                        <t t-if="doc.submitted_date">তারিখ: <t t-esc="doc.submitted_date.strftime('%Y-%m-%d %H:%M')"/></t>
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="sig-line">
+                                    যাচাইকারী কর্মকর্তা (ASM/RSM)<br/>
+                                    <strong><t t-esc="doc.checked_by.name or ''"/></strong><br/>
+                                    <span style="font-size: 8px; color: #666;">
+                                        <t t-if="doc.checked_date">তারিখ: <t t-esc="doc.checked_date.strftime('%Y-%m-%d %H:%M')"/></t>
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="sig-line">
+                                    অনুমোদনকারী (NSM/Director)<br/>
+                                    <strong><t t-esc="doc.approved_by.name or ''"/></strong><br/>
+                                    <span style="font-size: 8px; color: #666;">
+                                        <t t-if="doc.approved_date">তারিখ: <t t-esc="doc.approved_date.strftime('%Y-%m-%d %H:%M')"/></t>
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="sig-line">
+                                    অ্যাকাউন্টস বিভাগ (পরিশোধ)<br/>
+                                    <strong><t t-esc="doc.paid_by.name or ''"/></strong><br/>
+                                    <span style="font-size: 8px; color: #666;">
+                                        <t t-if="doc.paid_date">তারিখ: <t t-esc="doc.paid_date.strftime('%Y-%m-%d %H:%M')"/></t>
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+
+                </div>
+            </t>
+        </t>
+    </template>
+
+</odoo>
