@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Inherit Daily Report Form to add working_place_id and Farm Visits tab -->
+    <record id="view_ffm_daily_report_form_inherit_phase3" model="ir.ui.view">
+        <field name="name">ffm.daily.report.form.inherit.phase3</field>
+        <field name="model">ffm.daily.report</field>
+        <field name="inherit_id" ref="field_force_management.view_ffm_daily_report_form"/>
+        <field name="arch" type="xml">
+            <!-- Add Working Place (Many2one ffm.place) -->
+            <xpath expr="//field[@name='working_place']" position="after">
+                <field name="working_place_id" options="{'no_create': True}" attrs="{'readonly': [('state','!=','draft')]}"/>
+            </xpath>
+
+            <!-- Add Farm Visits Notebook Tab -->
+            <xpath expr="//notebook/page[@name='prescriber']" position="after">
+                <page string="Farm &amp; Others Visits" name="farm_visits">
+                    <group>
+                        <field name="total_farm_visited" readonly="1"/>
+                    </group>
+                    <field name="farm_visit_ids" attrs="{'readonly': [('state','!=','draft')]}" context="{'default_report_id': active_id}">
+                        <tree editable="bottom" string="Farm Visits">
+                            <field name="sequence" widget="handle"/>
+                            <field name="farm_name"/>
+                            <field name="address" optional="show"/>
+                            <field name="broiler" optional="hide"/>
+                            <field name="layer" optional="hide"/>
+                            <field name="sonali" optional="hide"/>
+                            <field name="cattle" optional="hide"/>
+                            <field name="aqua" optional="hide"/>
+                            <field name="bird_count" optional="show"/>
+                            <field name="note" optional="show"/>
+                        </tree>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Standalone Farm Visit Tree and Form Views -->
+    <record id="view_ffm_farm_visit_tree" model="ir.ui.view">
+        <field name="name">ffm.farm.visit.tree</field>
+        <field name="model">ffm.farm.visit</field>
+        <field name="arch" type="xml">
+            <tree string="Farm Visits">
+                <field name="report_id"/>
+                <field name="farm_name"/>
+                <field name="address"/>
+                <field name="bird_count"/>
+                <field name="note"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_ffm_farm_visit_form" model="ir.ui.view">
+        <field name="name">ffm.farm.visit.form</field>
+        <field name="model">ffm.farm.visit</field>
+        <field name="arch" type="xml">
+            <form string="Farm Visit">
+                <sheet>
+                    <group>
+                        <group string="Basic Information">
+                            <field name="report_id"/>
+                            <field name="farm_name"/>
+                            <field name="address"/>
+                        </group>
+                        <group string="Livestock / Poultry Details">
+                            <field name="broiler"/>
+                            <field name="layer"/>
+                            <field name="sonali"/>
+                            <field name="cattle"/>
+                            <field name="aqua"/>
+                            <field name="bird_count"/>
+                        </group>
+                    </group>
+                    <group string="Remarks">
+                        <field name="note"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+</odoo>

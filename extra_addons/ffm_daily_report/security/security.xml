@@ -50,5 +50,53 @@
             <field name="perm_unlink" eval="1"/>
         </record>
 
+        <!-- Farm Visit Record Rules -->
+
+        <!-- 4. Field Person: own farm visits only -->
+        <record id="ffm_farm_visit_rule_field_person" model="ir.rule">
+            <field name="name">FFM Farm Visit: Field Person Own</field>
+            <field name="model_id" ref="model_ffm_farm_visit"/>
+            <field name="domain_force">['|', ('report_id.employee_id.user_id', '=', user.id), ('report_id.employee_id', '=', False)]</field>
+            <field name="groups" eval="[(4, ref('field_force_management.group_ffm_field_person'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- 5. Manager: direct reports / subtree farm visits -->
+        <record id="ffm_farm_visit_rule_manager" model="ir.rule">
+            <field name="name">FFM Farm Visit: Manager Subtree/Direct Reports</field>
+            <field name="model_id" ref="model_ffm_farm_visit"/>
+            <field name="domain_force">
+                ['|', '|',
+                 ('report_id.employee_id.user_id', '=', user.id),
+                 ('report_id.employee_id.parent_id.user_id', '=', user.id),
+                 ('report_id.employee_id', 'child_of', [user.employee_id.id] if user.employee_id and user.env['ir.config_parameter'].sudo().get_param('field_force_management.subtree_visibility') else [0])]
+            </field>
+            <field name="groups" eval="[(4, ref('field_force_management.group_ffm_asm')),
+                                        (4, ref('field_force_management.group_ffm_rsm')),
+                                        (4, ref('field_force_management.group_ffm_dsm'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
+        <!-- 6. Higher Authorities: all farm visits -->
+        <record id="ffm_farm_visit_rule_all" model="ir.rule">
+            <field name="name">FFM Farm Visit: Higher Roles All Records</field>
+            <field name="model_id" ref="model_ffm_farm_visit"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('field_force_management.group_ffm_nsm')),
+                                        (4, ref('field_force_management.group_ffm_director')),
+                                        (4, ref('field_force_management.group_ffm_accounts')),
+                                        (4, ref('field_force_management.group_ffm_admin'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
     </data>
 </odoo>

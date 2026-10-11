@@ -16,3 +16,11 @@ access_ffm_attendance_rsm,ffm.attendance.rsm,model_ffm_attendance,field_force_ma
 access_ffm_attendance_asm,ffm.attendance.asm,model_ffm_attendance,field_force_management.group_ffm_asm,1,0,0,0
 access_ffm_attendance_accounts,ffm.attendance.accounts,model_ffm_attendance,field_force_management.group_ffm_accounts,1,0,0,0
 access_ffm_attendance_field_person,ffm.attendance.field_person,model_ffm_attendance,field_force_management.group_ffm_field_person,1,0,1,0
+access_ffm_farm_visit_admin,ffm.farm.visit.admin,model_ffm_farm_visit,field_force_management.group_ffm_admin,1,1,1,1
+access_ffm_farm_visit_director,ffm.farm.visit.director,model_ffm_farm_visit,field_force_management.group_ffm_director,1,1,1,1
+access_ffm_farm_visit_nsm,ffm.farm.visit.nsm,model_ffm_farm_visit,field_force_management.group_ffm_nsm,1,1,1,1
+access_ffm_farm_visit_dsm,ffm.farm.visit.dsm,model_ffm_farm_visit,field_force_management.group_ffm_dsm,1,1,1,1
+access_ffm_farm_visit_rsm,ffm.farm.visit.rsm,model_ffm_farm_visit,field_force_management.group_ffm_rsm,1,1,1,1
+access_ffm_farm_visit_asm,ffm.farm.visit.asm,model_ffm_farm_visit,field_force_management.group_ffm_asm,1,1,1,1
+access_ffm_farm_visit_accounts,ffm.farm.visit.accounts,model_ffm_farm_visit,field_force_management.group_ffm_accounts,1,0,0,0
+access_ffm_farm_visit_field_person,ffm.farm.visit.field_person,model_ffm_farm_visit,field_force_management.group_ffm_field_person,1,1,1,0

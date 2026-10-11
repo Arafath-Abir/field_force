@@ -62,8 +62,11 @@
                         </t>
                     </div>
                 </div>
-                <div style="font-size: 0.8rem; color: #4b5563; border-top: 1px solid #f3f4f6; padding-top: 8px; margin-top: 4px;">
-                    আজকের তারিখ: <strong t-esc="today_str"/>
+                <div style="font-size: 0.8rem; color: #4b5563; border-top: 1px solid #f3f4f6; padding-top: 8px; margin-top: 4px; display: flex; justify-content: space-between;">
+                    <span>আজকের তারিখ: <strong t-esc="today_str"/></span>
+                    <t t-if="today_report">
+                        <span>রিপোর্ট: <strong t-esc="today_report.state.upper()"/></span>
+                    </t>
                 </div>
             </div>
 
@@ -79,36 +82,36 @@
                     </t>
                 </a>
 
-                <!-- 2. Daily Report (Active / Today's Report) -->
+                <!-- 2. Daily Report (Active) -->
                 <a href="/ff/report/daily" class="ffm-tile">
                     <div class="ffm-tile-icon">📝</div>
                     <div class="ffm-tile-title">আজকের রিপোর্ট</div>
-                    <div class="ffm-tile-subtitle">Daily Report</div>
+                    <div class="ffm-tile-subtitle">Daily Report Header</div>
+                    <t t-if="today_report">
+                        <span class="ffm-badge ffm-badge-success" style="margin-top: 6px;"><t t-esc="today_report.state.title()"/></span>
+                    </t>
                 </a>
 
-                <!-- 3. Chemist Visit (Phase 3) -->
-                <div class="ffm-tile ffm-tile-disabled">
-                    <span class="ffm-tile-badge-soon">শীঘ্রই</span>
+                <!-- 3. Chemist Visit (Active) -->
+                <a href="/ff/visit/chemist" class="ffm-tile">
                     <div class="ffm-tile-icon">💊</div>
                     <div class="ffm-tile-title">কেমিস্ট ভিজিট</div>
                     <div class="ffm-tile-subtitle">Chemist Visit</div>
-                </div>
+                </a>
 
-                <!-- 4. Doctor Visit (Phase 3) -->
-                <div class="ffm-tile ffm-tile-disabled">
-                    <span class="ffm-tile-badge-soon">শীঘ্রই</span>
+                <!-- 4. Doctor Visit (Active) -->
+                <a href="/ff/visit/doctor" class="ffm-tile">
                     <div class="ffm-tile-icon">🩺</div>
                     <div class="ffm-tile-title">ডাক্তার ভিজিট</div>
                     <div class="ffm-tile-subtitle">Doctor Visit</div>
-                </div>
+                </a>
 
-                <!-- 5. Farm Visit (Phase 3) -->
-                <div class="ffm-tile ffm-tile-disabled">
-                    <span class="ffm-tile-badge-soon">শীঘ্রই</span>
+                <!-- 5. Farm Visit (Active) -->
+                <a href="/ff/visit/farm" class="ffm-tile">
                     <div class="ffm-tile-icon">🚜</div>
                     <div class="ffm-tile-title">খামার ভিজিট</div>
                     <div class="ffm-tile-subtitle">Farm Visit</div>
-                </div>
+                </a>
 
                 <!-- 6. Daily Expense (Phase 4) -->
                 <div class="ffm-tile ffm-tile-disabled">
@@ -126,53 +129,44 @@
                     <div class="ffm-tile-subtitle">Monthly Statement</div>
                 </div>
 
-                <!-- 8. Approvals & Summary (Phase 6) -->
-                <div class="ffm-tile ffm-tile-disabled">
-                    <span class="ffm-tile-badge-soon">শীঘ্রই</span>
+                <!-- 8. Approvals & Summary (Active) -->
+                <a href="/ff/entries/today" class="ffm-tile">
                     <div class="ffm-tile-icon">📋</div>
-                    <div class="ffm-tile-title">রিপোর্ট ও অনুমোদন</div>
+                    <div class="ffm-tile-title">আজকের এন্ট্রি ও সামারি</div>
                     <div class="ffm-tile-subtitle">Summary Card</div>
-                </div>
+                </a>
             </div>
         </t>
     </template>
 
-    <!-- Daily Attendance Screen -->
-    <template id="ff_attendance" name="FFM Attendance Screen">
+    <!-- Attendance Screen -->
+    <template id="ff_attendance" name="FFM Marketer Attendance">
         <t t-call="ffm_daily_report.ff_layout">
             <a href="/ff" class="ffm-back-link">← ড্যাশবোর্ডে ফিরে যান (Back to Home)</a>
 
             <div class="ffm-form-card">
-                <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 6px;">দৈনিক হাজিরা (Daily Attendance)</h2>
+                <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 6px;">দৈনিক ফিল্ড হাজিরা</h2>
                 <p style="font-size: 0.85rem; color: var(--ffm-text-muted); margin-bottom: 20px;">
-                    আজকের উপস্থিতি নিশ্চিত করতে জিপিএস অবস্থান সংরক্ষণ করুন।
+                    তারিখ: <strong t-esc="today_str"/>
                 </p>
 
                 <!-- Case A: Already submitted today -->
                 <t t-if="attendance">
-                    <div style="background: #def7ec; border: 1.5px solid #31c48d; border-radius: 8px; padding: 18px; text-align: center; margin-bottom: 16px;">
-                        <div style="font-size: 2.2rem; color: #046c4e;">✓</div>
-                        <h3 style="font-size: 1.1rem; color: #03543f; margin-top: 4px;">আজকের উপস্থিতি নিশ্চিত হয়েছে</h3>
-                        <p style="font-size: 0.85rem; color: #046c4e; margin-top: 4px;">
-                            তারিখ: <strong t-esc="attendance.date"/> | সময়: <strong t-esc="reporting_time_str"/>
-                        </p>
+                    <div class="ffm-status-card" style="border-left: 4px solid var(--ffm-success); margin-bottom: 20px;">
+                        <div style="font-weight: 700; color: var(--ffm-success); margin-bottom: 8px;">
+                            ✓ আজকের হাজিরা সফলভাবে নিশ্চিত হয়েছে
+                        </div>
+                        <div style="font-size: 0.88rem; line-height: 1.8;">
+                            <div><strong>রিপোর্টিং সময়:</strong> <span t-esc="reporting_time_str"/></div>
+                            <div><strong>স্থান / অবস্থান:</strong> <span t-esc="attendance.place_name or 'Bangladesh'"/></div>
+                            <div><strong>ভ্রমণ মাধ্যম:</strong> <span t-esc="attendance.mode_of_journey or 'N/A'"/></div>
+                            <div><strong>জিপিএস নির্ভুলতা:</strong> ±<t t-esc="'%.0f' % attendance.accuracy"/>m</div>
+                        </div>
                     </div>
 
-                    <div style="background: #f9fafb; border-radius: 8px; padding: 14px; font-size: 0.88rem; line-height: 1.8;">
-                        <div><strong>কর্মীর নাম:</strong> <span t-esc="attendance.name"/></div>
-                        <div><strong>পদবী:</strong> <span t-esc="attendance.designation"/></div>
-                        <t t-if="attendance.territory_id">
-                            <div><strong>টেরিটরি:</strong> <span t-esc="attendance.territory_id.name"/></div>
-                        </t>
-                        <t t-if="attendance.mode_of_journey">
-                            <div><strong>ভ্রমণের মাধ্যম:</strong> <span t-esc="attendance.mode_of_journey"/></div>
-                        </t>
-                        <div><strong>জিপিএস স্থানাঙ্ক:</strong> <span t-esc="attendance.latitude"/>, <span t-esc="attendance.longitude"/> (±<t t-esc="attendance.accuracy"/>m)</div>
-                    </div>
-
-                    <div style="margin-top: 20px;">
-                        <a t-att-href="attendance.map_url" target="_blank" class="ffm-btn ffm-btn-secondary">
-                            গুগল ম্যাপে অবস্থান দেখুন (Open Map)
+                    <div style="text-align: center;">
+                        <a href="/ff" class="ffm-btn ffm-btn-secondary">
+                            ড্যাশবোর্ডে ফিরে যান (Return to Dashboard)
                         </a>
                     </div>
                 </t>
@@ -275,22 +269,23 @@
                                 headers: {
                                     'Content-Type': 'application/json'
                                 },
-                                body: JSON.stringify(payload)
+                                body: JSON.stringify({params: payload})
                             })
                             .then(function(res) {
                                 return res.json();
                             })
                             .then(function(data) {
-                                if (data.status === 'success') {
+                                var res = data.result || data;
+                                if (res.status === 'success') {
                                     FFM.clearDraft('attendance');
                                     FFM.resetUUID('ffm_attendance_uuid');
-                                    FFM.showToast(data.message || 'হাজিরা সফলভাবে গৃহীত হয়েছে!', 'success');
+                                    FFM.showToast(res.message || 'হাজিরা সফলভাবে গৃহীত হয়েছে!', 'success');
                                     setTimeout(function() {
                                         window.location.reload();
                                     }, 1200);
                                 } else {
                                     release();
-                                    FFM.showToast(data.message || 'হাজিরা গ্রহণ ব্যর্থ হয়েছে।', 'error');
+                                    FFM.showToast(res.message || 'হাজিরা গ্রহণ ব্যর্থ হয়েছে।', 'error');
                                 }
                             })
                             .catch(function(err) {
@@ -301,6 +296,961 @@
                             return false;
                         }
                     </script>
+                </t>
+            </div>
+        </t>
+    </template>
+
+    <!-- Daily Report Header Screen -->
+    <template id="ff_daily_report" name="FFM Daily Report Header">
+        <t t-call="ffm_daily_report.ff_layout">
+            <a href="/ff" class="ffm-back-link">← ড্যাশবোর্ডে ফিরে যান (Back to Home)</a>
+
+            <div class="ffm-form-card">
+                <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 6px;">দৈনিক রিপোর্ট (Daily Report)</h2>
+                <p style="font-size: 0.85rem; color: var(--ffm-text-muted); margin-bottom: 16px;">
+                    তারিখ: <strong t-esc="today_str"/>
+                </p>
+
+                <!-- Case A: Report Already Initialized -->
+                <t t-if="report">
+                    <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 18px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span style="font-size: 0.9rem; font-weight: 600;">রিপোর্ট স্ট্যাটাস:</span>
+                            <span t-attf-class="ffm-badge #{'ffm-badge-success' if report.state == 'approved' else ('ffm-badge-warning' if report.state == 'submitted' else '')}" style="background: #e0f2fe; color: #0369a1;">
+                                <t t-esc="report.state.upper()"/>
+                            </span>
+                        </div>
+                        <div style="font-size: 0.88rem; line-height: 1.7;">
+                            <div><strong>কর্মীর নাম:</strong> <span t-esc="report.employee_id.name"/></div>
+                            <div><strong>কর্মক্ষেত্র (Working Place):</strong> <span t-esc="report.working_place_id.name or report.working_place or 'Not Set'"/></div>
+                            <t t-if="report.territory_id">
+                                <div><strong>টেরিটরি:</strong> <span t-esc="report.territory_id.name"/></div>
+                            </t>
+                        </div>
+                    </div>
+
+                    <!-- Summary KPI Counters -->
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; text-align: center;">
+                        <div style="background: #ffffff; border: 1px solid var(--ffm-border); border-radius: 8px; padding: 10px;">
+                            <div style="font-size: 0.75rem; color: var(--ffm-text-muted);">মোট কেমিস্ট</div>
+                            <div style="font-size: 1.2rem; font-weight: 700; color: var(--ffm-primary);"><t t-esc="report.total_chemist_visited"/></div>
+                        </div>
+                        <div style="background: #ffffff; border: 1px solid var(--ffm-border); border-radius: 8px; padding: 10px;">
+                            <div style="font-size: 0.75rem; color: var(--ffm-text-muted);">মোট ডাক্তার</div>
+                            <div style="font-size: 1.2rem; font-weight: 700; color: #0284c7;"><t t-esc="report.total_prescriber_visited"/></div>
+                        </div>
+                        <div style="background: #ffffff; border: 1px solid var(--ffm-border); border-radius: 8px; padding: 10px;">
+                            <div style="font-size: 0.75rem; color: var(--ffm-text-muted);">মোট খামার</div>
+                            <div style="font-size: 1.2rem; font-weight: 700; color: #d97706;"><t t-esc="report.total_farm_visited"/></div>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; text-align: center;">
+                        <div style="background: #ecfdf5; border-radius: 8px; padding: 8px;">
+                            <div style="font-size: 0.72rem; color: #047857;">অর্ডার (Tk)</div>
+                            <div style="font-size: 1rem; font-weight: 700; color: #065f46;">৳<t t-esc="'%.0f' % report.total_order_tk"/></div>
+                        </div>
+                        <div style="background: #eff6ff; border-radius: 8px; padding: 8px;">
+                            <div style="font-size: 0.72rem; color: #1d4ed8;">সেল (Tk)</div>
+                            <div style="font-size: 1rem; font-weight: 700; color: #1e40af;">৳<t t-esc="'%.0f' % report.total_sale_tk"/></div>
+                        </div>
+                        <div style="background: #fefce8; border-radius: 8px; padding: 8px;">
+                            <div style="font-size: 0.72rem; color: #a16207;">কালেকশন (Tk)</div>
+                            <div style="font-size: 1rem; font-weight: 700; color: #854d0e;">৳<t t-esc="'%.0f' % report.total_coll_tk"/></div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Visit Entry Buttons -->
+                    <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px;">
+                        <a href="/ff/visit/chemist" class="ffm-btn ffm-btn-secondary" style="justify-content: flex-start; padding: 14px 16px;">
+                            💊 + নতুন কেমিস্ট ভিজিট যুক্ত করুন (Add Chemist Visit)
+                        </a>
+                        <a href="/ff/visit/doctor" class="ffm-btn ffm-btn-secondary" style="justify-content: flex-start; padding: 14px 16px;">
+                            🩺 + নতুন ডাক্তার ভিজিট যুক্ত করুন (Add Doctor Visit)
+                        </a>
+                        <a href="/ff/visit/farm" class="ffm-btn ffm-btn-secondary" style="justify-content: flex-start; padding: 14px 16px;">
+                            🚜 + নতুন খামার ভিজিট যুক্ত করুন (Add Farm Visit)
+                        </a>
+                        <a href="/ff/entries/today" class="ffm-btn ffm-btn-secondary" style="justify-content: flex-start; padding: 14px 16px;">
+                            📋 আজকের সমস্ত এন্ট্রি তালিকা দেখুন (View Today's Entries)
+                        </a>
+                    </div>
+
+                    <!-- Submit Report Button -->
+                    <t t-if="report.state == 'draft'">
+                        <button type="button" id="btnSubmitReport" class="ffm-btn ffm-btn-primary" onclick="submitDailyReport()">
+                            ✓ দিনের রিপোর্ট ফাইনাল সাবমিট করুন (Submit Report)
+                        </button>
+                    </t>
+                    <t t-else="">
+                        <div class="ffm-badge ffm-badge-success" style="width: 100%; text-align: center; padding: 10px; font-size: 0.9rem;">
+                            ✓ আজকের রিপোর্ট ইতিমধ্যে সাবমিট করা হয়েছে।
+                        </div>
+                    </t>
+
+                    <script>
+                        function submitDailyReport() {
+                            if (!confirm('আপনি কি নিশ্চিত যে আজকের রিপোর্ট ফাইনাল সাবমিট করতে চান? সাবমিট করার পর তথ্য পরিবর্তন করা যাবে না।')) {
+                                return;
+                            }
+                            var btn = document.getElementById('btnSubmitReport');
+                            var release = FFM.doubleTapGuard(btn, 'সাবমিট হচ্ছে...');
+
+                            fetch('/ff/report/daily/submit', {
+                                method: 'POST',
+                                headers: {'Content-Type': 'application/json'},
+                                body: JSON.stringify({params: {}})
+                            })
+                            .then(function(res) { return res.json(); })
+                            .then(function(data) {
+                                var res = data.result || data;
+                                if (res.status === 'success') {
+                                    FFM.showToast(res.message, 'success');
+                                    setTimeout(function() { window.location.reload(); }, 1200);
+                                } else {
+                                    release();
+                                    FFM.showToast(res.message, 'error');
+                                }
+                            })
+                            .catch(function(err) {
+                                release();
+                                FFM.showToast('নেটওয়ার্ক ত্রুটি। আবার চেষ্টা করুন।', 'error');
+                            });
+                        }
+                    </script>
+                </t>
+
+                <!-- Case B: Report Not Initialized Yet -->
+                <t t-else="">
+                    <form id="initReportForm" onsubmit="return handleInitReport(event)">
+                        <div class="ffm-form-group">
+                            <label class="ffm-form-label" for="working_place_id">কর্মক্ষেত্র নির্বাচন করুন (Working Place / Thana) *</label>
+                            <select id="working_place_id" name="working_place_id" class="ffm-form-control" required="required">
+                                <option value="">-- থানা বা এলাকা বাছাই করুন --</option>
+                                <t t-foreach="places" t-as="p">
+                                    <option t-att-value="p.id"><t t-esc="p.name"/></option>
+                                </t>
+                            </select>
+                            <small style="color: var(--ffm-text-muted);">আজকের ফিল্ড কাজের মূল কর্মক্ষেত্র নির্ধারণ করুন।</small>
+                        </div>
+
+                        <button type="submit" id="btnInitReport" class="ffm-btn ffm-btn-primary">
+                            আজকের রিপোর্ট শুরু করুন (Initialize Report)
+                        </button>
+                    </form>
+
+                    <script>
+                        function handleInitReport(e) {
+                            e.preventDefault();
+                            var placeId = document.getElementById('working_place_id').value;
+                            if (!placeId) {
+                                FFM.showToast('কর্মক্ষেত্র নির্বাচন করুন।', 'error');
+                                return false;
+                            }
+                            var btn = document.getElementById('btnInitReport');
+                            var release = FFM.doubleTapGuard(btn, 'প্রক্রিয়াধীন...');
+
+                            fetch('/ff/report/daily/init', {
+                                method: 'POST',
+                                headers: {'Content-Type': 'application/json'},
+                                body: JSON.stringify({params: {working_place_id: placeId}})
+                            })
+                            .then(function(res) { return res.json(); })
+                            .then(function(data) {
+                                var res = data.result || data;
+                                if (res.status === 'success') {
+                                    FFM.showToast(res.message, 'success');
+                                    setTimeout(function() { window.location.reload(); }, 1000);
+                                } else {
+                                    release();
+                                    FFM.showToast(res.message, 'error');
+                                }
+                            })
+                            .catch(function(err) {
+                                release();
+                                FFM.showToast('নেটওয়ার্ক ত্রুটি। আবার চেষ্টা করুন।', 'error');
+                            });
+                            return false;
+                        }
+                    </script>
+                </t>
+            </div>
+        </t>
+    </template>
+
+    <!-- Chemist Visit Form -->
+    <template id="ff_visit_chemist" name="FFM Chemist Visit Form">
+        <t t-call="ffm_daily_report.ff_layout">
+            <a href="/ff/report/daily" class="ffm-back-link">← রিপোর্টে ফিরে যান (Back to Daily Report)</a>
+
+            <div class="ffm-form-card">
+                <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 6px;">কেমিস্ট ভিজিট (Chemist Visit)</h2>
+                <p style="font-size: 0.85rem; color: var(--ffm-text-muted); margin-bottom: 20px;">
+                    ফার্মেসি বা কেমিস্টের তথ্য এবং অর্ডার/সেল এন্ট্রি দিন।
+                </p>
+
+                <form id="chemistVisitForm" onsubmit="return handleChemistSubmit(event)">
+                    <!-- Chemist Search & Selection -->
+                    <div class="ffm-form-group">
+                        <label class="ffm-form-label">কেমিস্ট নির্বাচন (Search Chemist)</label>
+                        <input type="text" id="chemistSearchInput" class="ffm-form-control" placeholder="কেমিস্টের নাম লিখে খুঁজুন..." oninput="searchChemists(this.value)"/>
+                        <select id="chemist_id" name="chemist_id" class="ffm-form-control" style="margin-top: 6px;">
+                            <option value="">-- তালিকা থেকে নির্বাচন করুন --</option>
+                        </select>
+                    </div>
+
+                    <!-- Manual Name Fallback -->
+                    <div class="ffm-form-group">
+                        <label class="ffm-form-label">অথবা ম্যানুয়াল নাম (Manual Chemist Name)</label>
+                        <input type="text" id="chemist_name_manual" name="chemist_name_manual" class="ffm-form-control" placeholder="তালিকাভুক্ত না থাকলে নাম লিখুন"/>
+                    </div>
+
+                    <!-- Order, Sale, Collection amounts -->
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                        <div class="ffm-form-group">
+                            <label class="ffm-form-label">অর্ডার (Tk) *</label>
+                            <input type="number" id="order_tk" name="order_tk" class="ffm-form-control" min="0" step="1" value="0" required="required"/>
+                        </div>
+                        <div class="ffm-form-group">
+                            <label class="ffm-form-label">সেল (Tk) *</label>
+                            <input type="number" id="sale_tk" name="sale_tk" class="ffm-form-control" min="0" step="1" value="0" required="required"/>
+                        </div>
+                        <div class="ffm-form-group">
+                            <label class="ffm-form-label">কালেকশন (Tk) *</label>
+                            <input type="number" id="coll_tk" name="coll_tk" class="ffm-form-control" min="0" step="1" value="0" required="required"/>
+                        </div>
+                    </div>
+
+                    <div class="ffm-form-group">
+                        <label class="ffm-form-label">মন্তব্য (Note)</label>
+                        <input type="text" id="note" name="note" class="ffm-form-control" placeholder="কোনো বিশেষ মন্তব্য থাকলে লিখুন"/>
+                    </div>
+
+                    <!-- ── Journey Block ── -->
+                    <div style="background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 16px; margin: 20px 0;">
+                        <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 12px; color: #1e293b;">
+                            🚗 যাতায়াত বিবরণ (Journey Block)
+                        </h3>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div class="ffm-form-group">
+                                <label class="ffm-form-label">হতে (From Place)</label>
+                                <select id="place_from_id" class="ffm-form-control">
+                                    <option value="">-- স্থান নির্বাচন করুন --</option>
+                                    <t t-foreach="places" t-as="p">
+                                        <option t-att-value="p.id"><t t-esc="p.name"/></option>
+                                    </t>
+                                </select>
+                            </div>
+                            <div class="ffm-form-group">
+                                <label class="ffm-form-label">পর্যন্ত (To Place)</label>
+                                <select id="place_to_id" class="ffm-form-control">
+                                    <option value="">-- স্থান নির্বাচন করুন --</option>
+                                    <t t-foreach="places" t-as="p">
+                                        <option t-att-value="p.id"><t t-esc="p.name"/></option>
+                                    </t>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="ffm-form-group">
+                            <label class="ffm-form-label">ভ্রমণের মাধ্যম (Mode of Journey) *</label>
+                            <select id="mode" class="ffm-form-control" required="required" onchange="checkModeOther(this.value)">
+                                <t t-foreach="transport_modes" t-as="m">
+                                    <option t-att-value="m[0]"><t t-esc="m[1]"/></option>
+                                </t>
+                            </select>
+                        </div>
+
+                        <div class="ffm-form-group" id="divOtherMode" style="display: none;">
+                            <label class="ffm-form-label">অন্যান্য মাধ্যম বিবরণ</label>
+                            <input type="text" id="other_mode" class="ffm-form-control" placeholder="মাধ্যমের নাম লিখুন"/>
+                        </div>
+
+                        <button type="button" class="ffm-btn ffm-btn-secondary" onclick="calculateJourney()" style="margin-bottom: 12px; font-size: 0.88rem; min-height: 40px;">
+                            ⚡ দূরত্ব ও ভাড়া গণনা করুন (Calculate Distance &amp; Fare)
+                        </button>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div class="ffm-form-group">
+                                <label class="ffm-form-label">দূরত্ব (km)</label>
+                                <input type="number" id="distance_km" class="ffm-form-control" step="0.1" value="0"/>
+                            </div>
+                            <div class="ffm-form-group">
+                                <label class="ffm-form-label">ভাড়া (Tk / TA Bill) *</label>
+                                <input type="number" id="fare_tk" class="ffm-form-control" step="1" value="0" required="required"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="btnSubmitChemist" class="ffm-btn ffm-btn-primary">
+                        কেমিস্ট ভিজিট সংরক্ষণ করুন (Save Chemist Visit)
+                    </button>
+                </form>
+            </div>
+
+            <script>
+                function searchChemists(term) {
+                    if (!term || term.length &lt; 2) return;
+                    fetch('/ff/api/customers/search', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({params: {type: 'chemist', term: term}})
+                    })
+                    .then(function(res) { return res.json(); })
+                    .then(function(data) {
+                        var res = data.result || data;
+                        var sel = document.getElementById('chemist_id');
+                        sel.innerHTML = '&lt;option value=""&gt;-- নির্বাচন করুন --&lt;/option&gt;';
+                        if (res.results) {
+                            res.results.forEach(function(c) {
+                                var opt = document.createElement('option');
+                                opt.value = c.id;
+                                opt.innerText = c.name + (c.address ? ' (' + c.address + ')' : '');
+                                sel.appendChild(opt);
+                            });
+                        }
+                    });
+                }
+
+                function checkModeOther(val) {
+                    document.getElementById('divOtherMode').style.display = (val === 'others') ? 'block' : 'none';
+                }
+
+                function calculateJourney() {
+                    var pFrom = document.getElementById('place_from_id').value;
+                    var pTo = document.getElementById('place_to_id').value;
+                    var mode = document.getElementById('mode').value;
+
+                    if (!pFrom || !pTo) {
+                        FFM.showToast('প্রারম্ভিক ও গন্তব্য স্থান নির্বাচন করুন।', 'error');
+                        return;
+                    }
+
+                    fetch('/ff/api/journey/calculate', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({params: {place_from_id: pFrom, place_to_id: pTo, mode: mode}})
+                    })
+                    .then(function(res) { return res.json(); })
+                    .then(function(data) {
+                        var res = data.result || data;
+                        if (res.distance_km !== undefined) {
+                            document.getElementById('distance_km').value = res.distance_km;
+                            document.getElementById('fare_tk').value = res.fare_tk;
+                            FFM.showToast('দূরত্ব: ' + res.distance_km + ' km, ভাড়া: ৳' + res.fare_tk, 'success');
+                        }
+                    });
+                }
+
+                function handleChemistSubmit(e) {
+                    e.preventDefault();
+                    var chemId = document.getElementById('chemist_id').value;
+                    var chemManual = document.getElementById('chemist_name_manual').value.trim();
+
+                    if (!chemId &amp;&amp; !chemManual) {
+                        FFM.showToast('কেমিস্ট নির্বাচন করুন অথবা ম্যানুয়াল নাম লিখুন।', 'error');
+                        return false;
+                    }
+
+                    var order = parseInt(document.getElementById('order_tk').value, 10);
+                    var sale = parseInt(document.getElementById('sale_tk').value, 10);
+                    var coll = parseInt(document.getElementById('coll_tk').value, 10);
+
+                    if (isNaN(order) || isNaN(sale) || isNaN(coll) || order &lt; 0 || sale &lt; 0 || coll &lt; 0) {
+                        FFM.showToast('টাকার পরিমাণ সঠিক পূর্ণসংখ্যা প্রদান করুন।', 'error');
+                        return false;
+                    }
+
+                    var btn = document.getElementById('btnSubmitChemist');
+                    var release = FFM.doubleTapGuard(btn, 'সংরক্ষণ হচ্ছে...');
+
+                    var payload = {
+                        chemist_id: chemId || false,
+                        chemist_name_manual: chemManual || false,
+                        order_tk: order,
+                        sale_tk: sale,
+                        coll_tk: coll,
+                        note: document.getElementById('note').value.trim(),
+                        place_from_id: document.getElementById('place_from_id').value,
+                        place_to_id: document.getElementById('place_to_id').value,
+                        mode: document.getElementById('mode').value,
+                        other_mode: document.getElementById('other_mode').value.trim(),
+                        distance_km: parseFloat(document.getElementById('distance_km').value || 0),
+                        fare_tk: parseFloat(document.getElementById('fare_tk').value || 0),
+                        client_uuid: FFM.getOrGenerateUUID('ffm_chemist_visit_uuid')
+                    };
+
+                    fetch('/ff/visit/chemist/submit', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({params: payload})
+                    })
+                    .then(function(res) { return res.json(); })
+                    .then(function(data) {
+                        var res = data.result || data;
+                        if (res.status === 'success') {
+                            FFM.resetUUID('ffm_chemist_visit_uuid');
+                            FFM.showToast(res.message, 'success');
+                            setTimeout(function() { window.location.href = '/ff/entries/today'; }, 1000);
+                        } else {
+                            release();
+                            FFM.showToast(res.message, 'error');
+                        }
+                    })
+                    .catch(function(err) {
+                        release();
+                        FFM.showToast('নেটওয়ার্ক সংযোগে সমস্যা হয়েছে।', 'error');
+                    });
+
+                    return false;
+                }
+            </script>
+        </t>
+    </template>
+
+    <!-- Doctor Visit Form -->
+    <template id="ff_visit_doctor" name="FFM Doctor Visit Form">
+        <t t-call="ffm_daily_report.ff_layout">
+            <a href="/ff/report/daily" class="ffm-back-link">← রিপোর্টে ফিরে যান (Back to Daily Report)</a>
+
+            <div class="ffm-form-card">
+                <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 6px;">ডাক্তার ভিজিট (Doctor Visit)</h2>
+                <p style="font-size: 0.85rem; color: var(--ffm-text-muted); margin-bottom: 20px;">
+                    ডাক্তার / প্রিসক্রাইবার ভিজিট, প্রোডাক্ট আলোচনা এবং গ্রেড নির্বাচন করুন।
+                </p>
+
+                <form id="doctorVisitForm" onsubmit="return handleDoctorSubmit(event)">
+                    <!-- Doctor Search & Selection -->
+                    <div class="ffm-form-group">
+                        <label class="ffm-form-label">ডাক্তার নির্বাচন (Search Doctor)</label>
+                        <input type="text" class="ffm-form-control" placeholder="ডাক্তারের নাম লিখে খুঁজুন..." oninput="searchDoctors(this.value)"/>
+                        <select id="doctor_id" name="doctor_id" class="ffm-form-control" style="margin-top: 6px;">
+                            <option value="">-- তালিকা থেকে নির্বাচন করুন --</option>
+                        </select>
+                    </div>
+
+                    <!-- Manual Name Fallback -->
+                    <div class="ffm-form-group">
+                        <label class="ffm-form-label">অথবা ম্যানুয়াল নাম (Manual Doctor Name)</label>
+                        <input type="text" id="prescriber_name_manual" name="prescriber_name_manual" class="ffm-form-control" placeholder="তালিকাভুক্ত না থাকলে নাম লিখুন"/>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="ffm-form-group">
+                            <label class="ffm-form-label">মোবাইল / ইমেইল (Mobile/Mail) *</label>
+                            <input type="text" id="mobile" name="mobile" class="ffm-form-control" required="required" placeholder="017xxxxxxxx"/>
+                        </div>
+                        <div class="ffm-form-group">
+                            <label class="ffm-form-label">গ্রেড (Grade) *</label>
+                            <select id="grade" name="grade" class="ffm-form-control" required="required">
+                                <t t-foreach="doctor_grades" t-as="g">
+                                    <option t-att-value="g[0]"><t t-esc="g[1]"/></option>
+                                </t>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="ffm-form-group">
+                        <label class="ffm-form-label">চেম্বারের ঠিকানা (Mailing Address) *</label>
+                        <input type="text" id="mailing_address" name="mailing_address" class="ffm-form-control" required="required" placeholder="চেম্বার / ক্লিনিকের ঠিকানা"/>
+                    </div>
+
+                    <div class="ffm-form-group">
+                        <label class="ffm-form-label">প্রোডাক্ট আলোচনা (Product Discussion) *</label>
+                        <input type="text" id="product_discussion" name="product_discussion" class="ffm-form-control" required="required" placeholder="যে যে ওষুধ নিয়ে আলোচনা হয়েছে"/>
+                    </div>
+
+                    <div class="ffm-form-group">
+                        <label class="ffm-form-label">স্যাম্পল / উপহার (Sample / Gift) *</label>
+                        <input type="text" id="sample" name="sample" class="ffm-form-control" required="required" placeholder="প্রদত্ত স্যাম্পল বা লিটারেচার"/>
+                    </div>
+
+                    <!-- ── Journey Block ── -->
+                    <div style="background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 16px; margin: 20px 0;">
+                        <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 12px; color: #1e293b;">
+                            🚗 যাতায়াত বিবরণ (Journey Block)
+                        </h3>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div class="ffm-form-group">
+                                <label class="ffm-form-label">হতে (From Place)</label>
+                                <select id="doc_place_from_id" class="ffm-form-control">
+                                    <option value="">-- স্থান নির্বাচন করুন --</option>
+                                    <t t-foreach="places" t-as="p">
+                                        <option t-att-value="p.id"><t t-esc="p.name"/></option>
+                                    </t>
+                                </select>
+                            </div>
+                            <div class="ffm-form-group">
+                                <label class="ffm-form-label">পর্যন্ত (To Place)</label>
+                                <select id="doc_place_to_id" class="ffm-form-control">
+                                    <option value="">-- স্থান নির্বাচন করুন --</option>
+                                    <t t-foreach="places" t-as="p">
+                                        <option t-att-value="p.id"><t t-esc="p.name"/></option>
+                                    </t>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="ffm-form-group">
+                            <label class="ffm-form-label">ভ্রমণের মাধ্যম (Mode of Journey) *</label>
+                            <select id="doc_mode" class="ffm-form-control" required="required">
+                                <t t-foreach="transport_modes" t-as="m">
+                                    <option t-att-value="m[0]"><t t-esc="m[1]"/></option>
+                                </t>
+                            </select>
+                        </div>
+
+                        <button type="button" class="ffm-btn ffm-btn-secondary" onclick="calculateDoctorJourney()" style="margin-bottom: 12px; font-size: 0.88rem; min-height: 40px;">
+                            ⚡ দূরত্ব ও ভাড়া গণনা করুন (Calculate Distance &amp; Fare)
+                        </button>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div class="ffm-form-group">
+                                <label class="ffm-form-label">দূরত্ব (km)</label>
+                                <input type="number" id="doc_distance_km" class="ffm-form-control" step="0.1" value="0"/>
+                            </div>
+                            <div class="ffm-form-group">
+                                <label class="ffm-form-label">ভাড়া (Tk / TA Bill) *</label>
+                                <input type="number" id="doc_fare_tk" class="ffm-form-control" step="1" value="0" required="required"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="btnSubmitDoctor" class="ffm-btn ffm-btn-primary">
+                        ডাক্তার ভিজিট সংরক্ষণ করুন (Save Doctor Visit)
+                    </button>
+                </form>
+            </div>
+
+            <script>
+                function searchDoctors(term) {
+                    if (!term || term.length &lt; 2) return;
+                    fetch('/ff/api/customers/search', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({params: {type: 'doctor', term: term}})
+                    })
+                    .then(function(res) { return res.json(); })
+                    .then(function(data) {
+                        var res = data.result || data;
+                        var sel = document.getElementById('doctor_id');
+                        sel.innerHTML = '&lt;option value=""&gt;-- নির্বাচন করুন --&lt;/option&gt;';
+                        if (res.results) {
+                            res.results.forEach(function(c) {
+                                var opt = document.createElement('option');
+                                opt.value = c.id;
+                                opt.innerText = c.name + (c.address ? ' (' + c.address + ')' : '');
+                                sel.appendChild(opt);
+                            });
+                        }
+                    });
+                }
+
+                function calculateDoctorJourney() {
+                    var pFrom = document.getElementById('doc_place_from_id').value;
+                    var pTo = document.getElementById('doc_place_to_id').value;
+                    var mode = document.getElementById('doc_mode').value;
+
+                    if (!pFrom || !pTo) {
+                        FFM.showToast('প্রারম্ভিক ও গন্তব্য স্থান নির্বাচন করুন।', 'error');
+                        return;
+                    }
+
+                    fetch('/ff/api/journey/calculate', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({params: {place_from_id: pFrom, place_to_id: pTo, mode: mode}})
+                    })
+                    .then(function(res) { return res.json(); })
+                    .then(function(data) {
+                        var res = data.result || data;
+                        if (res.distance_km !== undefined) {
+                            document.getElementById('doc_distance_km').value = res.distance_km;
+                            document.getElementById('doc_fare_tk').value = res.fare_tk;
+                            FFM.showToast('দূরত্ব: ' + res.distance_km + ' km, ভাড়া: ৳' + res.fare_tk, 'success');
+                        }
+                    });
+                }
+
+                function handleDoctorSubmit(e) {
+                    e.preventDefault();
+                    var docId = document.getElementById('doctor_id').value;
+                    var docManual = document.getElementById('prescriber_name_manual').value.trim();
+
+                    if (!docId &amp;&amp; !docManual) {
+                        FFM.showToast('ডাক্তার নির্বাচন করুন অথবা ম্যানুয়াল নাম লিখুন।', 'error');
+                        return false;
+                    }
+
+                    var btn = document.getElementById('btnSubmitDoctor');
+                    var release = FFM.doubleTapGuard(btn, 'সংরক্ষণ হচ্ছে...');
+
+                    var payload = {
+                        doctor_id: docId || false,
+                        prescriber_name_manual: docManual || false,
+                        mobile: document.getElementById('mobile').value.trim(),
+                        mailing_address: document.getElementById('mailing_address').value.trim(),
+                        product_discussion: document.getElementById('product_discussion').value.trim(),
+                        sample: document.getElementById('sample').value.trim(),
+                        grade: document.getElementById('grade').value,
+                        place_from_id: document.getElementById('doc_place_from_id').value,
+                        place_to_id: document.getElementById('doc_place_to_id').value,
+                        mode: document.getElementById('doc_mode').value,
+                        distance_km: parseFloat(document.getElementById('doc_distance_km').value || 0),
+                        fare_tk: parseFloat(document.getElementById('doc_fare_tk').value || 0),
+                        client_uuid: FFM.getOrGenerateUUID('ffm_doctor_visit_uuid')
+                    };
+
+                    fetch('/ff/visit/doctor/submit', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({params: payload})
+                    })
+                    .then(function(res) { return res.json(); })
+                    .then(function(data) {
+                        var res = data.result || data;
+                        if (res.status === 'success') {
+                            FFM.resetUUID('ffm_doctor_visit_uuid');
+                            FFM.showToast(res.message, 'success');
+                            setTimeout(function() { window.location.href = '/ff/entries/today'; }, 1000);
+                        } else {
+                            release();
+                            FFM.showToast(res.message, 'error');
+                        }
+                    })
+                    .catch(function(err) {
+                        release();
+                        FFM.showToast('নেটওয়ার্ক সংযোগে সমস্যা হয়েছে।', 'error');
+                    });
+
+                    return false;
+                }
+            </script>
+        </t>
+    </template>
+
+    <!-- Farm / Others Visit Form -->
+    <template id="ff_visit_farm" name="FFM Farm Visit Form">
+        <t t-call="ffm_daily_report.ff_layout">
+            <a href="/ff/report/daily" class="ffm-back-link">← রিপোর্টে ফিরে যান (Back to Daily Report)</a>
+
+            <div class="ffm-form-card">
+                <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 6px;">খামার ও অন্যান্য ভিজিট (Farm Visit)</h2>
+                <p style="font-size: 0.85rem; color: var(--ffm-text-muted); margin-bottom: 20px;">
+                    পোল্ট্রি, ডেইরি, ফিশারিজ বা অন্যান্য প্রতিষ্ঠানের পরিদর্শন তথ্য।
+                </p>
+
+                <form id="farmVisitForm" onsubmit="return handleFarmSubmit(event)">
+                    <div class="ffm-form-group">
+                        <label class="ffm-form-label">খামার বা প্রতিষ্ঠানের নাম *</label>
+                        <input type="text" id="farm_name" name="farm_name" class="ffm-form-control" required="required" placeholder="উদা: ভাই ভাই পোল্ট্রি ফার্ম"/>
+                    </div>
+
+                    <div class="ffm-form-group">
+                        <label class="ffm-form-label">ঠিকানা (Address)</label>
+                        <input type="text" id="farm_address" name="address" class="ffm-form-control" placeholder="গ্রাম/এলাকার নাম"/>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="ffm-form-group">
+                            <label class="ffm-form-label">ব্রয়লার (Broiler)</label>
+                            <input type="text" id="broiler" name="broiler" class="ffm-form-control" placeholder="শেড সংখ্যা / ক্যাপাসিটি"/>
+                        </div>
+                        <div class="ffm-form-group">
+                            <label class="ffm-form-label">লেয়ার (Layer)</label>
+                            <input type="text" id="layer" name="layer" class="ffm-form-control" placeholder="ক্যাপাসিটি"/>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="ffm-form-group">
+                            <label class="ffm-form-label">সোনালী (Sonali)</label>
+                            <input type="text" id="sonali" name="sonali" class="ffm-form-control" placeholder="ক্যাপাসিটি"/>
+                        </div>
+                        <div class="ffm-form-group">
+                            <label class="ffm-form-label">গবাদি পশু (Cattle)</label>
+                            <input type="text" id="cattle" name="cattle" class="ffm-form-control" placeholder="গাভী / ষাঁড় সংখ্যা"/>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="ffm-form-group">
+                            <label class="ffm-form-label">মাছ / অ্যাকোয়া (Aqua)</label>
+                            <input type="text" id="aqua" name="aqua" class="ffm-form-control" placeholder="পুকুর / প্রজেক্ট"/>
+                        </div>
+                        <div class="ffm-form-group">
+                            <label class="ffm-form-label">মোট সংখ্যা (Total Birds/Cattle)</label>
+                            <input type="number" id="bird_count" name="bird_count" class="ffm-form-control" min="0" value="0"/>
+                        </div>
+                    </div>
+
+                    <div class="ffm-form-group">
+                        <label class="ffm-form-label">আলোচনার বিষয় ও নোট</label>
+                        <input type="text" id="farm_note" name="note" class="ffm-form-control" placeholder="ফিড, মেডিসিন বা খামারির প্রতিক্রিয়া"/>
+                    </div>
+
+                    <!-- ── Journey Block ── -->
+                    <div style="background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 16px; margin: 20px 0;">
+                        <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 12px; color: #1e293b;">
+                            🚗 যাতায়াত বিবরণ (Journey Block)
+                        </h3>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div class="ffm-form-group">
+                                <label class="ffm-form-label">হতে (From Place)</label>
+                                <select id="farm_place_from_id" class="ffm-form-control">
+                                    <option value="">-- স্থান নির্বাচন করুন --</option>
+                                    <t t-foreach="places" t-as="p">
+                                        <option t-att-value="p.id"><t t-esc="p.name"/></option>
+                                    </t>
+                                </select>
+                            </div>
+                            <div class="ffm-form-group">
+                                <label class="ffm-form-label">পর্যন্ত (To Place)</label>
+                                <select id="farm_place_to_id" class="ffm-form-control">
+                                    <option value="">-- স্থান নির্বাচন করুন --</option>
+                                    <t t-foreach="places" t-as="p">
+                                        <option t-att-value="p.id"><t t-esc="p.name"/></option>
+                                    </t>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="ffm-form-group">
+                            <label class="ffm-form-label">ভ্রমণের মাধ্যম</label>
+                            <select id="farm_mode" class="ffm-form-control">
+                                <option value="">-- প্রয়োজন না হলে ফাঁকা রাখুন --</option>
+                                <t t-foreach="transport_modes" t-as="m">
+                                    <option t-att-value="m[0]"><t t-esc="m[1]"/></option>
+                                </t>
+                            </select>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div class="ffm-form-group">
+                                <label class="ffm-form-label">দূরত্ব (km)</label>
+                                <input type="number" id="farm_distance_km" class="ffm-form-control" step="0.1" value="0"/>
+                            </div>
+                            <div class="ffm-form-group">
+                                <label class="ffm-form-label">ভাড়া (Tk / TA Bill)</label>
+                                <input type="number" id="farm_fare_tk" class="ffm-form-control" step="1" value="0"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="btnSubmitFarm" class="ffm-btn ffm-btn-primary">
+                        খামার ভিজিট সংরক্ষণ করুন (Save Farm Visit)
+                    </button>
+                </form>
+            </div>
+
+            <script>
+                function handleFarmSubmit(e) {
+                    e.preventDefault();
+                    var name = document.getElementById('farm_name').value.trim();
+                    if (!name) {
+                        FFM.showToast('খামার বা প্রতিষ্ঠানের নাম প্রদান করুন।', 'error');
+                        return false;
+                    }
+
+                    var btn = document.getElementById('btnSubmitFarm');
+                    var release = FFM.doubleTapGuard(btn, 'সংরক্ষণ হচ্ছে...');
+
+                    var payload = {
+                        farm_name: name,
+                        address: document.getElementById('farm_address').value.trim(),
+                        broiler: document.getElementById('broiler').value.trim(),
+                        layer: document.getElementById('layer').value.trim(),
+                        sonali: document.getElementById('sonali').value.trim(),
+                        cattle: document.getElementById('cattle').value.trim(),
+                        aqua: document.getElementById('aqua').value.trim(),
+                        bird_count: parseInt(document.getElementById('bird_count').value || 0, 10),
+                        note: document.getElementById('farm_note').value.trim(),
+                        place_from_id: document.getElementById('farm_place_from_id').value,
+                        place_to_id: document.getElementById('farm_place_to_id').value,
+                        mode: document.getElementById('farm_mode').value,
+                        distance_km: parseFloat(document.getElementById('farm_distance_km').value || 0),
+                        fare_tk: parseFloat(document.getElementById('farm_fare_tk').value || 0),
+                        client_uuid: FFM.getOrGenerateUUID('ffm_farm_visit_uuid')
+                    };
+
+                    fetch('/ff/visit/farm/submit', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({params: payload})
+                    })
+                    .then(function(res) { return res.json(); })
+                    .then(function(data) {
+                        var res = data.result || data;
+                        if (res.status === 'success') {
+                            FFM.resetUUID('ffm_farm_visit_uuid');
+                            FFM.showToast(res.message, 'success');
+                            setTimeout(function() { window.location.href = '/ff/entries/today'; }, 1000);
+                        } else {
+                            release();
+                            FFM.showToast(res.message, 'error');
+                        }
+                    })
+                    .catch(function(err) {
+                        release();
+                        FFM.showToast('নেটওয়ার্ক সংযোগে সমস্যা হয়েছে।', 'error');
+                    });
+
+                    return false;
+                }
+            </script>
+        </t>
+    </template>
+
+    <!-- Today's Entries & Date/Month/Year Summary Screen -->
+    <template id="ff_entries_today" name="FFM Today Entries and Summary">
+        <t t-call="ffm_daily_report.ff_layout">
+            <a href="/ff/report/daily" class="ffm-back-link">← রিপোর্টে ফিরে যান (Back to Daily Report)</a>
+
+            <div class="ffm-form-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                    <div>
+                        <h2 style="font-size: 1.2rem; font-weight: 700;">আজকের এন্ট্রি ও সামারি</h2>
+                        <div style="font-size: 0.82rem; color: var(--ffm-text-muted);">তারিখ: <strong t-esc="today_str"/></div>
+                    </div>
+                    <form method="get" action="/ff/entries/today" style="display: flex; gap: 6px;">
+                        <input type="date" name="date" t-att-value="query_date" class="ffm-form-control" style="padding: 6px 10px; font-size: 0.85rem;" onchange="this.form.submit()"/>
+                    </form>
+                </div>
+
+                <!-- Day Performance Summary Card -->
+                <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 14px; margin-bottom: 20px;">
+                    <div style="font-size: 0.85rem; font-weight: 700; color: #1e293b; margin-bottom: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">
+                        📊 নির্বাচিত দিনের আর্থিক ও ভিজিট সারসংক্ষেপ (Day Summary)
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; margin-bottom: 10px;">
+                        <div style="background: #ecfdf5; padding: 8px; border-radius: 6px;">
+                            <div style="font-size: 0.72rem; color: #047857;">অর্ডার</div>
+                            <div style="font-size: 1rem; font-weight: 700; color: #065f46;">৳<t t-esc="'%.0f' % (report.total_order_tk if report else 0)"/></div>
+                        </div>
+                        <div style="background: #eff6ff; padding: 8px; border-radius: 6px;">
+                            <div style="font-size: 0.72rem; color: #1d4ed8;">সেল</div>
+                            <div style="font-size: 1rem; font-weight: 700; color: #1e40af;">৳<t t-esc="'%.0f' % (report.total_sale_tk if report else 0)"/></div>
+                        </div>
+                        <div style="background: #fefce8; padding: 8px; border-radius: 6px;">
+                            <div style="font-size: 0.72rem; color: #a16207;">কালেকশন</div>
+                            <div style="font-size: 1rem; font-weight: 700; color: #854d0e;">৳<t t-esc="'%.0f' % (report.total_coll_tk if report else 0)"/></div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #475569; padding-top: 6px; border-top: 1px solid #e2e8f0;">
+                        <span>কেমিস্ট: <strong><t t-esc="len(chemist_visits)"/></strong></span>
+                        <span>ডাক্তার: <strong><t t-esc="len(doctor_visits)"/></strong> (A+: <t t-esc="grade_counts['a_plus']"/>, A: <t t-esc="grade_counts['a']"/>, B: <t t-esc="grade_counts['b']"/>, C: <t t-esc="grade_counts['c']"/>)</span>
+                        <span>খামার: <strong><t t-esc="len(farm_visits)"/></strong></span>
+                    </div>
+                </div>
+
+                <!-- Monthly Rolling Summary Card -->
+                <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 12px; margin-bottom: 20px;">
+                    <div style="font-size: 0.82rem; font-weight: 700; color: #15803d; margin-bottom: 4px;">
+                        🗓️ চলতি মাসের ক্রমপুঞ্জিত সারসংক্ষেপ (Month to Date)
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #166534;">
+                        <span>অর্ডার: <strong>৳<t t-esc="'%.0f' % month_order"/></strong></span>
+                        <span>সেল: <strong>৳<t t-esc="'%.0f' % month_sale"/></strong></span>
+                        <span>কালেকশন: <strong>৳<t t-esc="'%.0f' % month_coll"/></strong></span>
+                    </div>
+                </div>
+
+                <!-- 1. Chemist Visits List -->
+                <h3 style="font-size: 0.95rem; font-weight: 700; margin: 16px 0 8px; color: #1e293b;">
+                    💊 কেমিস্ট ভিজিট (<t t-esc="len(chemist_visits)"/> টি)
+                </h3>
+                <t t-if="chemist_visits">
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <t t-foreach="chemist_visits" t-as="c">
+                            <div style="border: 1px solid var(--ffm-border); border-radius: 6px; padding: 10px; font-size: 0.85rem;">
+                                <div style="display: flex; justify-content: space-between; font-weight: 700;">
+                                    <span><t t-esc="c.chemist_id.name or c.chemist_name_manual"/></span>
+                                    <span style="color: var(--ffm-primary);">৳<t t-esc="'%.0f' % c.order_tk"/> (অর্ডার)</span>
+                                </div>
+                                <div style="color: var(--ffm-text-muted); font-size: 0.78rem; margin-top: 2px;">
+                                    সেল: ৳<t t-esc="'%.0f' % c.sale_tk"/> | কালেকশন: ৳<t t-esc="'%.0f' % c.coll_tk"/>
+                                    <t t-if="c.address"> | <t t-esc="c.address"/></t>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+                <t t-else="">
+                    <div style="font-size: 0.82rem; color: var(--ffm-text-muted); font-style: italic;">কোনো কেমিস্ট ভিজিট এন্ট্রি নেই।</div>
+                </t>
+
+                <!-- 2. Doctor Visits List -->
+                <h3 style="font-size: 0.95rem; font-weight: 700; margin: 20px 0 8px; color: #1e293b;">
+                    🩺 ডাক্তার ভিজিট (<t t-esc="len(doctor_visits)"/> টি)
+                </h3>
+                <t t-if="doctor_visits">
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <t t-foreach="doctor_visits" t-as="d">
+                            <div style="border: 1px solid var(--ffm-border); border-radius: 6px; padding: 10px; font-size: 0.85rem;">
+                                <div style="display: flex; justify-content: space-between; font-weight: 700;">
+                                    <span><t t-esc="d.prescriber_id.name or d.prescriber_name_manual"/></span>
+                                    <span class="ffm-badge" style="background: #e0e7ff; color: #3730a3;">গ্রেড <t t-esc="d.grade.upper() if d.grade else ''"/></span>
+                                </div>
+                                <div style="color: var(--ffm-text-muted); font-size: 0.78rem; margin-top: 2px;">
+                                    আলোচনা: <t t-esc="d.product_discussion"/> | উপহার/স্যাম্পল: <t t-esc="d.sample"/>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+                <t t-else="">
+                    <div style="font-size: 0.82rem; color: var(--ffm-text-muted); font-style: italic;">কোনো ডাক্তার ভিজিট এন্ট্রি নেই।</div>
+                </t>
+
+                <!-- 3. Farm Visits List -->
+                <h3 style="font-size: 0.95rem; font-weight: 700; margin: 20px 0 8px; color: #1e293b;">
+                    🚜 খামার ভিজিট (<t t-esc="len(farm_visits)"/> টি)
+                </h3>
+                <t t-if="farm_visits">
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <t t-foreach="farm_visits" t-as="f">
+                            <div style="border: 1px solid var(--ffm-border); border-radius: 6px; padding: 10px; font-size: 0.85rem;">
+                                <div style="display: flex; justify-content: space-between; font-weight: 700;">
+                                    <span><t t-esc="f.farm_name"/></span>
+                                    <span><t t-esc="f.bird_count"/> টি পশু/পাখি</span>
+                                </div>
+                                <t t-if="f.address">
+                                    <div style="color: var(--ffm-text-muted); font-size: 0.78rem; margin-top: 2px;"><t t-esc="f.address"/></div>
+                                </t>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+                <t t-else="">
+                    <div style="font-size: 0.82rem; color: var(--ffm-text-muted); font-style: italic;">কোনো খামার ভিজিট এন্ট্রি নেই।</div>
+                </t>
+
+                <!-- 4. Travel Legs List -->
+                <h3 style="font-size: 0.95rem; font-weight: 700; margin: 20px 0 8px; color: #1e293b;">
+                    🚗 যাতায়াত বিবরণী (<t t-esc="len(journey_legs)"/> টি লেগ)
+                </h3>
+                <t t-if="journey_legs">
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <t t-foreach="journey_legs" t-as="j">
+                            <div style="border: 1px solid var(--ffm-border); border-radius: 6px; padding: 10px; font-size: 0.85rem;">
+                                <div style="display: flex; justify-content: space-between; font-weight: 700;">
+                                    <span><t t-esc="j.place_from_id.name"/> → <t t-esc="j.place_to_id.name"/></span>
+                                    <span style="color: #b45309;">৳<t t-esc="'%.0f' % j.fare_tk"/></span>
+                                </div>
+                                <div style="color: var(--ffm-text-muted); font-size: 0.78rem; margin-top: 2px;">
+                                    মাধ্যম: <t t-esc="j.mode.title()"/> | দূরত্ব: <t t-esc="j.distance_km"/> km
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+                <t t-else="">
+                    <div style="font-size: 0.82rem; color: var(--ffm-text-muted); font-style: italic;">কোনো যাতায়াত রেকর্ড নেই।</div>
                 </t>
             </div>
         </t>
