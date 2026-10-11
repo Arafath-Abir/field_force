@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="ffm_module_category" model="ir.module.category">
+        <field name="name">Field Force Management</field>
+        <field name="sequence">5</field>
+    </record>
+
+    <!-- Field Person (MR / Rep) -->
+    <record id="group_ffm_field_person" model="res.groups">
+        <field name="name">Field Person</field>
+        <field name="category_id" ref="ffm_module_category"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user')), (4, ref('customer_management.group_customer_information_user'))]"/>
+    </record>
+
+    <!-- ASM -->
+    <record id="group_ffm_asm" model="res.groups">
+        <field name="name">ASM</field>
+        <field name="category_id" ref="ffm_module_category"/>
+        <field name="implied_ids" eval="[(4, ref('group_ffm_field_person'))]"/>
+    </record>
+
+    <!-- RSM -->
+    <record id="group_ffm_rsm" model="res.groups">
+        <field name="name">RSM</field>
+        <field name="category_id" ref="ffm_module_category"/>
+        <field name="implied_ids" eval="[(4, ref('group_ffm_asm'))]"/>
+    </record>
+
+    <!-- DSM -->
+    <record id="group_ffm_dsm" model="res.groups">
+        <field name="name">DSM</field>
+        <field name="category_id" ref="ffm_module_category"/>
+        <field name="implied_ids" eval="[(4, ref('group_ffm_rsm'))]"/>
+    </record>
+
+    <!-- NSM / MM -->
+    <record id="group_ffm_nsm" model="res.groups">
+        <field name="name">NSM / MM</field>
+        <field name="category_id" ref="ffm_module_category"/>
+        <field name="implied_ids" eval="[(4, ref('group_ffm_dsm'))]"/>
+    </record>
+
+    <!-- Accounts -->
+    <record id="group_ffm_accounts" model="res.groups">
+        <field name="name">Accounts</field>
+        <field name="category_id" ref="ffm_module_category"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <!-- Admin (full access) -->
+    <record id="group_ffm_admin" model="res.groups">
+        <field name="name">Administrator</field>
+        <field name="category_id" ref="ffm_module_category"/>
+        <field name="implied_ids" eval="[(4, ref('group_ffm_nsm'))]"/>
+        <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+    </record>
+
+</odoo>

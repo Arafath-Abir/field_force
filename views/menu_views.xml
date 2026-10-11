@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ── Root Menu ── -->
+    <menuitem id="menu_ffm_root"
+        name="Field Force"
+        sequence="50"
+        web_icon="field_force_management,static/src/description/icon.png"
+        groups="field_force_management.group_ffm_field_person"/>
+
+    <!-- ── 1. Daily Report ── -->
+    <menuitem id="menu_ffm_daily_report"
+        name="Daily Report"
+        parent="menu_ffm_root"
+        sequence="10"
+        action="action_ffm_daily_report"
+        groups="field_force_management.group_ffm_field_person"/>
+
+    <!-- ── 2. Travel Log ── -->
+    <menuitem id="menu_ffm_travel_log"
+        name="Travel Log"
+        parent="menu_ffm_root"
+        sequence="20"
+        action="action_ffm_travel_log"
+        groups="field_force_management.group_ffm_field_person"/>
+
+
+
+    <!-- ── Configuration submenu (admin only) ── -->
+    <menuitem id="menu_ffm_config"
+        name="Configuration"
+        parent="menu_ffm_root"
+        sequence="90"
+        groups="field_force_management.group_ffm_admin"/>
+
+
+
+    <menuitem id="menu_ffm_config_location_settings"
+        name="Location API Settings"
+        parent="menu_ffm_config"
+        sequence="10"
+        action="action_ffm_location_settings"
+        groups="field_force_management.group_ffm_admin"/>
+
+    <menuitem id="menu_ffm_config_fare"
+        name="Fare Configuration"
+        parent="menu_ffm_config"
+        sequence="20"
+        action="action_ffm_fare_config"
+        groups="field_force_management.group_ffm_admin"/>
+
+    <menuitem id="menu_ffm_config_places"
+        name="Places"
+        parent="menu_ffm_config"
+        sequence="30"
+        action="action_ffm_place"
+        groups="field_force_management.group_ffm_admin"/>
+
+</odoo>

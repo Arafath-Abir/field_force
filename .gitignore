@@ -1,0 +1,22 @@
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Nested duplicate folder (ignored per Phase 1 decision)
+field_force_management/
+
+# Logs & temp files
+*.log
+*.tmp
+*.bak
+*.zip
+
+# Odoo configuration containing real database credentials
+odoo.conf
+
+# OS & Editor files
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini

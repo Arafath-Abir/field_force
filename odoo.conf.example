@@ -1,0 +1,19 @@
+[options]
+; Master password for database management operations
+admin_passwd = YOUR_ADMIN_PASSWORD
+
+; PostgreSQL Database configuration
+db_host = localhost
+db_port = 5432
+db_user = YOUR_DB_USER
+db_password = YOUR_DB_PASSWORD
+db_name = field_force_db
+
+; Addons paths configuration
+addons_path = D:\Software\Odoo\odoo\odoo\addons,D:\Software\Odoo\odoo\addons,D:\Software\field_force_management\extra_addons,D:\Software
+
+; Web server port
+http_port = 8069
+
+; Path to external binaries (e.g. wkhtmltopdf)
+bin_path = D:\Software\Odoo\wkhtmltopdf\wkhtmltox\bin

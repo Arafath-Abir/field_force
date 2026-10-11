@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ── Fix duplicate field_person_id in customer.information tree (bug in customer_management) ── -->
+    <record id="view_customer_information_tree_ffm_fix" model="ir.ui.view">
+        <field name="name">customer.information.tree.ffm</field>
+        <field name="model">customer.information</field>
+        <field name="inherit_id" ref="customer_management.view_customer_information_tree"/>
+        <field name="arch" type="xml">
+            <tree position="replace">
+                <tree>
+                    <field name="type"/>
+                    <field name="name"/>
+                    <field name="mobile"/>
+                    <field name="address"/>
+                    <field name="field_person_id"/>
+                    <field name="territory"/>
+                    <field name="state"/>
+                </tree>
+            </tree>
+        </field>
+    </record>
+
+    <!-- ── Chemist Visit inline tree ── -->
+    <record id="view_ffm_chemist_visit_tree_inline" model="ir.ui.view">
+        <field name="name">ffm.chemist.visit.tree.inline</field>
+        <field name="model">ffm.chemist.visit</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom" string="Chemist Visits">
+                <field name="sequence" widget="handle"/>
+                <field name="chemist_id" options="{'no_create': False}"/>
+                <field name="address" optional="show"/>
+                <field name="order_tk" sum="Total Order"/>
+                <field name="sale_tk" sum="Total Sale"/>
+                <field name="coll_tk" sum="Total Collection"/>
+                <field name="note" optional="hide"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- ── Prescriber Visit inline tree ── -->
+    <record id="view_ffm_prescriber_visit_tree_inline" model="ir.ui.view">
+        <field name="name">ffm.prescriber.visit.tree.inline</field>
+        <field name="model">ffm.prescriber.visit</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom" string="Prescriber Visits">
+                <field name="sequence" widget="handle"/>
+                <field name="prescriber_id" options="{'no_create': False}"/>
+                <field name="mailing_address" optional="show"/>
+                <field name="product_discussion"/>
+                <field name="sample"/>
+                <field name="grade"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- ── Daily Report Form ── -->
+    <record id="view_ffm_daily_report_form" model="ir.ui.view">
+        <field name="name">ffm.daily.report.form</field>
+        <field name="model">ffm.daily.report</field>
+        <field name="arch" type="xml">
+            <form string="Daily Report">
+                <header>
+                    <button name="action_submit" string="Submit"
+                        type="object" class="btn-primary"
+                        attrs="{'invisible': [('state','!=','draft')]}"/>
+                    <button name="action_approve" string="Approve"
+                        type="object" class="btn-primary"
+                        attrs="{'invisible': [('state','not in',['submitted'])]}"
+                        groups="field_force_management.group_ffm_asm"/>
+                    <button name="action_reject" string="Reject"
+                        type="object" class="btn-danger"
+                        attrs="{'invisible': [('state','not in',['submitted'])]}"
+                        groups="field_force_management.group_ffm_asm"/>
+                    <button name="action_reset_draft" string="Reset to Draft"
+                        type="object"
+                        attrs="{'invisible': [('state','not in',['submitted','rejected'])]}"
+                        groups="field_force_management.group_ffm_asm"/>
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="draft,submitted,approved"/>
+                </header>
+
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="display_name" readonly="1"/></h1>
+                    </div>
+
+                    <!-- Header info -->
+                    <group>
+                        <group string="Employee Details">
+                            <field name="employee_id"
+                                attrs="{'readonly': [('state','!=','draft')]}"
+                                options="{'no_create': True}"/>
+                            <field name="name" readonly="1"/>
+                            <field name="designation" readonly="1"/>
+                            <field name="branch_id" readonly="1"/>
+                        </group>
+                        <group string="Report Details">
+                            <field name="territory_id"
+                                attrs="{'readonly': [('state','!=','draft')]}"
+                                options="{'no_create': True}"/>
+                            <field name="working_place"
+                                attrs="{'readonly': [('state','!=','draft')]}"/>
+                            <field name="date"
+                                attrs="{'readonly': [('state','!=','draft')]}"/>
+                        </group>
+                    </group>
+
+                    <!-- Chemist Visits -->
+                    <notebook>
+                        <page string="Chemist Visits" name="chemist">
+                            <group>
+                                <group>
+                                    <field name="total_chemist_visited" readonly="1"/>
+                                    <field name="total_order_tk" readonly="1"/>
+                                </group>
+                                <group>
+                                    <field name="total_sale_tk" readonly="1"/>
+                                    <field name="total_coll_tk" readonly="1"/>
+                                </group>
+                            </group>
+                            <field name="chemist_visit_ids"
+                                attrs="{'readonly': [('state','!=','draft')]}"
+                                context="{'default_report_id': active_id}">
+                                <tree editable="bottom" string="Chemist Visits">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="chemist_id"
+                                        options="{'no_create': False}"
+                                        domain="[('type','=','chetra'),('field_person_id','=',parent.employee_id)]"/>
+                                    <field name="address" optional="show"/>
+                                    <field name="order_tk" sum="Total Order"/>
+                                    <field name="sale_tk" sum="Total Sale"/>
+                                    <field name="coll_tk" sum="Total Collection"/>
+                                    <field name="note" optional="hide"/>
+                                </tree>
+                            </field>
+                        </page>
+
+                        <!-- Prescriber Visits -->
+                        <page string="Prescriber / Doctor Visits" name="prescriber">
+                            <group>
+                                <field name="total_prescriber_visited" readonly="1"/>
+                            </group>
+                            <field name="prescriber_visit_ids"
+                                attrs="{'readonly': [('state','!=','draft')]}"
+                                context="{'default_report_id': active_id}">
+                                <tree editable="bottom" string="Prescriber Visits">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="prescriber_id"
+                                        options="{'no_create': False}"
+                                        domain="[('type','=','docvet'),('field_person_id','=',parent.employee_id)]"/>
+                                    <field name="mailing_address" optional="show"/>
+                                    <field name="product_discussion"/>
+                                    <field name="sample"/>
+                                    <field name="grade"/>
+                                </tree>
+                            </field>
+                        </page>
+
+                        <!-- Remarks -->
+                        <page string="Remarks" name="remarks">
+                            <field name="note"
+                                attrs="{'readonly': [('state','!=','draft')]}"/>
+                        </page>
+
+                        <!-- Travel Log Tab -->
+                        <page string="Travel Log" name="travel_log">
+                            <div class="o_row mb-2">
+                                <button name="action_open_travel_log"
+                                    string="Open / Create Travel Log"
+                                    type="object"
+                                    class="btn btn-secondary btn-sm"
+                                    attrs="{'invisible': [('state','=','draft')]}"/>
+                                <span class="ml-2 text-muted" style="font-size:12px;"
+                                    attrs="{'invisible': [('state','!=','draft')]}">
+                                    Save / submit the daily report first to create a travel log.
+                                </span>
+                            </div>
+                            <field name="travel_log_ids"
+                                attrs="{'readonly': [('state','=','approved')]}"
+                                context="{'default_employee_id': employee_id, 'default_date': date}">
+                                <tree string="Travel Logs"
+                                    decoration-success="state=='confirmed'"
+                                    decoration-warning="state=='draft'">
+                                    <field name="date"/>
+                                    <field name="total_distance_km" sum="Total km"/>
+                                    <field name="total_fare_tk" sum="Total Fare (Tk)"/>
+                                    <field name="visited_places"/>
+                                    <field name="state" widget="badge"
+                                        decoration-success="state=='confirmed'"
+                                        decoration-warning="state=='draft'"/>
+                                    <field name="vendor_bill_id" optional="show"/>
+                                </tree>
+                            </field>
+                        </page>
+
+                    </notebook>
+                </sheet>
+
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- ── Daily Report Tree ── -->
+    <record id="view_ffm_daily_report_tree" model="ir.ui.view">
+        <field name="name">ffm.daily.report.tree</field>
+        <field name="model">ffm.daily.report</field>
+        <field name="arch" type="xml">
+            <tree string="Daily Reports" decoration-success="state=='approved'"
+                decoration-warning="state=='submitted'"
+                decoration-danger="state=='rejected'">
+                <field name="date"/>
+                <field name="employee_id"/>
+                <field name="designation"/>
+                <field name="territory_id"/>
+                <field name="working_place"/>
+                <field name="total_chemist_visited"/>
+                <field name="total_prescriber_visited"/>
+                <field name="total_order_tk" sum="Order Total"/>
+                <field name="total_sale_tk" sum="Sale Total"/>
+                <field name="total_coll_tk" sum="Collection Total"/>
+                <field name="state" widget="badge"
+                    decoration-success="state=='approved'"
+                    decoration-warning="state=='submitted'"
+                    decoration-danger="state=='rejected'"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- ── Daily Report Search ── -->
+    <record id="view_ffm_daily_report_search" model="ir.ui.view">
+        <field name="name">ffm.daily.report.search</field>
+        <field name="model">ffm.daily.report</field>
+        <field name="arch" type="xml">
+            <search string="Search Daily Reports">
+                <field name="employee_id"/>
+                <field name="territory_id"/>
+                <field name="date"/>
+                <filter string="My Reports" name="my_reports"
+                    domain="[('employee_id.user_id','=',uid)]"/>
+                <filter string="Draft" name="draft"
+                    domain="[('state','=','draft')]"/>
+                <filter string="Submitted" name="submitted"
+                    domain="[('state','=','submitted')]"/>
+                <filter string="Approved" name="approved"
+                    domain="[('state','=','approved')]"/>
+                <filter string="Today" name="today"
+                    domain="[('date','=',context_today().strftime('%Y-%m-%d'))]"/>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter string="Employee" name="grp_employee"
+                        context="{'group_by': 'employee_id'}"/>
+                    <filter string="Territory" name="grp_territory"
+                        context="{'group_by': 'territory_id'}"/>
+                    <filter string="Date" name="grp_date"
+                        context="{'group_by': 'date:month'}"/>
+                    <filter string="Status" name="grp_state"
+                        context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ── Action ── -->
+    <record id="action_ffm_daily_report" model="ir.actions.act_window">
+        <field name="name">Daily Report</field>
+        <field name="res_model">ffm.daily.report</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_ffm_daily_report_search"/>
+        <field name="context">{'search_default_my_reports': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first Daily Report
+            </p>
+            <p>Record your chemist visits, doctor visits and sales for the day.</p>
+        </field>
+    </record>
+
+</odoo>

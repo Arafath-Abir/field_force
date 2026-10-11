@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_aam_branch_tree" model="ir.ui.view">
+        <field name="name">aam.branch.tree</field>
+        <field name="model">aam.branch</field>
+        <field name="arch" type="xml">
+            <tree string="Branches" editable="bottom">
+                <field name="name"/>
+                <field name="code"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_aam_branch" model="ir.actions.act_window">
+        <field name="name">Branches</field>
+        <field name="res_model">aam.branch</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="view_territory_territory_tree" model="ir.ui.view">
+        <field name="name">territory.territory.tree</field>
+        <field name="model">territory.territory</field>
+        <field name="arch" type="xml">
+            <tree string="Territories" editable="bottom">
+                <field name="name"/>
+                <field name="branch_id"/>
+                <field name="field_person_id"/>
+                <field name="manager_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_territory_territory" model="ir.actions.act_window">
+        <field name="name">Territories</field>
+        <field name="res_model">territory.territory</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_branch_territory_root" name="Branch &amp; Territory" sequence="26"/>
+    <menuitem id="menu_aam_branch" name="Branches" parent="menu_branch_territory_root" action="action_aam_branch"/>
+    <menuitem id="menu_territory_territory" name="Territories" parent="menu_branch_territory_root" action="action_territory_territory"/>
+</odoo>

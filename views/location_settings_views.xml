@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_ffm_location" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.ffm.location</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('settings')]" position="inside">
+                <div class="app_settings_block"
+                     data-string="Field Force"
+                     string="Field Force"
+                     data-key="field_force_management">
+                    <h2>Travel Log Location and Distance</h2>
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <span class="o_form_label">Geoapify Location Search</span>
+                                <div class="text-muted">
+                                    Search Bangladesh locations in Travel Log From/To fields.
+                                </div>
+                                <div class="content-group mt16">
+                                    <div class="row mt8">
+                                        <label for="ffm_geoapify_api_key" class="col-lg-5 o_light_label"/>
+                                        <field name="ffm_geoapify_api_key" password="True" class="oe_inline"/>
+                                    </div>
+                                    <div class="row mt8">
+                                        <label for="ffm_geoapify_base_url" class="col-lg-5 o_light_label"/>
+                                        <field name="ffm_geoapify_base_url" class="oe_inline"/>
+                                    </div>
+                                    <div class="row mt8">
+                                        <label for="ffm_geoapify_language" class="col-lg-5 o_light_label"/>
+                                        <field name="ffm_geoapify_language" class="oe_inline"/>
+                                    </div>
+                                    <div class="row mt8">
+                                        <label for="ffm_geoapify_country_code" class="col-lg-5 o_light_label"/>
+                                        <field name="ffm_geoapify_country_code" class="oe_inline"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <span class="o_form_label">Autocomplete and Route Behaviour</span>
+                                <div class="text-muted">
+                                    Geoapify calculates road distance and estimated duration automatically.
+                                </div>
+                                <div class="content-group mt16">
+                                    <div class="row mt8">
+                                        <label for="ffm_request_timeout" class="col-lg-5 o_light_label"/>
+                                        <field name="ffm_request_timeout" class="oe_inline"/>
+                                    </div>
+                                    <div class="row mt8">
+                                        <label for="ffm_autocomplete_min_chars" class="col-lg-5 o_light_label"/>
+                                        <field name="ffm_autocomplete_min_chars" class="oe_inline"/>
+                                    </div>
+                                    <div class="row mt8">
+                                        <label for="ffm_autocomplete_limit" class="col-lg-5 o_light_label"/>
+                                        <field name="ffm_autocomplete_limit" class="oe_inline"/>
+                                    </div>
+                                    <button name="action_test_ffm_location_services"
+                                            type="object"
+                                            string="Test Geoapify Connections"
+                                            class="btn btn-secondary mt16"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_ffm_location_settings" model="ir.actions.act_window">
+        <field name="name">Location API Settings</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">inline</field>
+        <field name="context">{'module': 'field_force_management'}</field>
+    </record>
+</odoo>

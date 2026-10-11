@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ── Place Form ── -->
+    <record id="view_ffm_place_form" model="ir.ui.view">
+        <field name="name">ffm.place.form</field>
+        <field name="model">ffm.place</field>
+        <field name="arch" type="xml">
+            <form string="Place / Location">
+                <sheet>
+                    <group>
+                        <group string="Location Details">
+                            <field name="name"/>
+                            <field name="district"/>
+                            <field name="division"/>
+                        </group>
+                        <group string="Coordinates (for distance calculation)">
+                            <field name="lat"/>
+                            <field name="lng"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ── Place Tree ── -->
+    <record id="view_ffm_place_tree" model="ir.ui.view">
+        <field name="name">ffm.place.tree</field>
+        <field name="model">ffm.place</field>
+        <field name="arch" type="xml">
+            <tree string="Places" editable="top">
+                <field name="name"/>
+                <field name="district"/>
+                <field name="division"/>
+                <field name="lat" string="Latitude"/>
+                <field name="lng" string="Longitude"/>
+                <field name="active" string="Active"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- ── Place Search ── -->
+    <record id="view_ffm_place_search" model="ir.ui.view">
+        <field name="name">ffm.place.search</field>
+        <field name="model">ffm.place</field>
+        <field name="arch" type="xml">
+            <search string="Search Places">
+                <field name="name"/>
+                <field name="district"/>
+                <field name="division"/>
+                <filter string="Active" name="active" domain="[('active','=',True)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Division" name="grp_division"
+                        context="{'group_by': 'division'}"/>
+                    <filter string="District" name="grp_district"
+                        context="{'group_by': 'district'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ── Place Action ── -->
+    <record id="action_ffm_place" model="ir.actions.act_window">
+        <field name="name">Places</field>
+        <field name="res_model">ffm.place</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_ffm_place_search"/>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Add your first place</p>
+            <p>Places are used in Travel Log From / To fields with autocomplete and auto distance calculation.</p>
+        </field>
+    </record>
+
+    <!-- ────────────────────────────────── -->
+    <!-- ── Fare Config Form ── -->
+    <record id="view_ffm_fare_config_form" model="ir.ui.view">
+        <field name="name">ffm.fare.config.form</field>
+        <field name="model">ffm.fare.config</field>
+        <field name="arch" type="xml">
+            <form string="Fare Configuration">
+                <sheet>
+                    <group>
+                        <group string="Transport Mode &amp; Distance Slab">
+                            <field name="mode"/>
+                            <field name="from_km" string="From Distance (km)"/>
+                            <field name="to_km" string="To Distance (km)"/>
+                        </group>
+                        <group string="Fare">
+                            <field name="fare_tk" string="Fare (Tk)"/>
+                            <field name="note"/>
+                        </group>
+                    </group>
+                    <p class="text-muted" style="font-size:12px; margin-top:8px;">
+                        Example: Mode = Bus, From = 0, To = 5, Fare = 20 means any Bus journey
+                        between 0 and 5 km costs ৳20. Use 9999 as To value for open-ended slabs.
+                        Slabs are matched by: From ≤ distance &lt; To.
+                    </p>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ── Fare Config Tree ── -->
+    <record id="view_ffm_fare_config_tree" model="ir.ui.view">
+        <field name="name">ffm.fare.config.tree</field>
+        <field name="model">ffm.fare.config</field>
+        <field name="arch" type="xml">
+            <tree string="Fare Configuration" editable="bottom">
+                <field name="mode"/>
+                <field name="from_km" string="From (km)"/>
+                <field name="to_km" string="To (km)"/>
+                <field name="fare_tk" string="Fare (Tk)"/>
+                <field name="note"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- ── Fare Config Search ── -->
+    <record id="view_ffm_fare_config_search" model="ir.ui.view">
+        <field name="name">ffm.fare.config.search</field>
+        <field name="model">ffm.fare.config</field>
+        <field name="arch" type="xml">
+            <search string="Search Fare Config">
+                <field name="mode"/>
+                <filter string="Bus" name="bus" domain="[('mode','=','bus')]"/>
+                <filter string="Rickshaw" name="rickshaw" domain="[('mode','=','rickshaw')]"/>
+                <filter string="Auto / CNG" name="cng" domain="[('mode','=','auto_cng')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Mode" name="grp_mode" context="{'group_by': 'mode'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ── Fare Config Action ── -->
+    <record id="action_ffm_fare_config" model="ir.actions.act_window">
+        <field name="name">Fare Configuration</field>
+        <field name="res_model">ffm.fare.config</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_ffm_fare_config_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No fare slabs configured yet</p>
+            <p>Add distance-based fare slabs per transport mode. Travel Log will auto-calculate
+            fare using these slabs when From and To places are selected.</p>
+        </field>
+    </record>
+
+
+
+
+</odoo>

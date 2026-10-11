@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_aam_branch_user,aam.branch.user,model_aam_branch,base.group_user,1,1,1,1
+access_territory_territory_user,territory.territory.user,model_territory_territory,base.group_user,1,1,1,1

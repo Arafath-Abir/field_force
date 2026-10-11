@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_customer_information_tree" model="ir.ui.view">
+        <field name="name">customer.information.tree</field>
+        <field name="model">customer.information</field>
+        <field name="arch" type="xml">
+            <tree string="Customer Information">
+                <field name="name"/>
+                <field name="type"/>
+                <field name="mobile"/>
+                <field name="address"/>
+                <field name="field_person_id"/>
+                <field name="territory"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_customer_information_form" model="ir.ui.view">
+        <field name="name">customer.information.form</field>
+        <field name="model">customer.information</field>
+        <field name="arch" type="xml">
+            <form string="Customer Information">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="type"/>
+                            <field name="mobile"/>
+                        </group>
+                        <group>
+                            <field name="field_person_id"/>
+                            <field name="territory"/>
+                            <field name="state"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="address"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_customer_information" model="ir.actions.act_window">
+        <field name="name">Customers</field>
+        <field name="res_model">customer.information</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_customer_management_root" name="Customer Management" sequence="25"/>
+    <menuitem id="menu_customer_information" name="Customers" parent="menu_customer_management_root" action="action_customer_information"/>
+</odoo>
