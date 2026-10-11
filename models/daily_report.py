@@ -156,7 +156,7 @@ class DailyReport(models.Model):
                     return True
             except Exception:
                 pass
-        manager_user = self.employee_id.parent_id.user_id
+        manager_user = self.sudo().employee_id.parent_id.user_id
         if manager_user and manager_user == user:
             return True
         return False
@@ -179,7 +179,7 @@ class DailyReport(models.Model):
 
     def action_reset_draft(self):
         for rec in self:
-            if not rec._can_approve_or_reject() and rec.employee_id.user_id != self.env.user:
+            if not rec._can_approve_or_reject() and rec.sudo().employee_id.user_id != self.env.user:
                 raise UserError(_('You do not have permission to reset this report to draft.'))
             rec.state = 'draft'
 
