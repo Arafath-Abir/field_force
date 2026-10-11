@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ── Demo Designations (hr.job) ── -->
+        <record id="job_demo_mpo" model="hr.job">
+            <field name="name">Medical Promotion Officer</field>
+        </record>
+        <record id="job_demo_asm" model="hr.job">
+            <field name="name">Area Sales Manager</field>
+        </record>
+        <record id="job_demo_rsm" model="hr.job">
+            <field name="name">Regional Sales Manager</field>
+        </record>
+        <record id="job_demo_dsm" model="hr.job">
+            <field name="name">Divisional Sales Manager</field>
+        </record>
+        <record id="job_demo_nsm" model="hr.job">
+            <field name="name">National Sales Manager</field>
+        </record>
+
+        <!-- ── Demo Allowance Rates (ffm.allowance.rate) ── -->
+        <record id="rate_demo_mpo" model="ffm.allowance.rate">
+            <field name="job_id" ref="job_demo_mpo"/>
+            <field name="da_per_day">350.0</field>
+            <field name="motorcycle_maintenance_per_month">2500.0</field>
+            <field name="active">1</field>
+        </record>
+        <record id="rate_demo_asm" model="ffm.allowance.rate">
+            <field name="job_id" ref="job_demo_asm"/>
+            <field name="da_per_day">500.0</field>
+            <field name="motorcycle_maintenance_per_month">3500.0</field>
+            <field name="active">1</field>
+        </record>
+        <record id="rate_demo_rsm" model="ffm.allowance.rate">
+            <field name="job_id" ref="job_demo_rsm"/>
+            <field name="da_per_day">700.0</field>
+            <field name="motorcycle_maintenance_per_month">4500.0</field>
+            <field name="active">1</field>
+        </record>
+        <record id="rate_demo_dsm" model="ffm.allowance.rate">
+            <field name="job_id" ref="job_demo_dsm"/>
+            <field name="da_per_day">900.0</field>
+            <field name="motorcycle_maintenance_per_month">5500.0</field>
+            <field name="active">1</field>
+        </record>
+        <record id="rate_demo_nsm" model="ffm.allowance.rate">
+            <field name="job_id" ref="job_demo_nsm"/>
+            <field name="da_per_day">1200.0</field>
+            <field name="motorcycle_maintenance_per_month">7000.0</field>
+            <field name="active">1</field>
+        </record>
+
+        <!-- ── Demo Users (res.users) with dev passwords ── -->
+        <!-- 1. Field Person Demo 1 -->
+        <record id="user_demo_fp1" model="res.users">
+            <field name="name">Habibur Rahman (FP-1)</field>
+            <field name="login">ffm_fp_demo</field>
+            <field name="password">Demo12345!</field>
+            <field name="groups_id" eval="[(6, 0, [
+                ref('base.group_user'),
+                ref('field_force_management.group_ffm_field_person')
+            ])]"/>
+        </record>
+
+        <!-- 2. Field Person Demo 2 -->
+        <record id="user_demo_fp2" model="res.users">
+            <field name="name">Kamrul Islam (FP-2)</field>
+            <field name="login">ffm_fp_demo2</field>
+            <field name="password">Demo12345!</field>
+            <field name="groups_id" eval="[(6, 0, [
+                ref('base.group_user'),
+                ref('field_force_management.group_ffm_field_person')
+            ])]"/>
+        </record>
+
+        <!-- 3. ASM Demo -->
+        <record id="user_demo_asm" model="res.users">
+            <field name="name">Tariqul Anam (ASM)</field>
+            <field name="login">ffm_asm_demo</field>
+            <field name="password">Demo12345!</field>
+            <field name="groups_id" eval="[(6, 0, [
+                ref('base.group_user'),
+                ref('field_force_management.group_ffm_asm')
+            ])]"/>
+        </record>
+
+        <!-- 4. RSM Demo -->
+        <record id="user_demo_rsm" model="res.users">
+            <field name="name">Mahmudul Hasan (RSM)</field>
+            <field name="login">ffm_rsm_demo</field>
+            <field name="password">Demo12345!</field>
+            <field name="groups_id" eval="[(6, 0, [
+                ref('base.group_user'),
+                ref('field_force_management.group_ffm_rsm')
+            ])]"/>
+        </record>
+
+        <!-- 5. DSM Demo -->
+        <record id="user_demo_dsm" model="res.users">
+            <field name="name">Anisur Rahman (DSM)</field>
+            <field name="login">ffm_dsm_demo</field>
+            <field name="password">Demo12345!</field>
+            <field name="groups_id" eval="[(6, 0, [
+                ref('base.group_user'),
+                ref('field_force_management.group_ffm_dsm')
+            ])]"/>
+        </record>
+
+        <!-- 6. NSM Demo -->
+        <record id="user_demo_nsm" model="res.users">
+            <field name="name">Jahangir Alam (NSM)</field>
+            <field name="login">ffm_nsm_demo</field>
+            <field name="password">Demo12345!</field>
+            <field name="groups_id" eval="[(6, 0, [
+                ref('base.group_user'),
+                ref('field_force_management.group_ffm_nsm')
+            ])]"/>
+        </record>
+
+        <!-- 7. Director Demo -->
+        <record id="user_demo_director" model="res.users">
+            <field name="name">Dr. Zahid Hossain (Director)</field>
+            <field name="login">ffm_director_demo</field>
+            <field name="password">Demo12345!</field>
+            <field name="groups_id" eval="[(6, 0, [
+                ref('base.group_user'),
+                ref('field_force_management.group_ffm_director')
+            ])]"/>
+        </record>
+
+        <!-- 8. Accounts Demo -->
+        <record id="user_demo_accounts" model="res.users">
+            <field name="name">Shafiqul Islam (Accounts)</field>
+            <field name="login">ffm_accounts_demo</field>
+            <field name="password">Demo12345!</field>
+            <field name="groups_id" eval="[(6, 0, [
+                ref('base.group_user'),
+                ref('field_force_management.group_ffm_accounts')
+            ])]"/>
+        </record>
+
+        <!-- 9. Admin Demo -->
+        <record id="user_demo_admin" model="res.users">
+            <field name="name">System Admin (FFM Admin)</field>
+            <field name="login">ffm_admin_demo</field>
+            <field name="password">Demo12345!</field>
+            <field name="groups_id" eval="[(6, 0, [
+                ref('base.group_user'),
+                ref('base.group_system'),
+                ref('field_force_management.group_ffm_admin')
+            ])]"/>
+        </record>
+
+        <!-- ── Demo Employees (hr.employee) linked to users with hierarchy ── -->
+        <record id="emp_demo_director" model="hr.employee">
+            <field name="name">Dr. Zahid Hossain</field>
+            <field name="user_id" ref="user_demo_director"/>
+            <field name="hq">Head Office, Dhaka</field>
+            <field name="ffm_phone">+8801711000001</field>
+        </record>
+
+        <record id="emp_demo_nsm" model="hr.employee">
+            <field name="name">Jahangir Alam</field>
+            <field name="user_id" ref="user_demo_nsm"/>
+            <field name="job_id" ref="job_demo_nsm"/>
+            <field name="parent_id" ref="emp_demo_director"/>
+            <field name="hq">Head Office, Dhaka</field>
+            <field name="ffm_phone">+8801711000002</field>
+        </record>
+
+        <record id="emp_demo_dsm" model="hr.employee">
+            <field name="name">Anisur Rahman</field>
+            <field name="user_id" ref="user_demo_dsm"/>
+            <field name="job_id" ref="job_demo_dsm"/>
+            <field name="parent_id" ref="emp_demo_nsm"/>
+            <field name="hq">Dhaka North</field>
+            <field name="ffm_phone">+8801711000003</field>
+        </record>
+
+        <record id="emp_demo_rsm" model="hr.employee">
+            <field name="name">Mahmudul Hasan</field>
+            <field name="user_id" ref="user_demo_rsm"/>
+            <field name="job_id" ref="job_demo_rsm"/>
+            <field name="parent_id" ref="emp_demo_dsm"/>
+            <field name="hq">Gazipur</field>
+            <field name="ffm_phone">+8801711000004</field>
+        </record>
+
+        <record id="emp_demo_asm" model="hr.employee">
+            <field name="name">Tariqul Anam</field>
+            <field name="user_id" ref="user_demo_asm"/>
+            <field name="job_id" ref="job_demo_asm"/>
+            <field name="parent_id" ref="emp_demo_rsm"/>
+            <field name="hq">Tongi</field>
+            <field name="ffm_phone">+8801711000005</field>
+        </record>
+
+        <record id="emp_demo_fp1" model="hr.employee">
+            <field name="name">Habibur Rahman</field>
+            <field name="user_id" ref="user_demo_fp1"/>
+            <field name="job_id" ref="job_demo_mpo"/>
+            <field name="parent_id" ref="emp_demo_asm"/>
+            <field name="hq">Uttara, Dhaka</field>
+            <field name="ffm_phone">+8801711000006</field>
+        </record>
+
+        <record id="emp_demo_fp2" model="hr.employee">
+            <field name="name">Kamrul Islam</field>
+            <field name="user_id" ref="user_demo_fp2"/>
+            <field name="job_id" ref="job_demo_mpo"/>
+            <field name="parent_id" ref="emp_demo_asm"/>
+            <field name="hq">Tongi, Gazipur</field>
+            <field name="ffm_phone">+8801711000007</field>
+        </record>
+
+    </data>
+</odoo>
