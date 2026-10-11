@@ -139,16 +139,48 @@ class DailyReport(models.Model):
                 raise UserError(_('Only draft reports can be submitted.'))
             rec.state = 'submitted'
 
+    def _can_approve_or_reject(self):
+        self.ensure_one()
+        user = self.env.user
+        higher_groups = [
+            'field_force_management.group_ffm_rsm',
+            'field_force_management.group_ffm_dsm',
+            'field_force_management.group_ffm_nsm',
+            'field_force_management.group_ffm_director',
+            'field_force_management.group_ffm_admin',
+            'base.group_system',
+        ]
+        for grp in higher_groups:
+            try:
+                if user.has_group(grp):
+                    return True
+            except Exception:
+                pass
+        manager_user = self.employee_id.parent_id.user_id
+        if manager_user and manager_user == user:
+            return True
+        return False
+
     def action_approve(self):
         for rec in self:
+            if rec.state != 'submitted':
+                raise UserError(_('Only submitted reports can be approved.'))
+            if not rec._can_approve_or_reject():
+                raise UserError(_('Only the direct manager or a higher authority (RSM, DSM, NSM, Director, Admin) can approve this daily report.'))
             rec.state = 'approved'
 
     def action_reject(self):
         for rec in self:
+            if rec.state != 'submitted':
+                raise UserError(_('Only submitted reports can be rejected.'))
+            if not rec._can_approve_or_reject():
+                raise UserError(_('Only the direct manager or a higher authority (RSM, DSM, NSM, Director, Admin) can reject this daily report.'))
             rec.state = 'rejected'
 
     def action_reset_draft(self):
         for rec in self:
+            if not rec._can_approve_or_reject() and rec.employee_id.user_id != self.env.user:
+                raise UserError(_('You do not have permission to reset this report to draft.'))
             rec.state = 'draft'
 
 
