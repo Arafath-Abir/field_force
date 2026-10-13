@@ -27,32 +27,32 @@ def _clean_base64_image(data_str):
 
 def _check_and_validate_voucher(binary_b64, field_label):
     if not binary_b64:
-        raise ValidationError(_('%s: ভাউচারের ছবি আবশ্যক।') % field_label)
+        raise ValidationError(_('%s: Voucher image is required.') % field_label)
     try:
         raw_bytes = base64.b64decode(binary_b64)
     except Exception:
-        raise ValidationError(_('%s: ছবির বাইনারি ডেটা সঠিক নয়।') % field_label)
+        raise ValidationError(_('%s: Invalid binary image data.') % field_label)
 
     if len(raw_bytes) > MAX_IMAGE_SIZE_BYTES:
-        raise ValidationError(_('%s: ফাইলের আকার ৫ মেগাবাইটের বেশি হতে পারবে না।') % field_label)
+        raise ValidationError(_('%s: File size cannot exceed 5MB.') % field_label)
 
     is_jpeg = raw_bytes.startswith(b'\xff\xd8\xff')
     is_png = raw_bytes.startswith(b'\x89PNG\r\n\x1a\n')
     is_webp = raw_bytes[:4] == b'RIFF' and len(raw_bytes) > 12 and raw_bytes[8:12] == b'WEBP'
 
     if not (is_jpeg or is_png or is_webp):
-        raise ValidationError(_('%s: শুধুমাত্র ছবি ফাইল (JPEG, PNG, WebP) গ্রহণযোগ্য।') % field_label)
+        raise ValidationError(_('%s: Only image files (JPEG, PNG, WebP) are allowed.') % field_label)
 
 TRANSPORT_MODES = [
-    ('bus', 'Bus (বাস)'),
-    ('rickshaw', 'Rickshaw (রিকশা/ভ্যান)'),
-    ('auto_cng', 'Auto / CNG (সিএনজি/অটো)'),
-    ('motorcycle', 'Motorcycle (মোটরসাইকেল)'),
+    ('bus', 'Bus'),
+    ('rickshaw', 'Rickshaw / Van'),
+    ('auto_cng', 'Auto / CNG'),
+    ('motorcycle', 'Motorcycle'),
     ('uber_pathao', 'Uber / Pathao'),
-    ('on_foot', 'On Foot (হেঁটে)'),
-    ('train', 'Train (ট্রেন)'),
-    ('launch', 'Launch / Ferry (লঞ্চ/নৌকা)'),
-    ('others', 'Others (অন্যান্য)'),
+    ('on_foot', 'On Foot'),
+    ('train', 'Train'),
+    ('launch', 'Launch / Ferry'),
+    ('others', 'Others'),
 ]
 
 DOCTOR_GRADES = [
@@ -64,18 +64,36 @@ DOCTOR_GRADES = [
 
 class FFMHome(Home):
     def _login_redirect(self, uid, redirect=None):
-        if not redirect and uid:
-            user = request.env['res.users'].browse(uid)
-            if user.has_group('field_force_management.group_ffm_field_person') and not user.has_group('field_force_management.group_ffm_asm') and not user.has_group('field_force_management.group_ffm_admin'):
-                return '/ff'
+        if uid:
+            request.uid = uid
+            user = request.env['res.users'].sudo().browse(uid)
+            if user.exists():
+                is_admin = (user._is_admin() or
+                            user.has_group('field_force_management.group_ffm_admin') or
+                            user.has_group('base.group_system') or
+                            user.has_group('field_force_management.group_ffm_nsm') or
+                            user.has_group('field_force_management.group_ffm_director'))
+                if is_admin:
+                    return '/ff/manager'
+                elif user.has_group('field_force_management.group_ffm_field_person'):
+                    return '/ff'
         return super(FFMHome, self)._login_redirect(uid, redirect=redirect)
 
     @http.route('/web', type='http', auth="none")
     def web_client(self, s_action=None, **kw):
-        if request.session.uid and not request.env.is_admin():
-            user = request.env.user
-            if user.has_group('field_force_management.group_ffm_field_person') and not user.has_group('field_force_management.group_ffm_asm') and not user.has_group('field_force_management.group_ffm_admin'):
-                return werkzeug.utils.redirect('/ff')
+        if request.session.uid:
+            request.uid = request.session.uid
+            user = request.env['res.users'].sudo().browse(request.session.uid)
+            if user.exists() and not kw.get('backend'):
+                is_admin = (user._is_admin() or
+                            user.has_group('field_force_management.group_ffm_admin') or
+                            user.has_group('base.group_system') or
+                            user.has_group('field_force_management.group_ffm_nsm') or
+                            user.has_group('field_force_management.group_ffm_director'))
+                if is_admin:
+                    return werkzeug.utils.redirect('/ff/manager', 303)
+                elif user.has_group('field_force_management.group_ffm_field_person'):
+                    return werkzeug.utils.redirect('/ff', 303)
         return super(FFMHome, self).web_client(s_action=s_action, **kw)
 
 
@@ -102,7 +120,19 @@ class FFMController(http.Controller):
     # ── 1. Dashboard ────────────────────────────────────────────────────────
     @http.route('/ff', type='http', auth='user')
     def ff_dashboard(self, **kw):
-        """Marketer mobile start page with the 8 tiles."""
+        """Field activities mobile start page with the 8 tiles.
+        Accessible to Field Person, ASM, and RSM to perform their daily field entries.
+        System admin users land on /ff/manager unless marketer_view is explicitly requested.
+        """
+        user = request.env.user
+        is_admin = (request.env.is_admin() or
+                    user.has_group('field_force_management.group_ffm_admin') or
+                    user.has_group('base.group_system') or
+                    user.has_group('field_force_management.group_ffm_nsm') or
+                    user.has_group('field_force_management.group_ffm_director'))
+        if is_admin and not kw.get('marketer_view'):
+            return werkzeug.utils.redirect('/ff/manager')
+
         ctx = self._get_app_context()
         today_date, _now_time = self._get_dhaka_date_and_time()
         employee = ctx['employee']
@@ -119,10 +149,57 @@ class FFMController(http.Controller):
                 ('date', '=', today_date)
             ], limit=1)
 
+        # Manager status and subordinate metrics for ASM / RSM
+        is_rsm = user.has_group('field_force_management.group_ffm_rsm')
+        is_asm = user.has_group('field_force_management.group_ffm_asm') and not is_rsm
+        is_manager = is_asm or is_rsm or is_admin
+
+        subordinates = request.env['hr.employee'].browse([])
+        if is_rsm and employee:
+            subordinates = request.env['hr.employee'].sudo().search([
+                ('active', '=', True),
+                ('id', 'child_of', employee.id),
+                ('id', '!=', employee.id)
+            ], order='name')
+        elif is_asm and employee:
+            subordinates = request.env['hr.employee'].sudo().search([
+                ('active', '=', True),
+                ('parent_id', '=', employee.id)
+            ], order='name')
+
+        sub_ids = subordinates.ids
+        pending_reports_count = 0
+        present_count = 0
+        if sub_ids:
+            if is_admin:
+                approvable_sub_ids = sub_ids
+            elif employee:
+                approvable_sub_ids = request.env['hr.employee'].sudo().search([
+                    ('active', '=', True),
+                    ('parent_id', '=', employee.id),
+                ]).ids
+            else:
+                approvable_sub_ids = []
+
+            pending_reports_count = request.env['ffm.daily.report'].sudo().search_count([
+                ('employee_id', 'in', approvable_sub_ids),
+                ('state', '=', 'submitted')
+            ])
+            present_count = len(request.env['ffm.attendance'].sudo().search([
+                ('employee_id', 'in', sub_ids),
+                ('date', '=', today_date)
+            ]).mapped('employee_id.id'))
+
         ctx.update({
             'today_str': today_date.strftime('%d %B, %Y'),
             'attendance_today': bool(attendance_today),
             'today_report': today_report,
+            'is_manager': is_manager,
+            'is_asm': is_asm,
+            'is_rsm': is_rsm,
+            'sub_count': len(subordinates),
+            'pending_reports_count': pending_reports_count,
+            'present_count': present_count,
         })
         return request.render('ffm_daily_report.ff_dashboard', ctx)
 
@@ -160,7 +237,7 @@ class FFMController(http.Controller):
             return {
                 'status': 'success',
                 'attendance_id': attendance.id,
-                'message': _('হাজিরা সফলভাবে নিশ্চিত হয়েছে। (Attendance recorded successfully)'),
+                'message': _('Attendance recorded successfully.'),
             }
         except Exception as exc:
             return {
@@ -198,7 +275,7 @@ class FFMController(http.Controller):
         try:
             working_place_id = payload.get('working_place_id')
             if not working_place_id:
-                return {'status': 'error', 'message': _('কর্মক্ষেত্র (Working Place) নির্বাচন করা আবশ্যক।')}
+                return {'status': 'error', 'message': _('Working Place selection is required.')}
 
             report = request.env['ffm.daily.report'].get_or_create_today_report(
                 working_place_id=int(working_place_id)
@@ -206,7 +283,7 @@ class FFMController(http.Controller):
             return {
                 'status': 'success',
                 'report_id': report.id,
-                'message': _('আজকের রিপোর্ট সফলভাবে শুরু হয়েছে।'),
+                'message': _('Daily report initialized successfully.'),
             }
         except Exception as exc:
             return {'status': 'error', 'message': str(exc)}
@@ -223,11 +300,11 @@ class FFMController(http.Controller):
                 ('date', '=', today_date)
             ], limit=1)
             if not report:
-                return {'status': 'error', 'message': _('আজকের কোনো রিপোর্ট পাওয়া যায়নি।')}
+                return {'status': 'error', 'message': _('No daily report found for today.')}
             if report.state != 'draft':
-                return {'status': 'error', 'message': _('রিপোর্টটি ইতিমধ্যে জমা দেওয়া হয়েছে।')}
+                return {'status': 'error', 'message': _('Report has already been submitted.')}
             report.action_submit()
-            return {'status': 'success', 'message': _('আজকের রিপোর্ট সফলভাবে সাবমিট করা হয়েছে।')}
+            return {'status': 'success', 'message': _('Daily report submitted successfully.')}
         except Exception as exc:
             return {'status': 'error', 'message': str(exc)}
 
@@ -256,25 +333,25 @@ class FFMController(http.Controller):
             if client_uuid:
                 existing = request.env['ffm.chemist.visit'].sudo().search([('client_uuid', '=', client_uuid)], limit=1)
                 if existing:
-                    return {'status': 'success', 'visit_id': existing.id, 'message': _('কেমিস্ট ভিজিট ইতিমধ্যে সংরক্ষিত আছে।')}
+                    return {'status': 'success', 'visit_id': existing.id, 'message': _('Chemist visit already saved.')}
 
             chemist_id = payload.get('chemist_id')
             chemist_name_manual = (payload.get('chemist_name_manual') or '').strip()
             if not chemist_id and not chemist_name_manual:
-                return {'status': 'error', 'message': _('কেমিস্ট নির্বাচন করুন অথবা ম্যানুয়াল নাম লিখুন।')}
+                return {'status': 'error', 'message': _('Select a chemist or enter manual name.')}
 
             try:
                 order_tk = float(payload.get('order_tk', 0))
                 sale_tk = float(payload.get('sale_tk', 0))
                 coll_tk = float(payload.get('coll_tk', 0))
             except (ValueError, TypeError):
-                return {'status': 'error', 'message': _('অর্ডার, সেল এবং কালেকশন সংখ্যায় হতে হবে।')}
+                return {'status': 'error', 'message': _('Order, sale, and collection must be numeric.')}
 
             if order_tk < 0 or sale_tk < 0 or coll_tk < 0:
-                return {'status': 'error', 'message': _('টাকার পরিমাণ ঋণাত্মক হতে পারবে না।')}
+                return {'status': 'error', 'message': _('Amount cannot be negative.')}
 
             if not (order_tk.is_integer() and sale_tk.is_integer() and coll_tk.is_integer()):
-                return {'status': 'error', 'message': _('টাকার পরিমাণ পূর্ণসংখ্যা (Whole Number) হতে হবে।')}
+                return {'status': 'error', 'message': _('Amount must be a whole number.')}
 
             # Journey validation for Chemist visit (required)
             mode = (payload.get('mode') or '').strip()
@@ -284,7 +361,7 @@ class FFMController(http.Controller):
                 fare_tk = 0.0
 
             if not mode:
-                return {'status': 'error', 'message': _('ভ্রমণের মাধ্যম (Mode of Journey) নির্বাচন করা আবশ্যক।')}
+                return {'status': 'error', 'message': _('Mode of journey is required.')}
 
             report = request.env['ffm.daily.report'].get_or_create_today_report()
 
@@ -334,7 +411,7 @@ class FFMController(http.Controller):
             return {
                 'status': 'success',
                 'visit_id': visit.id,
-                'message': _('কেমিস্ট ভিজিট ও ভ্রমণ তথ্য সফলভাবে সংরক্ষিত হয়েছে।'),
+                'message': _('Chemist visit and journey details saved successfully.'),
             }
         except Exception as exc:
             _logger.exception("Error submitting chemist visit")
@@ -366,12 +443,12 @@ class FFMController(http.Controller):
             if client_uuid:
                 existing = request.env['ffm.prescriber.visit'].sudo().search([('client_uuid', '=', client_uuid)], limit=1)
                 if existing:
-                    return {'status': 'success', 'visit_id': existing.id, 'message': _('ডাক্তার ভিজিট ইতিমধ্যে সংরক্ষিত আছে।')}
+                    return {'status': 'success', 'visit_id': existing.id, 'message': _('Doctor visit already saved.')}
 
             doctor_id = payload.get('doctor_id')
             prescriber_name_manual = (payload.get('prescriber_name_manual') or '').strip()
             if not doctor_id and not prescriber_name_manual:
-                return {'status': 'error', 'message': _('ডাক্তার নির্বাচন করুন অথবা ম্যানুয়াল নাম লিখুন।')}
+                return {'status': 'error', 'message': _('Select a doctor or enter manual name.')}
 
             mobile = (payload.get('mobile') or '').strip()
             mailing_address = (payload.get('mailing_address') or '').strip()
@@ -380,7 +457,7 @@ class FFMController(http.Controller):
             grade = (payload.get('grade') or '').strip()
 
             if not product_discussion or not sample or not grade:
-                return {'status': 'error', 'message': _('প্রোডাক্ট আলোচনা, স্যাম্পল/উপহার এবং গ্রেড নির্বাচন করা আবশ্যক।')}
+                return {'status': 'error', 'message': _('Product discussion, sample/gift, and grade are required.')}
 
             # Journey validation for Doctor visit
             mode = (payload.get('mode') or '').strip()
@@ -390,7 +467,7 @@ class FFMController(http.Controller):
                 fare_tk = 0.0
 
             if not mode:
-                return {'status': 'error', 'message': _('ভ্রমণের মাধ্যম (Mode of Journey) নির্বাচন করা আবশ্যক।')}
+                return {'status': 'error', 'message': _('Mode of journey is required.')}
 
             report = request.env['ffm.daily.report'].get_or_create_today_report()
 
@@ -439,7 +516,7 @@ class FFMController(http.Controller):
             return {
                 'status': 'success',
                 'visit_id': visit.id,
-                'message': _('ডাক্তার ভিজিট ও ভ্রমণ তথ্য সফলভাবে সংরক্ষিত হয়েছে।'),
+                'message': _('Doctor visit and journey details saved successfully.'),
             }
         except Exception as exc:
             _logger.exception("Error submitting doctor visit")
@@ -470,11 +547,11 @@ class FFMController(http.Controller):
             if client_uuid:
                 existing = request.env['ffm.farm.visit'].sudo().search([('client_uuid', '=', client_uuid)], limit=1)
                 if existing:
-                    return {'status': 'success', 'visit_id': existing.id, 'message': _('খামার ভিজিট ইতিমধ্যে সংরক্ষিত আছে।')}
+                    return {'status': 'success', 'visit_id': existing.id, 'message': _('Farm visit already saved.')}
 
             farm_name = (payload.get('farm_name') or '').strip()
             if not farm_name:
-                return {'status': 'error', 'message': _('খামার বা প্রতিষ্ঠানের নাম প্রদান করা আবশ্যক।')}
+                return {'status': 'error', 'message': _('Farm or institution name is required.')}
 
             try:
                 bird_count = int(payload.get('bird_count', 0) or 0)
@@ -482,7 +559,7 @@ class FFMController(http.Controller):
                 bird_count = 0
 
             if bird_count < 0:
-                return {'status': 'error', 'message': _('পশু বা পাখির সংখ্যা ঋণাত্মক হতে পারে না।')}
+                return {'status': 'error', 'message': _('Animal/bird count cannot be negative.')}
 
             report = request.env['ffm.daily.report'].get_or_create_today_report()
 
@@ -536,7 +613,7 @@ class FFMController(http.Controller):
             return {
                 'status': 'success',
                 'visit_id': visit.id,
-                'message': _('খামার ভিজিট সফলভাবে সংরক্ষিত হয়েছে।'),
+                'message': _('Farm visit saved successfully.'),
             }
         except Exception as exc:
             _logger.exception("Error submitting farm visit")
@@ -576,13 +653,13 @@ class FFMController(http.Controller):
                     return {
                         'status': 'success',
                         'expense_id': existing.id,
-                        'message': _('দৈনিক খরচ ইতিমধ্যে সংরক্ষিত আছে।')
+                        'message': _('Daily expense already saved.')
                     }
 
             user = request.env.user
             employee = user.employee_id or request.env['hr.employee'].sudo().search([('user_id', '=', user.id)], limit=1)
             if not employee:
-                return {'status': 'error', 'message': _('বর্তমান ব্যবহারকারীর জন্য কোনো কর্মী রেকর্ড পাওয়া যায়নি।')}
+                return {'status': 'error', 'message': _('No employee record found for current user.')}
 
             today_date, _now_time = self._get_dhaka_date_and_time()
 
@@ -597,14 +674,14 @@ class FFMController(http.Controller):
                 hotel_rent = float(payload.get('hotel_rent', 0) or 0.0)
                 bike = float(payload.get('bike', 0) or 0.0)
             except (ValueError, TypeError):
-                return {'status': 'error', 'message': _('খরচের টাকার পরিমাণ সঠিক সংখ্যায় হতে হবে।')}
+                return {'status': 'error', 'message': _('Expense amounts must be valid numbers.')}
 
             amounts = [entertainment, courier, photocopy, promotion, stationery, carrying, banking, hotel_rent, bike]
             if any(val < 0 for val in amounts):
-                return {'status': 'error', 'message': _('খরচের পরিমাণ ঋণাত্মক হতে পারে না।')}
+                return {'status': 'error', 'message': _('Expense amount cannot be negative.')}
 
             if sum(amounts) <= 0:
-                return {'status': 'error', 'message': _('অন্তত একটি খাতের খরচের পরিমাণ শূন্যের বেশি হতে হবে।')}
+                return {'status': 'error', 'message': _('At least one expense category must be greater than zero.')}
 
             # Clean and validate vouchers
             v_entertainment = _clean_base64_image(payload.get('voucher_entertainment'))
@@ -614,23 +691,23 @@ class FFMController(http.Controller):
 
             if entertainment > 0:
                 if not v_entertainment:
-                    return {'status': 'error', 'message': _('আপ্যায়ন (Entertainment) খরচের ভাউচার ছবি আবশ্যক।')}
-                _check_and_validate_voucher(v_entertainment, _('আপ্যায়ন ভাউচার'))
+                    return {'status': 'error', 'message': _('Entertainment voucher image is required.')}
+                _check_and_validate_voucher(v_entertainment, _('Entertainment Voucher'))
 
             if courier > 0:
                 if not v_courier:
-                    return {'status': 'error', 'message': _('কুরিয়ার খরচের ভাউচার ছবি আবশ্যক।')}
-                _check_and_validate_voucher(v_courier, _('কুরিয়ার ভাউচার'))
+                    return {'status': 'error', 'message': _('Courier voucher image is required.')}
+                _check_and_validate_voucher(v_courier, _('Courier Voucher'))
 
             if photocopy > 0:
                 if not v_photocopy:
-                    return {'status': 'error', 'message': _('ফটোকপি খরচের ভাউচার ছবি আবশ্যক।')}
-                _check_and_validate_voucher(v_photocopy, _('ফটোকপি ভাউচার'))
+                    return {'status': 'error', 'message': _('Photocopy voucher image is required.')}
+                _check_and_validate_voucher(v_photocopy, _('Photocopy Voucher'))
 
             if hotel_rent > 0:
                 if not v_hotel_rent:
-                    return {'status': 'error', 'message': _('হোটেল ভাড়া খরচের ভাউচার ছবি আবশ্যক।')}
-                _check_and_validate_voucher(v_hotel_rent, _('হোটেল ভাড়া ভাউচার'))
+                    return {'status': 'error', 'message': _('Hotel rent voucher image is required.')}
+                _check_and_validate_voucher(v_hotel_rent, _('Hotel Rent Voucher'))
 
             # Search today's report if any
             report = request.env['ffm.daily.report'].sudo().search([
@@ -668,7 +745,7 @@ class FFMController(http.Controller):
             return {
                 'status': 'success',
                 'expense_id': expense.id,
-                'message': _('দৈনিক খরচ ও ভাউচার সফলভাবে সংরক্ষিত হয়েছে।'),
+                'message': _('Daily expense and vouchers saved successfully.'),
             }
         except ValidationError as ve:
             return {'status': 'error', 'message': ve.name or str(ve)}
@@ -790,7 +867,7 @@ class FFMController(http.Controller):
             if period == 'last_30_days':
                 date_start = today_date - timedelta(days=30)
                 date_end = today_date
-                period_label = f"গত ৩০ দিন ({date_start.strftime('%d %b')} - {date_end.strftime('%d %b, %Y')})"
+                period_label = f"Last 30 Days ({date_start.strftime('%d %b')} - {date_end.strftime('%d %b, %Y')})"
             elif period == 'prev':
                 first_this_month = today_date.replace(day=1)
                 last_prev_month = first_this_month - timedelta(days=1)
@@ -1232,13 +1309,13 @@ class FFMController(http.Controller):
             mode = kw.get('mode') or 'motorcycle'
 
             if not place_from_id or not place_to_id:
-                return {'status': 'error', 'message': _('প্রারম্ভিক ও গন্তব্য স্থান নির্বাচন করুন।')}
+                return {'status': 'error', 'message': _('Please select starting and destination places.')}
 
             p_from = request.env['ffm.place'].sudo().browse(int(place_from_id))
             p_to = request.env['ffm.place'].sudo().browse(int(place_to_id))
 
             if not p_from.exists() or not p_to.exists():
-                return {'status': 'error', 'message': _('স্থান পাওয়া যায়নি।')}
+                return {'status': 'error', 'message': _('Place not found.')}
 
             route = p_from.compute_route_to(p_to, mode=mode)
             dist = route.get('distance_km', 0.0)
@@ -1256,8 +1333,489 @@ class FFMController(http.Controller):
                 'status': 'success',
                 'distance_km': 0.0,
                 'fare_tk': 0.0,
-                'source': 'manual'
+                'source': 'fallback',
             }
+
+    # ── 8c. Manager Panel (ASM & RSM Monitoring & Approvals) ─────────────────
+    @http.route('/ff/manager', type='http', auth='user')
+    def ff_manager_dashboard(self, **kw):
+        """Manager Panel for ASM and RSM.
+        Dedicated solely to Monitoring, Review, and Approvals.
+        NO visit/expense data entry forms.
+        """
+        user = request.env.user
+        is_manager = (user.has_group('field_force_management.group_ffm_asm') or
+                      user.has_group('field_force_management.group_ffm_rsm') or
+                      user.has_group('field_force_management.group_ffm_nsm') or
+                      user.has_group('field_force_management.group_ffm_director') or
+                      user.has_group('field_force_management.group_ffm_admin') or
+                      request.env.is_admin())
+        if not is_manager:
+            return werkzeug.utils.redirect('/ff')
+
+        ctx = self._get_app_context()
+        today_date, now_time_str = self._get_dhaka_date_and_time()
+        employee = ctx['employee']
+
+        is_admin = (request.env.is_admin() or
+                    user.has_group('field_force_management.group_ffm_admin') or
+                    user.has_group('base.group_system') or
+                    user.has_group('field_force_management.group_ffm_nsm') or
+                    user.has_group('field_force_management.group_ffm_director'))
+        is_rsm = user.has_group('field_force_management.group_ffm_rsm') and not is_admin
+        is_asm = user.has_group('field_force_management.group_ffm_asm') and not is_rsm and not is_admin
+
+        if is_admin:
+            role_badge = 'System Administrator (Main Admin)'
+            all_active_emps = request.env['hr.employee'].sudo().search([
+                ('active', '=', True),
+            ], order='name')
+            subordinates = all_active_emps.filtered(
+                lambda e: (
+                    (e.user_id and (
+                        e.user_id.has_group('field_force_management.group_ffm_field_person') or
+                        e.user_id.has_group('field_force_management.group_ffm_asm') or
+                        e.user_id.has_group('field_force_management.group_ffm_rsm')
+                    ) and not (
+                        e.user_id.has_group('field_force_management.group_ffm_admin') or
+                        e.user_id.has_group('base.group_system')
+                    ))
+                    or (not e.user_id and e.branch_id)
+                )
+            )
+        elif is_rsm and employee:
+            role_badge = 'Regional Sales Manager (RSM)'
+            subordinates = request.env['hr.employee'].sudo().search([
+                ('active', '=', True),
+                ('id', 'child_of', employee.id),
+                ('id', '!=', employee.id)
+            ], order='name')
+        elif employee:
+            role_badge = 'Area Sales Manager (ASM)'
+            subordinates = request.env['hr.employee'].sudo().search([
+                ('active', '=', True),
+                ('parent_id', '=', employee.id)
+            ], order='name')
+        else:
+            role_badge = 'Manager'
+            subordinates = request.env['hr.employee'].browse([])
+
+        sub_ids = subordinates.ids
+
+        # Approvable subordinates:
+        # - ASM approves direct subordinates (Field Persons)
+        # - RSM approves direct subordinates (ASMs and any direct Field Persons)
+        # - Admin approves all subordinates
+        if is_admin:
+            approvable_subordinates = subordinates
+        elif (is_rsm or is_asm) and employee:
+            approvable_subordinates = request.env['hr.employee'].sudo().search([
+                ('active', '=', True),
+                ('parent_id', '=', employee.id),
+            ], order='name')
+        else:
+            approvable_subordinates = request.env['hr.employee'].browse([])
+        approvable_sub_ids = approvable_subordinates.ids
+
+        # Admin Management Data (Employees, Roles, Territories, Branches)
+        emp_role_map = {}
+        if is_admin:
+            for emp in subordinates:
+                u = emp.user_id
+                jname = (emp.job_id.name or '').lower()
+                if (u and u.has_group('field_force_management.group_ffm_rsm')) or 'rsm' in jname or 'regional' in jname:
+                    emp_role_map[emp.id] = {'code': 'rsm', 'label': 'RSM'}
+                elif (u and u.has_group('field_force_management.group_ffm_asm')) or 'asm' in jname or 'area' in jname:
+                    emp_role_map[emp.id] = {'code': 'asm', 'label': 'ASM'}
+                else:
+                    emp_role_map[emp.id] = {'code': 'fp', 'label': 'Field Person'}
+            all_employees = subordinates
+            manager_employees = subordinates.filtered(
+                lambda e: emp_role_map.get(e.id, {}).get('code') in ('rsm', 'asm')
+            )
+            all_territories = request.env['territory.territory'].sudo().search([], order='name')
+            all_branches = request.env['aam.branch'].sudo().search([], order='name')
+        else:
+            all_employees = request.env['hr.employee'].browse([])
+            manager_employees = request.env['hr.employee'].browse([])
+            all_territories = request.env['territory.territory'].browse([])
+            all_branches = request.env['aam.branch'].browse([])
+
+        # 1. Team Attendance Today
+        att_records = request.env['ffm.attendance'].sudo().search([
+            ('employee_id', 'in', sub_ids),
+            ('date', '=', today_date)
+        ], order='reporting_time desc')
+        present_emp_ids = att_records.mapped('employee_id.id')
+        absent_employees = subordinates.filtered(lambda e: e.id not in present_emp_ids)
+
+        # 2. Daily Reports (Pending Approval & Today)
+        pending_reports = request.env['ffm.daily.report'].sudo().search([
+            ('employee_id', 'in', approvable_sub_ids),
+            ('state', '=', 'submitted')
+        ], order='date desc, id desc')
+        today_reports = request.env['ffm.daily.report'].sudo().search([
+            ('employee_id', 'in', sub_ids),
+            ('date', '=', today_date)
+        ], order='id desc')
+
+        # 3. Customer & Field Visits Today
+        chemist_visits = request.env['ffm.chemist.visit'].sudo().search([
+            ('report_id.employee_id', 'in', sub_ids),
+            ('report_id.date', '=', today_date)
+        ], order='id desc')
+        doctor_visits = request.env['ffm.prescriber.visit'].sudo().search([
+            ('report_id.employee_id', 'in', sub_ids),
+            ('report_id.date', '=', today_date)
+        ], order='id desc')
+        farm_visits = request.env['ffm.farm.visit'].sudo().search([
+            ('report_id.employee_id', 'in', sub_ids),
+            ('report_id.date', '=', today_date)
+        ], order='id desc')
+
+        # 4. Daily Expenses Submitted Today
+        team_expenses = request.env['ffm.daily.expense'].sudo().search([
+            ('employee_id', 'in', sub_ids),
+            ('date', '=', today_date)
+        ], order='id desc')
+
+        # 5. Monthly Statements Pending Verification
+        submitted_statements = request.env['ffm.expense.statement'].sudo().search([
+            ('employee_id', 'in', approvable_sub_ids),
+            ('state', '=', 'submitted')
+        ], order='year desc, month desc, id desc')
+
+        # Aggregate Metrics
+        total_order_today = sum(chemist_visits.mapped('order_tk'))
+        total_sale_today = sum(chemist_visits.mapped('sale_tk'))
+        total_coll_today = sum(chemist_visits.mapped('coll_tk'))
+        total_expense_today = sum(team_expenses.mapped('total_amount'))
+
+        tab = kw.get('tab', 'approvals')
+
+        ctx.update({
+            'today_str': today_date.strftime('%d %B, %Y'),
+            'now_time_str': now_time_str,
+            'role_badge': role_badge,
+            'is_asm': is_asm,
+            'is_rsm': is_rsm,
+            'is_admin': is_admin,
+            'subordinates': subordinates,
+            'sub_count': len(subordinates),
+            'all_employees': all_employees,
+            'manager_employees': manager_employees,
+            'emp_role_map': emp_role_map,
+            'all_territories': all_territories,
+            'all_branches': all_branches,
+            'present_count': len(present_emp_ids),
+            'absent_count': len(absent_employees),
+            'present_records': att_records,
+            'absent_employees': absent_employees,
+            'pending_reports': pending_reports,
+            'today_reports': today_reports,
+            'chemist_visits': chemist_visits,
+            'doctor_visits': doctor_visits,
+            'farm_visits': farm_visits,
+            'team_expenses': team_expenses,
+            'submitted_statements': submitted_statements,
+            'total_order_today': total_order_today,
+            'total_sale_today': total_sale_today,
+            'total_coll_today': total_coll_today,
+            'total_expense_today': total_expense_today,
+            'active_tab': tab,
+        })
+        return request.render('ffm_daily_report.ff_manager_dashboard', ctx)
+
+    @http.route('/ff/manager/report/approve', type='json', auth='user', methods=['POST'])
+    def ff_manager_report_approve(self, report_id, **kw):
+        user = request.env.user
+        report = request.env['ffm.daily.report'].sudo().browse(int(report_id))
+        if not report.exists():
+            return {'status': 'error', 'message': _('Report not found.')}
+        if not report.with_user(user)._can_approve_or_reject():
+            return {'status': 'error', 'message': _('You do not have permission to approve this report.')}
+        try:
+            report.sudo().action_approve()
+            return {'status': 'success', 'message': _('Daily report approved successfully.')}
+        except Exception as exc:
+            return {'status': 'error', 'message': str(exc)}
+
+    @http.route('/ff/manager/report/reject', type='json', auth='user', methods=['POST'])
+    def ff_manager_report_reject(self, report_id, reason=None, **kw):
+        user = request.env.user
+        report = request.env['ffm.daily.report'].sudo().browse(int(report_id))
+        if not report.exists():
+            return {'status': 'error', 'message': _('Report not found.')}
+        if not report.with_user(user)._can_approve_or_reject():
+            return {'status': 'error', 'message': _('You do not have permission to reject this report.')}
+        try:
+            if reason:
+                report.sudo().message_post(body=_("Report rejected by %s. Reason: %s") % (user.name, reason))
+            report.sudo().action_reject()
+            return {'status': 'success', 'message': _('Daily report rejected.')}
+        except Exception as exc:
+            return {'status': 'error', 'message': str(exc)}
+
+    @http.route('/ff/manager/statement/check', type='json', auth='user', methods=['POST'])
+    def ff_manager_statement_check(self, statement_id, **kw):
+        user = request.env.user
+        stmt = request.env['ffm.expense.statement'].sudo().browse(int(statement_id))
+        if not stmt.exists():
+            return {'status': 'error', 'message': _('Statement not found.')}
+        try:
+            stmt.with_user(user).action_check()
+            return {'status': 'success', 'message': _('Monthly statement verified and checked.')}
+        except Exception as exc:
+            return {'status': 'error', 'message': str(exc)}
+
+    # ── 8d. System Admin CRUD, Password Reset & Demo Seeding ─────────────────
+    def _is_ffm_admin_user(self):
+        user = request.env.user
+        return bool(
+            request.env.is_admin() or
+            user.has_group('field_force_management.group_ffm_admin') or
+            user.has_group('base.group_system') or
+            user.has_group('field_force_management.group_ffm_nsm') or
+            user.has_group('field_force_management.group_ffm_director')
+        )
+
+    @http.route('/ff/admin/employee/save', type='json', auth='user', methods=['POST'])
+    def ff_admin_employee_save(self, name='', role='fp', login='', password='',
+                               emp_id=None, parent_id=None, branch_id=None,
+                               hq='', phone='', **kw):
+        if not self._is_ffm_admin_user():
+            return {'status': 'error', 'message': _('Access Denied: Only System Administrators can manage personnel.')}
+        name = (name or '').strip()
+        login = (login or '').strip()
+        password = (password or '').strip()
+        role = (role or 'fp').strip().lower()
+        if not name:
+            return {'status': 'error', 'message': _('Employee full name is required.')}
+        if role not in ('rsm', 'asm', 'fp'):
+            return {'status': 'error', 'message': _('Invalid role selected.')}
+
+        role_meta = {
+            'rsm': ('field_force_management.group_ffm_rsm', 'Regional Sales Manager (RSM)'),
+            'asm': ('field_force_management.group_ffm_asm', 'Area Sales Manager (ASM)'),
+            'fp': ('field_force_management.group_ffm_field_person', 'Field Person'),
+        }
+        group_xmlid, job_title = role_meta[role]
+        try:
+            role_group = request.env.ref(group_xmlid)
+            grp_internal = request.env.ref('base.group_user')
+            Job = request.env['hr.job'].sudo()
+            job = Job.search([('name', '=', job_title)], limit=1)
+            if not job:
+                job = Job.create({'name': job_title})
+
+            Employee = request.env['hr.employee'].sudo()
+            Users = request.env['res.users'].sudo().with_context(active_test=False)
+
+            emp = Employee.browse(int(emp_id)) if emp_id else Employee.browse([])
+            if emp_id and not emp.exists():
+                return {'status': 'error', 'message': _('Employee record not found.')}
+
+            if not emp and not login:
+                return {'status': 'error', 'message': _('Login username is required when creating a new personnel account.')}
+
+            user_rec = emp.user_id if emp else Users.browse([])
+            if login:
+                existing_user = Users.search([('login', '=', login)], limit=1)
+                if existing_user and (not user_rec or existing_user.id != user_rec.id):
+                    if emp and user_rec:
+                        return {'status': 'error', 'message': _('Another user with login "%s" already exists.') % login}
+                    user_rec = existing_user
+
+            if user_rec:
+                u_vals = {
+                    'name': name,
+                    'active': True,
+                    'groups_id': [(6, 0, [grp_internal.id, role_group.id])],
+                }
+                if login:
+                    u_vals['login'] = login
+                if password:
+                    u_vals['password'] = password
+                user_rec.sudo().write(u_vals)
+            elif login:
+                user_rec = Users.create({
+                    'name': name,
+                    'login': login,
+                    'password': password or '123456',
+                    'active': True,
+                    'groups_id': [(6, 0, [grp_internal.id, role_group.id])],
+                })
+
+            emp_vals = {
+                'name': name,
+                'job_id': job.id,
+                'parent_id': int(parent_id) if parent_id else False,
+                'branch_id': int(branch_id) if branch_id else False,
+                'hq': (hq or '').strip(),
+                'mobile_phone': (phone or '').strip(),
+                'ffm_phone': (phone or '').strip(),
+                'active': True,
+            }
+            if user_rec:
+                emp_vals['user_id'] = user_rec.id
+                emp_vals['work_email'] = user_rec.login
+
+            if emp:
+                emp.write(emp_vals)
+            else:
+                # Check if creating the user automatically created an employee
+                auto_emp = Employee.search([('user_id', '=', user_rec.id)], limit=1) if user_rec else Employee.browse([])
+                if auto_emp:
+                    auto_emp.write(emp_vals)
+                    emp = auto_emp
+                else:
+                    emp = Employee.create(emp_vals)
+
+            return {
+                'status': 'success',
+                'message': _('Personnel "%s" (%s) saved successfully.') % (emp.name, job_title),
+                'emp_id': emp.id,
+            }
+        except Exception as exc:
+            return {'status': 'error', 'message': str(exc)}
+
+    @http.route('/ff/admin/employee/reset_password', type='json', auth='user', methods=['POST'])
+    def ff_admin_employee_reset_password(self, emp_id, new_password='', **kw):
+        if not self._is_ffm_admin_user():
+            return {'status': 'error', 'message': _('Access Denied: Only System Administrators can reset passwords.')}
+        new_password = (new_password or '').strip()
+        if not new_password:
+            return {'status': 'error', 'message': _('Please provide a non-empty new password.')}
+        emp = request.env['hr.employee'].sudo().browse(int(emp_id))
+        if not emp.exists() or not emp.user_id:
+            return {'status': 'error', 'message': _('Linked user account not found for this employee.')}
+        try:
+            emp.user_id.sudo().write({'password': new_password})
+            return {
+                'status': 'success',
+                'message': _('Password updated successfully for %s (login: %s).') % (emp.name, emp.user_id.login),
+            }
+        except Exception as exc:
+            return {'status': 'error', 'message': str(exc)}
+
+    @http.route('/ff/admin/employee/delete', type='json', auth='user', methods=['POST'])
+    def ff_admin_employee_delete(self, emp_id, **kw):
+        if not self._is_ffm_admin_user():
+            return {'status': 'error', 'message': _('Access Denied: Only System Administrators can remove personnel.')}
+        emp = request.env['hr.employee'].sudo().browse(int(emp_id))
+        if not emp.exists():
+            return {'status': 'error', 'message': _('Personnel record not found.')}
+        try:
+            emp_name = emp.name
+            linked_user = emp.user_id
+            emp.sudo().write({'active': False})
+            if linked_user and linked_user.id != request.env.user.id:
+                linked_user.sudo().write({'active': False})
+            return {
+                'status': 'success',
+                'message': _('Personnel "%s" deactivated and removed from active roster.') % emp_name,
+            }
+        except Exception as exc:
+            return {'status': 'error', 'message': str(exc)}
+
+    @http.route('/ff/admin/territory/save', type='json', auth='user', methods=['POST'])
+    def ff_admin_territory_save(self, name='', territory_id=None, branch_id=None,
+                                manager_id=None, field_person_id=None, **kw):
+        if not self._is_ffm_admin_user():
+            return {'status': 'error', 'message': _('Access Denied: Only System Administrators can manage territories.')}
+        name = (name or '').strip()
+        if not name:
+            return {'status': 'error', 'message': _('Territory name is required.')}
+        try:
+            Territory = request.env['territory.territory'].sudo()
+            vals = {
+                'name': name,
+                'branch_id': int(branch_id) if branch_id else False,
+                'manager_id': int(manager_id) if manager_id else False,
+                'field_person_id': int(field_person_id) if field_person_id else False,
+            }
+            if territory_id:
+                rec = Territory.browse(int(territory_id))
+                if not rec.exists():
+                    return {'status': 'error', 'message': _('Territory not found.')}
+                rec.write(vals)
+            else:
+                rec = Territory.create(vals)
+            return {
+                'status': 'success',
+                'message': _('Territory "%s" saved successfully.') % rec.name,
+                'territory_id': rec.id,
+            }
+        except Exception as exc:
+            return {'status': 'error', 'message': str(exc)}
+
+    @http.route('/ff/admin/territory/delete', type='json', auth='user', methods=['POST'])
+    def ff_admin_territory_delete(self, territory_id, **kw):
+        if not self._is_ffm_admin_user():
+            return {'status': 'error', 'message': _('Access Denied: Only System Administrators can delete territories.')}
+        rec = request.env['territory.territory'].sudo().browse(int(territory_id))
+        if not rec.exists():
+            return {'status': 'error', 'message': _('Territory not found.')}
+        try:
+            t_name = rec.name
+            rec.unlink()
+            return {'status': 'success', 'message': _('Territory "%s" deleted successfully.') % t_name}
+        except Exception as exc:
+            return {'status': 'error', 'message': str(exc)}
+
+    @http.route('/ff/admin/branch/save', type='json', auth='user', methods=['POST'])
+    def ff_admin_branch_save(self, name='', code='', branch_id=None, **kw):
+        if not self._is_ffm_admin_user():
+            return {'status': 'error', 'message': _('Access Denied: Only System Administrators can manage branches.')}
+        name = (name or '').strip()
+        code = (code or '').strip()
+        if not name:
+            return {'status': 'error', 'message': _('Branch name is required.')}
+        try:
+            Branch = request.env['aam.branch'].sudo()
+            vals = {'name': name, 'code': code}
+            if branch_id:
+                rec = Branch.browse(int(branch_id))
+                if not rec.exists():
+                    return {'status': 'error', 'message': _('Branch not found.')}
+                rec.write(vals)
+            else:
+                rec = Branch.create(vals)
+            return {
+                'status': 'success',
+                'message': _('Branch "%s" saved successfully.') % rec.name,
+                'branch_id': rec.id,
+            }
+        except Exception as exc:
+            return {'status': 'error', 'message': str(exc)}
+
+    @http.route('/ff/admin/branch/delete', type='json', auth='user', methods=['POST'])
+    def ff_admin_branch_delete(self, branch_id, **kw):
+        if not self._is_ffm_admin_user():
+            return {'status': 'error', 'message': _('Access Denied: Only System Administrators can delete branches.')}
+        rec = request.env['aam.branch'].sudo().browse(int(branch_id))
+        if not rec.exists():
+            return {'status': 'error', 'message': _('Branch not found.')}
+        try:
+            b_name = rec.name
+            rec.unlink()
+            return {'status': 'success', 'message': _('Branch "%s" deleted successfully.') % b_name}
+        except Exception as exc:
+            return {'status': 'error', 'message': str(exc)}
+
+    @http.route('/ff/admin/seed_demo', type='json', auth='user', methods=['POST'])
+    def ff_admin_seed_demo(self, **kw):
+        if not self._is_ffm_admin_user():
+            return {'status': 'error', 'message': _('Access Denied: Only System Administrators can seed demo data.')}
+        try:
+            wiz = request.env['ffm.seed.demo.wizard'].sudo().create({})
+            wiz.action_seed_demo_data()
+            return {
+                'status': 'success',
+                'message': _('Demo data seeded successfully across RSM, ASM, and Field Person panels!'),
+            }
+        except Exception as exc:
+            return {'status': 'error', 'message': str(exc)}
 
     # ── 9. Manifest ─────────────────────────────────────────────────────────
     @http.route('/ff/manifest.json', type='http', auth='none', methods=['GET'])
