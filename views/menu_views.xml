@@ -8,6 +8,20 @@
         web_icon="field_force_management,static/src/description/icon.png"
         groups="field_force_management.group_ffm_field_person"/>
 
+    <!-- ── Mobile App Shortcut for Managers/Admin ── -->
+    <record id="action_ffm_open_mobile_portal" model="ir.actions.act_url">
+        <field name="name">Mobile Portal (/ff)</field>
+        <field name="url">/ff</field>
+        <field name="target">self</field>
+    </record>
+
+    <menuitem id="menu_ffm_open_mobile_portal"
+        name="Mobile App (/ff)"
+        parent="menu_ffm_root"
+        sequence="5"
+        action="action_ffm_open_mobile_portal"
+        groups="field_force_management.group_ffm_asm,field_force_management.group_ffm_admin"/>
+
     <!-- ── 1. Daily Report ── -->
     <menuitem id="menu_ffm_daily_report"
         name="Daily Report"
@@ -24,16 +38,113 @@
         action="action_ffm_travel_log"
         groups="field_force_management.group_ffm_field_person"/>
 
+    <!-- ── 3. Field Force Team Management (RSM, ASM, Field Person CRUD - Admin only) ── -->
+    <menuitem id="menu_ffm_team_root"
+        name="Team Management"
+        parent="menu_ffm_root"
+        sequence="30"
+        groups="field_force_management.group_ffm_admin"/>
 
+    <!-- All Personnel -->
+    <record id="action_ffm_employees_all" model="ir.actions.act_window">
+        <field name="name">All Field Personnel</field>
+        <field name="res_model">hr.employee</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="domain">[('active', '=', True)]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new Field Personnel member.
+            </p>
+        </field>
+    </record>
+    <menuitem id="menu_ffm_team_all"
+        name="All Personnel"
+        parent="menu_ffm_team_root"
+        sequence="10"
+        action="action_ffm_employees_all"/>
 
-    <!-- ── Configuration submenu (admin only) ── -->
+    <!-- Regional Sales Managers (RSM) -->
+    <record id="action_ffm_employees_rsm" model="ir.actions.act_window">
+        <field name="name">Regional Sales Managers (RSM)</field>
+        <field name="res_model">hr.employee</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="domain">['|', ('job_id.name', 'ilike', 'RSM'), ('job_id.name', 'ilike', 'Regional')]</field>
+        <field name="context">{'default_job_title': 'Regional Sales Manager (RSM)'}</field>
+    </record>
+    <menuitem id="menu_ffm_team_rsm"
+        name="Regional Managers (RSM)"
+        parent="menu_ffm_team_root"
+        sequence="20"
+        action="action_ffm_employees_rsm"/>
+
+    <!-- Area Sales Managers (ASM) -->
+    <record id="action_ffm_employees_asm" model="ir.actions.act_window">
+        <field name="name">Area Sales Managers (ASM)</field>
+        <field name="res_model">hr.employee</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="domain">['|', ('job_id.name', 'ilike', 'ASM'), ('job_id.name', 'ilike', 'Area')]</field>
+        <field name="context">{'default_job_title': 'Area Sales Manager (ASM)'}</field>
+    </record>
+    <menuitem id="menu_ffm_team_asm"
+        name="Area Managers (ASM)"
+        parent="menu_ffm_team_root"
+        sequence="30"
+        action="action_ffm_employees_asm"/>
+
+    <!-- Field Persons (MPO / SR) -->
+    <record id="action_ffm_employees_fp" model="ir.actions.act_window">
+        <field name="name">Field Persons (MPO / SR)</field>
+        <field name="res_model">hr.employee</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="domain">['!', '|', ('job_id.name', 'ilike', 'RSM'), '|', ('job_id.name', 'ilike', 'Regional'), '|', ('job_id.name', 'ilike', 'ASM'), '|', ('job_id.name', 'ilike', 'Area'), '|', ('job_id.name', 'ilike', 'Director'), ('job_id.name', 'ilike', 'NSM')]</field>
+        <field name="context">{'default_job_title': 'Field Person / MPO'}</field>
+    </record>
+    <menuitem id="menu_ffm_team_fp"
+        name="Field Persons (MPO / SR)"
+        parent="menu_ffm_team_root"
+        sequence="40"
+        action="action_ffm_employees_fp"/>
+
+    <!-- ── 4. Territory Management (Admin only) ── -->
+    <menuitem id="menu_ffm_territory_root"
+        name="Territories"
+        parent="menu_ffm_root"
+        sequence="40"
+        groups="field_force_management.group_ffm_admin"/>
+
+    <record id="action_ffm_territories" model="ir.actions.act_window">
+        <field name="name">Territories</field>
+        <field name="res_model">territory.territory</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Define and manage company sales territories.
+            </p>
+        </field>
+    </record>
+    <menuitem id="menu_ffm_territory_list"
+        name="Territories"
+        parent="menu_ffm_territory_root"
+        sequence="10"
+        action="action_ffm_territories"/>
+
+    <record id="action_ffm_branches" model="ir.actions.act_window">
+        <field name="name">Branches</field>
+        <field name="res_model">aam.branch</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <menuitem id="menu_ffm_branch_list"
+        name="Branches"
+        parent="menu_ffm_territory_root"
+        sequence="20"
+        action="action_ffm_branches"/>
+
+    <!-- ── 5. Configuration submenu (admin only) ── -->
     <menuitem id="menu_ffm_config"
         name="Configuration"
         parent="menu_ffm_root"
         sequence="90"
         groups="field_force_management.group_ffm_admin"/>
-
-
 
     <menuitem id="menu_ffm_config_location_settings"
         name="Location API Settings"
@@ -54,6 +165,21 @@
         parent="menu_ffm_config"
         sequence="30"
         action="action_ffm_place"
+        groups="field_force_management.group_ffm_admin"/>
+
+    <!-- User Credentials & Passwords -->
+    <record id="action_ffm_users" model="ir.actions.act_window">
+        <field name="name">User Credentials &amp; Passwords</field>
+        <field name="res_model">res.users</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('share', '=', False)]</field>
+        <field name="context">{'search_default_filter_no_share': 1}</field>
+    </record>
+    <menuitem id="menu_ffm_config_users"
+        name="User Credentials &amp; Passwords"
+        parent="menu_ffm_config"
+        sequence="40"
+        action="action_ffm_users"
         groups="field_force_management.group_ffm_admin"/>
 
 </odoo>
