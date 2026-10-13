@@ -309,13 +309,15 @@ class TestFFMPhase4Http(HttpCase):
 
     def test_01_http_expense_workflow(self):
         """Test /ff/expense page, JSON submission, voucher enforcement, idempotency, and summary view."""
+        self.env['ffm.daily.expense'].sudo().search([('client_uuid', '=', 'http-expense-uuid-demo-777')]).unlink()
+
         # 1. Authenticate with demo marketer
         self.authenticate('ffm_fp_demo', 'Demo12345!')
 
         # 2. GET /ff/expense
         res_page = self.url_open('/ff/expense')
         self.assertEqual(res_page.status_code, 200)
-        self.assertIn('দৈনিক খরচ', res_page.content.decode('utf-8'))
+        self.assertIn('Daily Expense', res_page.content.decode('utf-8'))
 
         # 3. Submit expense without required voucher -> Should return error
         err_payload = {
@@ -334,7 +336,7 @@ class TestFFMPhase4Http(HttpCase):
         self.assertEqual(res_err.status_code, 200)
         data_err = res_err.json().get('result', {})
         self.assertEqual(data_err.get('status'), 'error')
-        self.assertIn('ভাউচার ছবি আবশ্যক', data_err.get('message', ''))
+        self.assertIn('voucher image is required', data_err.get('message', ''))
 
         # 4. Submit valid expense with voucher and client_uuid
         uuid_token = 'http-expense-uuid-demo-777'
@@ -375,5 +377,5 @@ class TestFFMPhase4Http(HttpCase):
         res_entries = self.url_open('/ff/entries/today')
         self.assertEqual(res_entries.status_code, 200)
         entries_content = res_entries.content.decode('utf-8')
-        self.assertIn('দৈনিক খরচ', entries_content)
+        self.assertIn('Daily Expense', entries_content)
         self.assertIn('600', entries_content)
