@@ -15,6 +15,12 @@
                     class="btn-secondary"
                     groups="field_force_management.group_ffm_admin"
                     help="Automatically create or link the portal/internal user account with the correct FFM role."/>
+                <button name="action_open_change_password_wizard"
+                    string="Set / Reset Password"
+                    type="object"
+                    class="btn-primary"
+                    groups="field_force_management.group_ffm_admin"
+                    help="Set or reset login password for this employee."/>
             </xpath>
 
             <!-- Add HQ and FFM Phone -->
