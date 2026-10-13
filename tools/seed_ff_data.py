@@ -34,19 +34,28 @@ if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
 # Bootstrap Odoo if running directly outside odoo shell
-if 'env' not in globals():
-    sys.path.insert(0, r"D:\Software\Odoo\odoo")
+standalone = False
+env = globals().get('env')
+if not env:
     import odoo
     from odoo import api, SUPERUSER_ID
-    odoo.tools.config.parse_config(['-c', r'D:\Software\field_force_management\odoo.conf', '-d', 'ffm_test'])
-    registry = odoo.registry('ffm_test')
+    conf_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'odoo.conf')
+    db_name = odoo.tools.config.get('db_name') or 'field_force_db'
+    if not odoo.tools.config.get('addons_path'):
+        if os.path.exists(conf_path):
+            odoo.tools.config.parse_config(['-c', conf_path, '-d', db_name])
+        else:
+            odoo.tools.config.parse_config(['-d', db_name])
+    db_name = odoo.tools.config.get('db_name') or 'field_force_db'
+    import odoo.modules
+    odoo.modules.initialize_sys_path()
+    registry = odoo.registry(db_name)
     _manage = api.Environment.manage()
     _manage.__enter__()
     cr = registry.cursor()
     env = api.Environment(cr, SUPERUSER_ID, {})
     standalone = True
 else:
-    standalone = False
     cr = env.cr
 
 
