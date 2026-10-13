@@ -1,177 +1,379 @@
-/* FFM Marketer Mobile-First CSS Shell */
+/* ==========================================================================
+   FFM Mobile-First Professional Enterprise Design System
+   Compact, Perfectly Proportioned, Responsive Sizing & Typography
+   ========================================================================== */
+
 :root {
-    --ffm-primary: #107c41;
-    --ffm-primary-dark: #0b582e;
-    --ffm-primary-light: #e8f5e9;
-    --ffm-accent: #0078d4;
-    --ffm-bg: #f4f6f8;
+    --ffm-primary: #0d5c3a;
+    --ffm-primary-dark: #074026;
+    --ffm-primary-light: #e6f4ea;
+    --ffm-primary-focus: rgba(13, 92, 58, 0.15);
+    --ffm-accent: #0284c7;
+    --ffm-accent-light: #e0f2fe;
+
+    --ffm-bg: #f8fafc;
     --ffm-card-bg: #ffffff;
-    --ffm-text: #1f2937;
-    --ffm-text-muted: #6b7280;
-    --ffm-border: #e5e7eb;
-    --ffm-danger: #d93025;
-    --ffm-warning: #f59e0b;
-    --ffm-success: #107c41;
-    --ffm-radius: 12px;
-    --ffm-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+    --ffm-text: #0f172a;
+    --ffm-text-secondary: #334155;
+    --ffm-text-muted: #64748b;
+    --ffm-border: #e2e8f0;
+    --ffm-border-subtle: #f1f5f9;
+
+    --ffm-danger: #dc2626;
+    --ffm-danger-light: #fef2f2;
+    --ffm-warning: #d97706;
+    --ffm-warning-light: #fffbeb;
+    --ffm-success: #15803d;
+    --ffm-success-light: #f0fdf4;
+    --ffm-info: #2563eb;
+    --ffm-info-light: #eff6ff;
+
+    --ffm-radius-sm: 6px;
+    --ffm-radius: 10px;
+    --ffm-radius-pill: 9999px;
+
+    --ffm-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+    --ffm-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+    --ffm-shadow-md: 0 3px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+
+    --ffm-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --ffm-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
-* {
+*, *::before, *::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
     -webkit-tap-highlight-color: transparent;
 }
 
+html {
+    font-size: 15px;
+    -webkit-text-size-adjust: 100%;
+}
+
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: var(--ffm-font);
     background-color: var(--ffm-bg);
     color: var(--ffm-text);
-    line-height: 1.5;
+    line-height: 1.45;
     min-height: 100vh;
+    min-height: 100dvh;
     padding-bottom: 30px;
     overflow-x: hidden;
 }
 
-/* App Header */
+/* ── SVG Icon Utilities (Compact & Clean) ───────────────────────────────── */
+.ffm-icon {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    stroke-width: 2;
+    stroke: currentColor;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vertical-align: middle;
+    flex-shrink: 0;
+}
+
+.ffm-icon-lg {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2;
+}
+
+.ffm-icon-sm {
+    width: 14px;
+    height: 14px;
+    stroke-width: 2;
+    vertical-align: -2px;
+}
+
+.ffm-icon-xs {
+    width: 12px;
+    height: 12px;
+    stroke-width: 2.2;
+    vertical-align: -1px;
+}
+
+/* Icon Box Containers (Compact proportions) */
+.ffm-icon-box {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--ffm-radius-sm);
+    margin-bottom: 6px;
+    transition: transform 0.15s ease;
+}
+
+.ffm-icon-box-sm {
+    width: 26px;
+    height: 26px;
+    border-radius: 4px;
+    margin-bottom: 0;
+}
+
+.ffm-icon-box--green {
+    background: #ecfdf5;
+    color: #059669;
+}
+
+.ffm-icon-box--blue {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.ffm-icon-box--emerald {
+    background: #f0fdf4;
+    color: #16a34a;
+}
+
+.ffm-icon-box--rose {
+    background: #fff1f2;
+    color: #e11d48;
+}
+
+.ffm-icon-box--amber {
+    background: #fefce8;
+    color: #d97706;
+}
+
+.ffm-icon-box--teal {
+    background: #f0fdfa;
+    color: #0d9488;
+}
+
+.ffm-icon-box--purple {
+    background: #faf5ff;
+    color: #9333ea;
+}
+
+.ffm-icon-box--indigo {
+    background: #eef2ff;
+    color: #4f46e5;
+}
+
+.ffm-icon-box--slate {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+/* ── App Header (Slim & Clean) ─────────────────────────────────────────── */
 .ffm-header {
     background-color: var(--ffm-primary);
     color: #ffffff;
-    padding: 14px 16px;
+    padding: 10px 14px;
     position: sticky;
     top: 0;
     z-index: 100;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 10px;
 }
 
-.ffm-header-title {
-    font-size: 1.15rem;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-}
-
-.ffm-header-user {
-    font-size: 0.82rem;
-    opacity: 0.9;
+.ffm-header-brand {
     display: flex;
     align-items: center;
     gap: 8px;
+    text-decoration: none;
+    color: #ffffff;
+}
+
+.ffm-header-title {
+    font-size: 0.96rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.ffm-header-user {
+    font-size: 0.78rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.ffm-btn-nav {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    padding: 4px 9px;
+    border-radius: var(--ffm-radius-sm);
+    text-decoration: none;
+    font-size: 0.74rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: background 0.15s ease;
+}
+
+.ffm-btn-nav:hover {
+    background: rgba(255, 255, 255, 0.25);
+    color: #ffffff;
 }
 
 .ffm-btn-logout {
     color: #ffffff;
-    background: rgba(255, 255, 255, 0.18);
-    border: none;
-    padding: 6px 12px;
-    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    padding: 4px 9px;
+    border-radius: var(--ffm-radius-sm);
     text-decoration: none;
-    font-size: 0.78rem;
+    font-size: 0.74rem;
     font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: background 0.15s ease;
 }
 
-/* Main Container */
+.ffm-btn-logout:hover {
+    background: rgba(239, 68, 68, 0.85);
+    color: #ffffff;
+}
+
+/* ── Main Container ─────────────────────────────────────────────────────── */
 .ffm-container {
-    max-width: 900px;
+    max-width: 820px;
     margin: 0 auto;
-    padding: 16px;
+    padding: 12px;
 }
 
-/* User Profile & Status Card */
+/* ── Status Card ────────────────────────────────────────────────────────── */
 .ffm-status-card {
     background: var(--ffm-card-bg);
+    border: 1px solid var(--ffm-border);
     border-radius: var(--ffm-radius);
-    padding: 16px;
-    margin-bottom: 20px;
-    box-shadow: var(--ffm-shadow);
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    box-shadow: var(--ffm-shadow-sm);
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
 }
 
 .ffm-status-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
+/* Badges (Compact) */
 .ffm-badge {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2.5px 7px;
+    border-radius: var(--ffm-radius-pill);
+    font-size: 0.7rem;
     font-weight: 600;
+    letter-spacing: 0.01em;
+    line-height: 1.2;
 }
 
 .ffm-badge-success {
-    background: #def7ec;
-    color: #03543f;
+    background: var(--ffm-success-light);
+    color: var(--ffm-success);
+    border: 1px solid #bbf7d0;
 }
 
 .ffm-badge-warning {
-    background: #fef3c7;
-    color: #92400e;
+    background: var(--ffm-warning-light);
+    color: var(--ffm-warning);
+    border: 1px solid #fde68a;
 }
 
-/* 8-Tile Dashboard Grid */
+.ffm-badge-danger {
+    background: var(--ffm-danger-light);
+    color: var(--ffm-danger);
+    border: 1px solid #fecaca;
+}
+
+.ffm-badge-info {
+    background: var(--ffm-info-light);
+    color: var(--ffm-info);
+    border: 1px solid #bfdbfe;
+}
+
+.ffm-badge-neutral {
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+}
+
+/* ── 8-Tile Dashboard Grid (Compact & Perfectly Scaled) ─────────────────── */
 .ffm-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
+    gap: 10px;
 }
 
-@media (min-width: 640px) {
+@media (min-width: 600px) {
     .ffm-grid {
         grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
     }
 }
 
-@media (min-width: 768px) {
+@media (min-width: 780px) {
     .ffm-grid {
         grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
     }
 }
 
 .ffm-tile {
     background: var(--ffm-card-bg);
     border-radius: var(--ffm-radius);
-    padding: 18px 14px;
+    padding: 12px 10px;
     text-align: center;
-    box-shadow: var(--ffm-shadow);
+    box-shadow: var(--ffm-shadow-sm);
     text-decoration: none;
     color: var(--ffm-text);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 120px;
+    min-height: 96px;
     position: relative;
     border: 1px solid var(--ffm-border);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+}
+
+.ffm-tile:hover {
+    box-shadow: var(--ffm-shadow);
+    border-color: #cbd5e1;
+    transform: translateY(-1px);
 }
 
 .ffm-tile:active {
-    transform: scale(0.97);
-}
-
-.ffm-tile-icon {
-    font-size: 2.2rem;
-    margin-bottom: 8px;
-    line-height: 1;
+    transform: scale(0.985);
 }
 
 .ffm-tile-title {
-    font-size: 0.92rem;
-    font-weight: 700;
-    line-height: 1.25;
+    font-size: 0.82rem;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--ffm-text);
 }
 
 .ffm-tile-subtitle {
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     color: var(--ffm-text-muted);
-    margin-top: 4px;
+    margin-top: 2px;
+    line-height: 1.2;
 }
 
 .ffm-tile-disabled {
@@ -181,142 +383,164 @@ body {
     pointer-events: none;
 }
 
-.ffm-tile-badge-soon {
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    background: #e5e7eb;
-    color: #4b5563;
-    font-size: 0.65rem;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-weight: 600;
-}
-
-/* Forms & Attendance */
+/* ── Form Cards & Controls (Compact) ────────────────────────────────────── */
 .ffm-form-card {
     background: var(--ffm-card-bg);
+    border: 1px solid var(--ffm-border);
     border-radius: var(--ffm-radius);
-    padding: 20px;
-    box-shadow: var(--ffm-shadow);
-    margin-bottom: 20px;
+    padding: 14px 16px;
+    box-shadow: var(--ffm-shadow-sm);
+    margin-bottom: 14px;
 }
 
 .ffm-form-group {
-    margin-bottom: 16px;
+    margin-bottom: 12px;
 }
 
 .ffm-form-label {
     display: block;
-    font-size: 0.88rem;
+    font-size: 0.78rem;
     font-weight: 600;
-    margin-bottom: 6px;
-    color: #374151;
+    margin-bottom: 4px;
+    color: #334155;
+    letter-spacing: -0.01em;
 }
 
 .ffm-form-control {
     width: 100%;
-    padding: 12px 14px;
-    font-size: 16px; /* Prevents auto-zoom on iOS */
-    border: 1.5px solid var(--ffm-border);
-    border-radius: 8px;
+    padding: 8px 11px;
+    font-size: 15px; /* iOS zoom prevention */
+    font-family: inherit;
+    border: 1px solid var(--ffm-border);
+    border-radius: var(--ffm-radius-sm);
     outline: none;
-    transition: border-color 0.2s;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
     background-color: #ffffff;
+    color: var(--ffm-text);
 }
 
 .ffm-form-control:focus {
     border-color: var(--ffm-primary);
+    box-shadow: 0 0 0 2px var(--ffm-primary-focus);
 }
 
-/* Touch Targets & Buttons */
+/* ── Buttons (Proportional) ─────────────────────────────────────────────── */
 .ffm-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 48px; /* Touch target >= 44px */
+    gap: 6px;
+    min-height: 38px;
     width: 100%;
-    padding: 12px 20px;
-    font-size: 1rem;
+    padding: 7px 14px;
+    font-size: 0.84rem;
     font-weight: 600;
-    border-radius: 8px;
-    border: none;
+    font-family: inherit;
+    border-radius: var(--ffm-radius-sm);
+    border: 1px solid transparent;
     cursor: pointer;
     text-decoration: none;
-    transition: background 0.2s, opacity 0.2s;
+    transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.ffm-btn:active {
+    transform: scale(0.985);
 }
 
 .ffm-btn-primary {
     background-color: var(--ffm-primary);
     color: #ffffff;
+    border-color: var(--ffm-primary);
 }
 
-.ffm-btn-primary:active {
+.ffm-btn-primary:hover {
     background-color: var(--ffm-primary-dark);
 }
 
 .ffm-btn-secondary {
-    background-color: #e5e7eb;
-    color: #374151;
+    background-color: #f1f5f9;
+    color: #334155;
+    border-color: #cbd5e1;
+}
+
+.ffm-btn-secondary:hover {
+    background-color: #e2e8f0;
+}
+
+.ffm-btn-danger {
+    background-color: var(--ffm-danger);
+    color: #ffffff;
 }
 
 .ffm-btn:disabled, .ffm-btn[disabled] {
-    opacity: 0.6;
+    opacity: 0.55;
     cursor: not-allowed;
+    transform: none;
 }
 
-/* GPS Location Widget */
+/* ── GPS Location Widget ────────────────────────────────────────────────── */
 .ffm-gps-box {
     background: #f8fafc;
-    border: 1.5px dashed #cbd5e1;
-    border-radius: 8px;
-    padding: 16px;
+    border: 1px dashed #cbd5e1;
+    border-radius: var(--ffm-radius);
+    padding: 12px;
     text-align: center;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
 }
 
 .ffm-gps-coords {
-    font-family: monospace;
-    font-size: 0.95rem;
+    font-family: var(--ffm-mono);
+    font-size: 0.85rem;
     color: #0f172a;
-    margin-top: 8px;
+    margin-top: 6px;
     word-break: break-all;
 }
 
-/* Back Link */
+/* ── Back Navigation ─────────────────────────────────────────────────────── */
 .ffm-back-link {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     color: var(--ffm-primary);
     text-decoration: none;
     font-weight: 600;
-    font-size: 0.9rem;
-    margin-bottom: 14px;
+    font-size: 0.82rem;
+    margin-bottom: 10px;
+    padding: 2px 6px;
+    border-radius: var(--ffm-radius-sm);
+    transition: background 0.15s ease;
 }
 
-/* Toast Notification */
+.ffm-back-link:hover {
+    background: var(--ffm-primary-light);
+}
+
+/* ── Toast Notifications ────────────────────────────────────────────────── */
 .ffm-toast-container {
     position: fixed;
-    bottom: 24px;
-    left: 16px;
-    right: 16px;
+    bottom: 20px;
+    left: 14px;
+    right: 14px;
     z-index: 9999;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     pointer-events: none;
 }
 
 .ffm-toast {
-    background: #1f2937;
+    background: #1e293b;
     color: #ffffff;
-    padding: 12px 18px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-    font-size: 0.9rem;
+    padding: 9px 14px;
+    border-radius: var(--ffm-radius-sm);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    font-size: 0.82rem;
+    font-weight: 500;
     pointer-events: auto;
-    animation: ffmSlideUp 0.3s ease-out;
+    animation: ffmSlideUp 0.2s ease-out;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .ffm-toast-success {
@@ -330,7 +554,7 @@ body {
 @keyframes ffmSlideUp {
     from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(12px);
     }
     to {
         opacity: 1;
@@ -338,60 +562,128 @@ body {
     }
 }
 
-/* Sticky Action Bar for Mobile */
+/* ── Sticky Action Bar for Mobile ────────────────────────────────────────── */
 .ffm-sticky-bottom {
     position: sticky;
     bottom: 0;
     background: #ffffff;
-    padding: 12px 16px;
-    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
+    padding: 8px 12px;
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+    box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.05);
     border-top: 1px solid var(--ffm-border);
     z-index: 90;
-    margin: 16px -16px -30px -16px;
+    margin: 12px -12px -30px -12px;
 }
 
-/* Responsive Table Wrapper */
+/* ── Responsive Tables & Horiz Scroll ────────────────────────────────────── */
 .ffm-table-responsive {
     width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    margin-bottom: 16px;
-    border-radius: 8px;
+    margin-bottom: 12px;
+    border-radius: var(--ffm-radius-sm);
     border: 1px solid var(--ffm-border);
+    background: #ffffff;
 }
 
-/* Responsive Grid and Cards Scaling across 360px - 1440px */
-@media (max-width: 389px) {
+.ffm-table-responsive table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+    white-space: nowrap;
+}
+
+.ffm-table-responsive th {
+    background: #f8fafc;
+    color: #475569;
+    font-weight: 600;
+    font-size: 0.72rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--ffm-border);
+    text-align: left;
+}
+
+.ffm-table-responsive td {
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--ffm-border-subtle);
+    color: var(--ffm-text);
+}
+
+/* ── Horizontal Scrollable Tabs ─────────────────────────────────────────── */
+.ffm-tabs-nav {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 3px;
+    margin-bottom: 12px;
+}
+
+.ffm-tabs-nav::-webkit-scrollbar {
+    display: none;
+}
+
+.ffm-tab-pill {
+    padding: 5px 11px;
+    border-radius: var(--ffm-radius-sm);
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 0.76rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border: 1px solid transparent;
+    transition: all 0.15s ease;
+}
+
+.ffm-tab-pill:hover {
+    background: #e2e8f0;
+    color: var(--ffm-text);
+}
+
+.ffm-tab-pill.active {
+    background: var(--ffm-primary);
+    color: #ffffff;
+    border-color: var(--ffm-primary);
+}
+
+/* ── Mobile Responsive Refinements ──────────────────────────────────────── */
+@media (max-width: 480px) {
     .ffm-container {
         padding: 10px;
     }
     .ffm-tile {
-        padding: 14px 8px;
-        min-height: 110px;
+        padding: 10px 6px;
+        min-height: 88px;
     }
-    .ffm-tile-icon {
-        font-size: 1.8rem;
+    .ffm-icon-box {
+        width: 32px;
+        height: 32px;
+        margin-bottom: 4px;
+    }
+    .ffm-icon-lg {
+        width: 16px;
+        height: 16px;
     }
     .ffm-tile-title {
-        font-size: 0.82rem;
+        font-size: 0.78rem;
     }
     .ffm-tile-subtitle {
-        font-size: 0.68rem;
+        font-size: 0.65rem;
     }
     .ffm-form-card {
-        padding: 14px;
+        padding: 12px;
+    }
+    .ffm-header-user span {
+        max-width: 100px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 }
-
-@media (min-width: 1024px) {
-    .ffm-container {
-        max-width: 1100px;
-    }
-}
-
-@media (min-width: 1440px) {
-    .ffm-container {
-        max-width: 1300px;
-    }
-}
-
