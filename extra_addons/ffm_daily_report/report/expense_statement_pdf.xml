@@ -116,32 +116,31 @@
 
                     <!-- Header -->
                     <div class="statement-header">
-                        <div class="company-name">নিউটেক ফার্মাসিউটিক্যালস লিমিটেড</div>
-                        <div style="font-size: 11px; color: #666;">Newtec Pharmaceuticals Limited</div>
-                        <div class="report-title">মাসিক খরচের বিবরণী (MONTHLY EXPENSE STATEMENT)</div>
+                        <div class="company-name">Newtec Pharmaceuticals Limited</div>
+                        <div class="report-title">MONTHLY EXPENSE STATEMENT</div>
                     </div>
 
                     <!-- Meta Info Table -->
                     <table class="info-table">
                         <tr>
-                            <td class="info-label">কর্মকর্তার নাম:</td>
+                            <td class="info-label">Employee Name:</td>
                             <td class="info-val"><t t-esc="doc.employee_id.name"/></td>
-                            <td class="info-label">মাস ও বছর:</td>
+                            <td class="info-label">Month &amp; Year:</td>
                             <td class="info-val">
                                 <t t-esc="doc.month"/>/<t t-esc="doc.year"/>
                                 (<t t-esc="dict(doc._fields['month'].selection).get(doc.month)"/>)
                             </td>
                         </tr>
                         <tr>
-                            <td class="info-label">পদবি / Designation:</td>
+                            <td class="info-label">Designation:</td>
                             <td class="info-val"><t t-esc="doc.job_id.name or '-'"/></td>
-                            <td class="info-label">হেডকোয়ার্টার / ব্রাঞ্চ:</td>
+                            <td class="info-label">HQ / Branch:</td>
                             <td class="info-val"><t t-esc="doc.branch_id.name or '-'"/></td>
                         </tr>
                         <tr>
-                            <td class="info-label">টেরিটরি / অঞ্চল:</td>
+                            <td class="info-label">Territory / Area:</td>
                             <td class="info-val"><t t-esc="doc.territory_id.name or '-'"/></td>
-                            <td class="info-label">স্ট্যাটাস / Status:</td>
+                            <td class="info-label">Status:</td>
                             <td class="info-val" style="font-weight: bold; text-transform: uppercase;">
                                 <t t-esc="doc.state"/>
                             </td>
@@ -150,16 +149,16 @@
 
                     <!-- 1. Daily Table (T.A. + D.A.) -->
                     <div style="font-weight: bold; color: #107c41; margin-bottom: 4px; font-size: 11px;">
-                        ১. দৈনিক টি.এ. এবং ডি.এ. বিবরণী (Daily T.A. &amp; D.A. Breakdown)
+                        1. Daily T.A. &amp; D.A. Breakdown
                     </div>
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th style="width: 10%;">তারিখ</th>
-                                <th style="width: 50%;">ভ্রমণকৃত স্থানসমূহ (Visited Places)</th>
-                                <th style="width: 12%; text-align: right;">ভ্রমণ ভাতা / T.A. (৳)</th>
-                                <th style="width: 12%; text-align: right;">দৈনিক ভাতা / D.A. (৳)</th>
-                                <th style="width: 16%; text-align: right;">মোট / Day Total (৳)</th>
+                                <th style="width: 10%;">Date</th>
+                                <th style="width: 50%;">Visited Places</th>
+                                <th style="width: 12%; text-align: right;">T.A. (Tk)</th>
+                                <th style="width: 12%; text-align: right;">D.A. (Tk)</th>
+                                <th style="width: 16%; text-align: right;">Day Total (Tk)</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -174,11 +173,11 @@
                             </t>
                             <t t-if="not doc.line_ids">
                                 <tr>
-                                    <td colspan="5" style="text-align: center; color: #777;">কোনো দৈনিক বিবরণী পাওয়া যায়নি।</td>
+                                    <td colspan="5" style="text-align: center; color: #777;">No daily records found.</td>
                                 </tr>
                             </t>
                             <tr class="total-row">
-                                <td colspan="2" style="text-align: right;">দৈনিক টেবিল মোট (Daily Table Total):</td>
+                                <td colspan="2" style="text-align: right;">Daily Table Total:</td>
                                 <td style="text-align: right;"><t t-esc="'%.2f' % doc.total_daily_ta"/></td>
                                 <td style="text-align: right;"><t t-esc="'%.2f' % doc.total_daily_da"/></td>
                                 <td style="text-align: right; color: #107c41;"><t t-esc="'%.2f' % doc.total_daily_table"/></td>
@@ -188,64 +187,64 @@
 
                     <!-- 2. Other Expenses (Vouchers 1-9) -->
                     <div style="font-weight: bold; color: #107c41; margin-bottom: 4px; font-size: 11px;">
-                        ২. অন্যান্য খরচসমূহ (Other Expenses Breakdown - Vouchers 1 to 9)
+                        2. Other Expenses Breakdown (Vouchers 1 to 9)
                     </div>
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th style="width: 10%;">ভাউচার নং</th>
-                                <th style="width: 65%;">খরচের খাত / Expense Category</th>
-                                <th style="width: 25%; text-align: right;">টাকার পরিমাণ / Amount (৳)</th>
+                                <th style="width: 10%;">SL</th>
+                                <th style="width: 65%;">Expense Category</th>
+                                <th style="width: 25%; text-align: right;">Amount (Tk)</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td style="text-align: center;">১</td>
-                                <td>আপ্যায়ন খরচ (Entertainment Expense - Voucher Required)</td>
+                                <td style="text-align: center;">1</td>
+                                <td>Entertainment Expense (Voucher Required)</td>
                                 <td style="text-align: right;"><t t-esc="'%.2f' % doc.other_entertainment"/></td>
                             </tr>
                             <tr>
-                                <td style="text-align: center;">২</td>
-                                <td>ডাক ও কুরিয়ার খরচ (Postage &amp; Courier Expense - Voucher Required)</td>
+                                <td style="text-align: center;">2</td>
+                                <td>Postage &amp; Courier Expense (Voucher Required)</td>
                                 <td style="text-align: right;"><t t-esc="'%.2f' % doc.other_courier"/></td>
                             </tr>
                             <tr>
-                                <td style="text-align: center;">৩</td>
-                                <td>ফটোকপি খরচ (Photocopy Expense - Voucher Required)</td>
+                                <td style="text-align: center;">3</td>
+                                <td>Photocopy Expense (Voucher Required)</td>
                                 <td style="text-align: right;"><t t-esc="'%.2f' % doc.other_photocopy"/></td>
                             </tr>
                             <tr>
-                                <td style="text-align: center;">৪</td>
-                                <td>প্রচার ও প্রমোশন খরচ (Promotion Expense)</td>
+                                <td style="text-align: center;">4</td>
+                                <td>Promotion Expense</td>
                                 <td style="text-align: right;"><t t-esc="'%.2f' % doc.other_promotion"/></td>
                             </tr>
                             <tr>
-                                <td style="text-align: center;">৫</td>
-                                <td>স্টেশনারি খরচ (Stationery Expense)</td>
+                                <td style="text-align: center;">5</td>
+                                <td>Stationery Expense</td>
                                 <td style="text-align: right;"><t t-esc="'%.2f' % doc.other_stationery"/></td>
                             </tr>
                             <tr>
-                                <td style="text-align: center;">৬</td>
-                                <td>বহন খরচ (Carrying Charge)</td>
+                                <td style="text-align: center;">6</td>
+                                <td>Carrying Charge</td>
                                 <td style="text-align: right;"><t t-esc="'%.2f' % doc.other_carrying"/></td>
                             </tr>
                             <tr>
-                                <td style="text-align: center;">৭</td>
-                                <td>ব্যাংকিং চার্জ (Banking Charge)</td>
+                                <td style="text-align: center;">7</td>
+                                <td>Banking Charge</td>
                                 <td style="text-align: right;"><t t-esc="'%.2f' % doc.other_banking"/></td>
                             </tr>
                             <tr>
-                                <td style="text-align: center;">৮</td>
-                                <td>হোটেল ভাড়া (Hotel Rent Expense - Voucher Required)</td>
+                                <td style="text-align: center;">8</td>
+                                <td>Hotel Rent Expense (Voucher Required)</td>
                                 <td style="text-align: right;"><t t-esc="'%.2f' % doc.other_hotel_rent"/></td>
                             </tr>
                             <tr>
-                                <td style="text-align: center;">৯</td>
-                                <td>মোটরসাইকেল রক্ষণাবেক্ষণ (Motorcycle Maintenance - Fixed by Designation)</td>
+                                <td style="text-align: center;">9</td>
+                                <td>Motorcycle Maintenance (Fixed by Designation)</td>
                                 <td style="text-align: right;"><t t-esc="'%.2f' % doc.motorcycle_maintenance"/></td>
                             </tr>
                             <tr class="total-row">
-                                <td colspan="2" style="text-align: right;">অন্যান্য খরচের মোট (Total Other Expenses):</td>
+                                <td colspan="2" style="text-align: right;">Total Other Expenses:</td>
                                 <td style="text-align: right; color: #107c41;"><t t-esc="'%.2f' % doc.total_other_expenses"/></td>
                             </tr>
                         </tbody>
@@ -254,17 +253,17 @@
                     <!-- Grand Total Summary Box -->
                     <div class="summary-box">
                         <span style="font-size: 13px; font-weight: bold; color: #107c41;">
-                            সর্বমোট দাবি / GRAND TOTAL EXPENSES:
+                            GRAND TOTAL EXPENSES:
                         </span>
                         <span style="font-size: 16px; font-weight: bold; color: #107c41; margin-left: 10px;">
-                            ৳ <t t-esc="'%.2f' % doc.grand_total"/>
+                            Tk <t t-esc="'%.2f' % doc.grand_total"/>
                         </span>
                     </div>
 
                     <!-- Remarks if any -->
                     <t t-if="doc.remarks">
                         <div style="font-size: 10px; margin-bottom: 12px; background: #fafafa; border: 1px solid #e0e0e0; padding: 6px; border-radius: 4px;">
-                            <strong>কর্মকর্তার মন্তব্য / Remarks: </strong><t t-esc="doc.remarks"/>
+                            <strong>Employee Remarks: </strong><t t-esc="doc.remarks"/>
                         </div>
                     </t>
 
@@ -273,37 +272,37 @@
                         <tr>
                             <td>
                                 <div class="sig-line">
-                                    আবেদনকারী কর্মকর্তা<br/>
+                                    Applicant Employee<br/>
                                     <strong><t t-esc="doc.employee_id.name"/></strong><br/>
                                     <span style="font-size: 8px; color: #666;">
-                                        <t t-if="doc.submitted_date">তারিখ: <t t-esc="doc.submitted_date.strftime('%Y-%m-%d %H:%M')"/></t>
+                                        <t t-if="doc.submitted_date">Date: <t t-esc="doc.submitted_date.strftime('%Y-%m-%d %H:%M')"/></t>
                                     </span>
                                 </div>
                             </td>
                             <td>
                                 <div class="sig-line">
-                                    যাচাইকারী কর্মকর্তা (ASM/RSM)<br/>
+                                    Verified by (ASM/RSM)<br/>
                                     <strong><t t-esc="doc.checked_by.name or ''"/></strong><br/>
                                     <span style="font-size: 8px; color: #666;">
-                                        <t t-if="doc.checked_date">তারিখ: <t t-esc="doc.checked_date.strftime('%Y-%m-%d %H:%M')"/></t>
+                                        <t t-if="doc.checked_date">Date: <t t-esc="doc.checked_date.strftime('%Y-%m-%d %H:%M')"/></t>
                                     </span>
                                 </div>
                             </td>
                             <td>
                                 <div class="sig-line">
-                                    অনুমোদনকারী (NSM/Director)<br/>
+                                    Approved by (NSM/Director)<br/>
                                     <strong><t t-esc="doc.approved_by.name or ''"/></strong><br/>
                                     <span style="font-size: 8px; color: #666;">
-                                        <t t-if="doc.approved_date">তারিখ: <t t-esc="doc.approved_date.strftime('%Y-%m-%d %H:%M')"/></t>
+                                        <t t-if="doc.approved_date">Date: <t t-esc="doc.approved_date.strftime('%Y-%m-%d %H:%M')"/></t>
                                     </span>
                                 </div>
                             </td>
                             <td>
                                 <div class="sig-line">
-                                    অ্যাকাউন্টস বিভাগ (পরিশোধ)<br/>
+                                    Accounts Department (Disbursed)<br/>
                                     <strong><t t-esc="doc.paid_by.name or ''"/></strong><br/>
                                     <span style="font-size: 8px; color: #666;">
-                                        <t t-if="doc.paid_date">তারিখ: <t t-esc="doc.paid_date.strftime('%Y-%m-%d %H:%M')"/></t>
+                                        <t t-if="doc.paid_date">Date: <t t-esc="doc.paid_date.strftime('%Y-%m-%d %H:%M')"/></t>
                                     </span>
                                 </div>
                             </td>
