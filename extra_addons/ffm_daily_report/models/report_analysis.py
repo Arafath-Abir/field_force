@@ -154,8 +154,8 @@ class FFMReportTerritoryAttendance(models.Model):
     territory_id = fields.Many2one('territory.territory', string='Territory', readonly=True)
     attendance_id = fields.Many2one('ffm.attendance', string='Attendance Record', readonly=True)
     status = fields.Selection([
-        ('present', 'Present (উপস্থিত)'),
-        ('absent', 'Absent / Pending (অনুপস্থিত)'),
+        ('present', 'Present'),
+        ('absent', 'Absent / Pending'),
     ], string='Status', readonly=True)
     is_present = fields.Integer(string='Present Count', readonly=True)
     is_absent = fields.Integer(string='Absent Count', readonly=True)
@@ -165,6 +165,7 @@ class FFMReportTerritoryAttendance(models.Model):
     latitude = fields.Float(string='Latitude', readonly=True)
     longitude = fields.Float(string='Longitude', readonly=True)
     accuracy = fields.Float(string='Accuracy (m)', readonly=True)
+    place_name = fields.Char(string='Place / Location', readonly=True)
 
     def init(self):
         tools.drop_view_if_exists(self.env.cr, self._table)
@@ -181,6 +182,7 @@ class FFMReportTerritoryAttendance(models.Model):
                         emp.user_id AS user_id,
                         emp.parent_id AS asm_id,
                         asm.parent_id AS rsm_id,
+                        emp.hq AS hq,
                         d.date AS date
                     FROM hr_employee emp
                     CROSS JOIN distinct_dates d
@@ -188,7 +190,7 @@ class FFMReportTerritoryAttendance(models.Model):
                     WHERE emp.active = true
                 )
                 SELECT
-                    row_number() OVER () AS id,
+                    (ed.employee_id * 10000 + (ed.date - '2020-01-01'::date))::bigint AS id,
                     ed.date AS date,
                     ed.employee_id AS employee_id,
                     ed.user_id AS user_id,
@@ -197,6 +199,7 @@ class FFMReportTerritoryAttendance(models.Model):
                     att.id AS attendance_id,
                     COALESCE(att.territory_id, dr.territory_id) AS territory_id,
                     dr.working_place_id AS working_place_id,
+                    COALESCE(wp.name, ed.hq, 'Bangladesh') AS place_name,
                     att.reporting_time AS reporting_time,
                     att.mode_of_journey AS mode_of_journey,
                     att.latitude AS latitude,
@@ -208,6 +211,7 @@ class FFMReportTerritoryAttendance(models.Model):
                 FROM emp_dates ed
                 LEFT JOIN ffm_attendance att ON att.employee_id = ed.employee_id AND att.date = ed.date
                 LEFT JOIN ffm_daily_report dr ON dr.employee_id = ed.employee_id AND dr.date = ed.date
+                LEFT JOIN ffm_place wp ON wp.id = dr.working_place_id
             )
         """ % self._table)
 
@@ -227,9 +231,9 @@ class FFMReportVisitAnalysis(models.Model):
     territory_id = fields.Many2one('territory.territory', string='Territory', readonly=True)
     working_place_id = fields.Many2one('ffm.place', string='Working Place', readonly=True)
     visit_type = fields.Selection([
-        ('chemist', 'Chemist (কেমিস্ট)'),
-        ('doctor', 'Doctor (ডাক্তার)'),
-        ('farm', 'Farm & Others (খামার)'),
+        ('chemist', 'Chemist'),
+        ('doctor', 'Doctor'),
+        ('farm', 'Farm & Others'),
     ], string='Visit Type', readonly=True)
     partner_name = fields.Char(string='Customer / Facility Name', readonly=True)
     grade = fields.Char(string='Grade', readonly=True)
