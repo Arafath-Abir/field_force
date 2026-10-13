@@ -106,7 +106,7 @@
                     <!-- Header -->
                     <div class="report-header">
                         <div class="report-title">Newtec Pharmaceuticals Limited</div>
-                        <div class="report-subtitle">Daily Field Activity &amp; Expense Report (দৈনিক ফিল্ড রিপোর্ট)</div>
+                        <div class="report-subtitle">Daily Field Activity &amp; Expense Report</div>
                     </div>
 
                     <!-- Employee & Date Metadata -->
@@ -132,7 +132,7 @@
                     </table>
 
                     <!-- 1. Chemist Visits Table -->
-                    <div class="section-title">1. Chemist Shop Visits (কেমিস্ট ও ফার্মেসি পরিদর্শন)</div>
+                    <div class="section-title">1. Chemist Shop Visits</div>
                     <table class="data-table">
                         <thead>
                             <tr>
@@ -167,14 +167,14 @@
                             </t>
                             <t t-else="">
                                 <tr>
-                                    <td colspan="6" style="text-align: center; color: #777;">কোনো কেমিস্ট ভিজিট রেকর্ড নেই (No chemist visits recorded).</td>
+                                    <td colspan="6" style="text-align: center; color: #777;">No chemist visits recorded.</td>
                                 </tr>
                             </t>
                         </tbody>
                     </table>
 
                     <!-- 2. Doctor / Prescriber Visits Table -->
-                    <div class="section-title">2. Doctor / Prescriber Visits (ডাক্তার পরিদর্শন)</div>
+                    <div class="section-title">2. Doctor / Prescriber Visits</div>
                     <table class="data-table">
                         <thead>
                             <tr>
@@ -203,7 +203,7 @@
                             </t>
                             <t t-else="">
                                 <tr>
-                                    <td colspan="6" style="text-align: center; color: #777;">কোনো ডাক্তার ভিজিট রেকর্ড নেই (No doctor visits recorded).</td>
+                                    <td colspan="6" style="text-align: center; color: #777;">No doctor visits recorded.</td>
                                 </tr>
                             </t>
                         </tbody>
@@ -211,7 +211,7 @@
 
                     <!-- 3. Farm & Others Visits Table (if any) -->
                     <t t-if="doc.farm_visit_ids">
-                        <div class="section-title">3. Farm &amp; Others Visits (খামার ও অন্যান্য পরিদর্শন)</div>
+                        <div class="section-title">3. Farm &amp; Others Visits</div>
                         <table class="data-table">
                             <thead>
                                 <tr>
@@ -239,7 +239,7 @@
                     </t>
 
                     <!-- 4. Visited Market & Travel Log Table -->
-                    <div class="section-title">4. Market Travel &amp; Journey Log (যাতায়াত বিবরণ)</div>
+                    <div class="section-title">4. Market Travel &amp; Journey Log</div>
                     <table class="data-table">
                         <thead>
                             <tr>
@@ -274,7 +274,7 @@
                             </t>
                             <t t-else="">
                                 <tr>
-                                    <td colspan="6" style="text-align: center; color: #777;">কোনো যাতায়াত রেকর্ড নেই (No journey legs recorded).</td>
+                                    <td colspan="6" style="text-align: center; color: #777;">No journey legs recorded.</td>
                                 </tr>
                             </t>
                         </tbody>
@@ -282,7 +282,7 @@
 
                     <!-- 5. Daily Expenses Summary -->
                     <t t-if="doc.expense_ids">
-                        <div class="section-title">5. Daily Expenses Summary (দৈনিক খরচ বিবরণী)</div>
+                        <div class="section-title">5. Daily Expenses Summary</div>
                         <table class="data-table">
                             <thead>
                                 <tr>
