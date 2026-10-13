@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_ffm_seed_demo_wizard_form" model="ir.ui.view">
+        <field name="name">ffm.seed.demo.wizard.form</field>
+        <field name="model">ffm.seed.demo.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Seed Demo Data for Field Force Testing">
+                <sheet>
+                    <div class="alert alert-info" role="alert">
+                        <strong>Demo Data Generator:</strong> This tool will populate or refresh realistic demo data across all three levels:
+                        <ul>
+                            <li><strong>RSM:</strong> Regional Manager (Md. Karimul Islam) with regional oversight.</li>
+                            <li><strong>ASMs:</strong> Area Managers (Bogura Area &amp; Dhaka Area) with subordinate field teams.</li>
+                            <li><strong>Field Persons:</strong> Field Persons (MPOs) assigned to territories with live data.</li>
+                            <li><strong>Territories &amp; Branches:</strong> Bogura Sadar, Sherpur, and Mirpur Zones.</li>
+                            <li><strong>Today's Live Records:</strong> Attendance (present &amp; absent), Daily Reports (submitted for approval), Chemist/Doctor/Farm visits, Daily Expenses, and Monthly Statements.</li>
+                        </ul>
+                    </div>
+                    <group>
+                        <group string="Select Data to Generate">
+                            <field name="include_attendance"/>
+                            <field name="include_visits"/>
+                            <field name="include_expenses"/>
+                            <field name="include_statements"/>
+                        </group>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_seed_demo_data" string="Generate / Refresh Demo Data" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_ffm_seed_demo_wizard" model="ir.actions.act_window">
+        <field name="name">Seed Demo Data</field>
+        <field name="res_model">ffm.seed.demo.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_ffm_seed_demo_data"
+        name="Seed Demo Data"
+        parent="field_force_management.menu_ffm_config"
+        sequence="50"
+        action="action_ffm_seed_demo_wizard"
+        groups="field_force_management.group_ffm_admin"/>
+
+
+</odoo>
