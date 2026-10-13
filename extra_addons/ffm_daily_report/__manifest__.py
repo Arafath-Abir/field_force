@@ -28,6 +28,8 @@
         'views/daily_expense_views.xml',
         'views/report_analysis_views.xml',
         'wizards/reject_wizard_views.xml',
+        'wizards/change_password_wizard_views.xml',
+        'wizards/seed_demo_wizard_views.xml',
         'views/expense_statement_views.xml',
         'report/daily_report_pdf.xml',
         'report/expense_statement_pdf.xml',
