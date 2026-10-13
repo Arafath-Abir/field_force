@@ -291,6 +291,20 @@ class TestFFMPhase3Http(HttpCase):
 
     def test_01_http_visit_submission_and_entries_today(self):
         """Test HTTP JSON endpoints for chemist, doctor, and farm visits, and today's summary view."""
+        # Clean up any leftover test UUIDs from previous dates/commits and ensure today's report is draft
+        self.env['ffm.travel.journey'].sudo().search([
+            ('client_uuid', 'in', ['http-test-chem-uuid-101_leg', 'http-test-doc-uuid-201_leg', 'http-test-farm-uuid-301_leg'])
+        ]).unlink()
+        self.env['ffm.chemist.visit'].sudo().search([('client_uuid', '=', 'http-test-chem-uuid-101')]).unlink()
+        self.env['ffm.prescriber.visit'].sudo().search([('client_uuid', '=', 'http-test-doc-uuid-201')]).unlink()
+        self.env['ffm.farm.visit'].sudo().search([('client_uuid', '=', 'http-test-farm-uuid-301')]).unlink()
+        emp_demo = self.env['hr.employee'].sudo().search([('user_id.login', '=', 'ffm_fp_demo')], limit=1)
+        if emp_demo:
+            self.env['ffm.daily.report'].sudo().search([
+                ('employee_id', '=', emp_demo.id),
+                ('state', '!=', 'draft')
+            ]).write({'state': 'draft'})
+
         # 1. Authenticate with demo marketer user created in demo_data.xml
         self.authenticate('ffm_fp_demo', 'Demo12345!')
 
