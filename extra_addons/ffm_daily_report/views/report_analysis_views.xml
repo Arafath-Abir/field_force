@@ -95,7 +95,7 @@
         <field name="context">{'search_default_filter_this_month': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                কোনো রিপোর্ট পাওয়া যায়নি (No daily analysis records found).
+                No daily analysis records found.
             </p>
         </field>
     </record>
@@ -151,8 +151,8 @@
                 
                 <separator/>
                 <filter string="Today" name="filter_today" domain="[('date', '=', context_today())]"/>
-                <filter string="Present (উপস্থিত)" name="filter_present" domain="[('status', '=', 'present')]"/>
-                <filter string="Absent / Pending (অনুপস্থিত)" name="filter_absent" domain="[('status', '=', 'absent')]"/>
+                <filter string="Present" name="filter_present" domain="[('status', '=', 'present')]"/>
+                <filter string="Absent / Pending" name="filter_absent" domain="[('status', '=', 'absent')]"/>
 
                 <group expand="1" string="Group By">
                     <filter string="Date" name="group_date" context="{'group_by': 'date'}"/>
