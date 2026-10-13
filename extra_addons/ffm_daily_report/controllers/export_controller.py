@@ -82,8 +82,8 @@ class FFMExportController(http.Controller):
         # Warning banner if truncated
         if is_truncated:
             warn_msg = (
-                f"সতর্কতা: সার্ভারের স্থায়িত্ব বজায় রাখতে এক্সপোর্ট সর্বোচ্চ {MAX_EXPORT_ROWS:,} সারিতে সীমাবদ্ধ করা হয়েছে "
-                f"(মোট রেকর্ড ছিল {total_count:,} টি)। সম্পূর্ণ রিপোর্টের জন্য তারিখের পরিসীমা নির্দিষ্ট করুন।"
+                f"Warning: To ensure server stability, export is capped at {MAX_EXPORT_ROWS:,} rows "
+                f"(total records found: {total_count:,}). Please narrow down date filters for complete data."
             )
             worksheet.merge_range(curr_row, 0, curr_row, 9, warn_msg, warn_fmt)
             curr_row += 2
