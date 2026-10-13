@@ -29,6 +29,7 @@ class FFMAttendance(models.Model):
         ('submitted', 'Submitted')
     ], string='Status', default='submitted', readonly=True, required=True)
     map_url = fields.Char(string='Map Location', compute='_compute_map_url')
+    place_name = fields.Char(string='Location / Place', compute='_compute_place_name')
 
     _sql_constraints = [
         ('unique_employee_date', 'unique(employee_id, date)', 'Only one attendance record is allowed per employee per day!'),
@@ -41,6 +42,10 @@ class FFMAttendance(models.Model):
                 rec.map_url = f"https://www.google.com/maps?q={rec.latitude},{rec.longitude}"
             else:
                 rec.map_url = False
+
+    def _compute_place_name(self):
+        for rec in self:
+            rec.place_name = rec.territory_id.name or rec.employee_id.hq or 'Bangladesh'
 
     @api.constrains('latitude', 'longitude', 'accuracy')
     def _check_coordinates(self):
