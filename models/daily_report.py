@@ -143,8 +143,6 @@ class DailyReport(models.Model):
         self.ensure_one()
         user = self.env.user
         higher_groups = [
-            'field_force_management.group_ffm_rsm',
-            'field_force_management.group_ffm_dsm',
             'field_force_management.group_ffm_nsm',
             'field_force_management.group_ffm_director',
             'field_force_management.group_ffm_admin',
