@@ -50,3 +50,5 @@ access_ffm_expense_statement_line_manager,ffm.expense.statement.line.manager,mod
 access_ffm_expense_statement_line_accounts,ffm.expense.statement.line.accounts,model_ffm_expense_statement_line,field_force_management.group_ffm_accounts,1,0,0,0
 access_ffm_expense_statement_line_field_person,ffm.expense.statement.line.field_person,model_ffm_expense_statement_line,field_force_management.group_ffm_field_person,1,1,1,0
 access_ffm_expense_statement_reject_wizard_user,ffm.expense.statement.reject.wizard.user,model_ffm_expense_statement_reject_wizard,base.group_user,1,1,1,1
+access_ffm_change_password_wizard_admin,ffm.change.password.wizard.admin,model_ffm_change_password_wizard,field_force_management.group_ffm_admin,1,1,1,1
+access_ffm_seed_demo_wizard_admin,ffm.seed.demo.wizard.admin,model_ffm_seed_demo_wizard,field_force_management.group_ffm_admin,1,1,1,1
