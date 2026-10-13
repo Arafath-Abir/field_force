@@ -32,18 +32,18 @@ class FFMExpenseStatement(models.Model):
         compute='_compute_territory', store=True)
 
     month = fields.Selection([
-        ('01', 'January (জানুয়ারি)'),
-        ('02', 'February (ফেব্রুয়ারি)'),
-        ('03', 'March (মার্চ)'),
-        ('04', 'April (এপ্রিল)'),
-        ('05', 'May (মে)'),
-        ('06', 'June (জুন)'),
-        ('07', 'July (জুলাই)'),
-        ('08', 'August (আগস্ট)'),
-        ('09', 'September (সেপ্টেম্বর)'),
-        ('10', 'October (অক্টোবর)'),
-        ('11', 'November (নভেম্বর)'),
-        ('12', 'December (ডিসেম্বর)'),
+        ('01', 'January'),
+        ('02', 'February'),
+        ('03', 'March'),
+        ('04', 'April'),
+        ('05', 'May'),
+        ('06', 'June'),
+        ('07', 'July'),
+        ('08', 'August'),
+        ('09', 'September'),
+        ('10', 'October'),
+        ('11', 'November'),
+        ('12', 'December'),
     ], string='Month', required=True, default=lambda self: self._default_month(), tracking=True)
 
     year = fields.Integer(
@@ -472,8 +472,6 @@ class FFMExpenseStatement(models.Model):
             CREATE INDEX IF NOT EXISTS ffm_expense_statement_emp_period_idx ON ffm_expense_statement (employee_id, year, month);
             CREATE INDEX IF NOT EXISTS ffm_expense_statement_period_idx ON ffm_expense_statement (year, month);
             CREATE INDEX IF NOT EXISTS ffm_expense_statement_state_idx ON ffm_expense_statement (state);
-            CREATE INDEX IF NOT EXISTS ffm_expense_statement_line_stmt_idx ON ffm_expense_statement_line (statement_id);
-            CREATE INDEX IF NOT EXISTS ffm_expense_statement_line_date_idx ON ffm_expense_statement_line (date);
         """)
 
 
@@ -493,3 +491,11 @@ class FFMExpenseStatementLine(models.Model):
     ta_amount = fields.Float(string='T.A. (Tk)', default=0.0, digits=(16, 2))
     da_amount = fields.Float(string='D.A. (Tk)', default=0.0, digits=(16, 2))
     day_total = fields.Float(string='Day Total (Tk)', default=0.0, digits=(16, 2))
+
+    def init(self):
+        super().init()
+        self.env.cr.execute("""
+            CREATE INDEX IF NOT EXISTS ffm_expense_statement_line_stmt_idx ON ffm_expense_statement_line (statement_id);
+            CREATE INDEX IF NOT EXISTS ffm_expense_statement_line_date_idx ON ffm_expense_statement_line (date);
+        """)
+
