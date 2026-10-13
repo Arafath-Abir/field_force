@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
 from odoo import models, fields, api, _
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, AccessError
 
 class HrEmployee(models.Model):
     _inherit = 'hr.employee'
@@ -27,6 +27,8 @@ class HrEmployee(models.Model):
     def action_create_or_link_user(self):
         """Helper action to create or properly link an FFM user account with the correct security role."""
         self.ensure_one()
+        if not self.env.user.has_group('field_force_management.group_ffm_admin'):
+            raise AccessError(_("Only System Administrators can manage FFM user accounts."))
         group_xmlid = self._get_target_ffm_group_xmlid()
         target_group = self.env.ref(group_xmlid, raise_if_not_found=False)
         if not target_group:
@@ -72,6 +74,24 @@ class HrEmployee(models.Model):
                 ),
                 'type': 'success',
                 'sticky': False,
+            }
+        }
+
+    def action_open_change_password_wizard(self):
+        self.ensure_one()
+        if not self.env.user.has_group('field_force_management.group_ffm_admin'):
+            raise AccessError(_("Only System Administrators can set or reset passwords."))
+        if not self.user_id:
+            self.action_create_or_link_user()
+        return {
+            'name': _('Set / Reset User Password'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'ffm.change.password.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_employee_id': self.id,
+                'default_user_id': self.user_id.id if self.user_id else False,
             }
         }
 
