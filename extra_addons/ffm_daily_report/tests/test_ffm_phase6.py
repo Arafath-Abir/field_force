@@ -398,7 +398,7 @@ class TestFFMStatementHttp(HttpCase):
         # 1. GET /ff/statement
         res_page = self.url_open('/ff/statement')
         self.assertEqual(res_page.status_code, 200)
-        self.assertIn('মাসিক খরচের বিবরণী', res_page.content.decode('utf-8'))
+        self.assertIn('Monthly Expense Statement', res_page.content.decode('utf-8'))
 
         # 2. POST /ff/statement/generate
         res_gen = self.url_open(
