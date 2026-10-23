@@ -49,10 +49,6 @@
                         align-items: center !important;
                         justify-content: center !important;
                     }
-                    .ffm-header {
-                        padding: 8px 14px !important;
-                        min-height: 44px !important;
-                    }
                     .ffm-tile {
                         min-height: 94px !important;
                         padding: 10px 8px !important;
@@ -64,35 +60,43 @@
                 <!-- Header -->
                 <header class="ffm-header">
                     <div class="ffm-header-inner">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <a href="/ff" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none;">
-                                <img src="https://res.cloudinary.com/dt94ywdob/image/upload/v1792770101/Newtec_logo_edkini.png" alt="Newtec Logo" style="height: 32px; max-height: 32px; width: auto; object-fit: contain; background: #ffffff; padding: 2px 6px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.12);"/>
-                                <div class="ffm-header-title" style="color: #ffffff;"><t t-esc="app_name or 'Newtec FFM'"/></div>
+                        <!-- Left: Logo, Title & Role Pill -->
+                        <div class="ffm-header-left">
+                            <a href="/ff" class="ffm-header-brand">
+                                <img src="https://res.cloudinary.com/dt94ywdob/image/upload/v1792770101/Newtec_logo_edkini.png" alt="Newtec Logo" class="ffm-header-logo"/>
+                                <span class="ffm-header-title"><t t-esc="app_name or 'Newtec FFM'"/></span>
                             </a>
                             <t t-if="panel_title">
-                                <span class="ffm-badge" style="background: rgba(255,255,255,0.22); color: #ffffff; font-size: 0.78rem; border: 1px solid rgba(255,255,255,0.35); padding: 3px 10px; font-weight: 600; border-radius: 4px;">
+                                <span class="ffm-header-badge-role">
                                     <t t-esc="panel_title"/>
                                 </span>
                             </t>
                         </div>
-                        <div class="ffm-header-user">
-                            <span t-esc="user_name" style="font-weight: 600;"/>
+
+                        <!-- Right: Actions & User Info -->
+                        <div class="ffm-header-right">
+                            <span class="ffm-header-username" t-esc="user_name"/>
                             <t t-if="user.has_group('field_force_management.group_ffm_nsm') or user.has_group('field_force_management.group_ffm_rsm') or user.has_group('field_force_management.group_ffm_asm') or user.has_group('field_force_management.group_ffm_admin') or user.has_group('base.group_system')">
                                 <t t-if="request.httprequest.path == '/ff'">
-                                    <a href="/ff/manager" class="ffm-btn-nav" style="background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.35);">
-                                        Team Approvals
+                                    <a href="/ff/manager" class="ffm-header-btn-action" title="Team Approvals">
+                                        <svg class="ffm-icon ffm-icon-sm" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                                        <span class="ffm-action-text">Approvals</span>
                                         <t t-if="pending_reports_count and pending_reports_count &gt; 0">
-                                            <span class="ffm-badge" style="background: #fed7aa; color: #9a3412; font-size: 0.68rem; padding: 1px 5px;"><t t-esc="pending_reports_count"/></span>
+                                            <span class="ffm-header-count-badge"><t t-esc="pending_reports_count"/></span>
                                         </t>
                                     </a>
                                 </t>
                                 <t t-elif="request.httprequest.path == '/ff/manager'">
-                                    <a href="/ff" class="ffm-btn-nav" style="background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.35);">
-                                        Field Activities
+                                    <a href="/ff" class="ffm-header-btn-action" title="Field Operations">
+                                        <svg class="ffm-icon ffm-icon-sm" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                                        <span class="ffm-action-text">Operations</span>
                                     </a>
                                 </t>
                             </t>
-                            <a href="/web/session/logout?redirect=/web/login" class="ffm-btn-logout"><svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px; max-width: 12px; max-height: 12px; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Logout</a>
+                            <a href="/web/session/logout?redirect=/web/login" class="ffm-header-btn-logout" title="Logout">
+                                <svg class="ffm-icon ffm-icon-sm" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                                <span class="ffm-logout-text">Logout</span>
+                            </a>
                         </div>
                     </div>
                 </header>

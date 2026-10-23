@@ -161,92 +161,16 @@ body {
     color: #475569;
 }
 
-/* ── App Header (Slim & Clean) ─────────────────────────────────────────── */
+/* ── App Header (Slim, Modern & Responsive) ────────────────────────────── */
 .ffm-header {
     background-color: var(--ffm-primary);
     color: #ffffff;
-    padding: 10px 14px;
+    padding: 8px 16px;
     position: sticky;
     top: 0;
     z-index: 100;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-}
-
-.ffm-header-brand {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    color: #ffffff;
-}
-
-.ffm-header-title {
-    font-size: 0.96rem;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.ffm-header-user {
-    font-size: 0.78rem;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-}
-
-.ffm-btn-nav {
-    color: #ffffff;
-    background: rgba(255, 255, 255, 0.16);
-    border: 1px solid rgba(255, 255, 255, 0.22);
-    padding: 4px 9px;
-    border-radius: var(--ffm-radius-sm);
-    text-decoration: none;
-    font-size: 0.74rem;
-    font-weight: 600;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    transition: background 0.15s ease;
-}
-
-.ffm-btn-nav:hover {
-    background: rgba(255, 255, 255, 0.25);
-    color: #ffffff;
-}
-
-.ffm-btn-logout {
-    color: #ffffff;
-    background: rgba(255, 255, 255, 0.12);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    padding: 4px 9px;
-    border-radius: var(--ffm-radius-sm);
-    text-decoration: none;
-    font-size: 0.74rem;
-    font-weight: 600;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    transition: background 0.15s ease;
-}
-
-.ffm-btn-logout:hover {
-    background: rgba(239, 68, 68, 0.85);
-    color: #ffffff;
-}
-
-/* ── Main Container ─────────────────────────────────────────────────────── */
-.ffm-container {
-    max-width: 1080px;
-    margin: 0 auto;
-    padding: 20px 16px 40px;
+    width: 100%;
 }
 
 .ffm-header-inner {
@@ -256,7 +180,137 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
+    min-height: 40px;
+}
+
+.ffm-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.ffm-header-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: #ffffff;
+}
+
+.ffm-header-logo {
+    height: 28px;
+    max-height: 28px;
+    width: auto;
+    object-fit: contain;
+    background: #ffffff;
+    padding: 2px 6px;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.ffm-header-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: #ffffff;
+    white-space: nowrap;
+}
+
+.ffm-header-badge-role {
+    background: rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.ffm-header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+    flex-shrink: 0;
+}
+
+.ffm-header-username {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.92);
+    margin-right: 4px;
+    white-space: nowrap;
+}
+
+/* Header Action Buttons */
+.ffm-header-btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    padding: 5px 10px;
+    border-radius: 7px;
+    text-decoration: none;
+    font-size: 0.76rem;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+}
+
+.ffm-header-btn-action:hover {
+    background: rgba(255, 255, 255, 0.26);
+    color: #ffffff;
+}
+
+.ffm-header-count-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #fef3c7;
+    color: #92400e;
+    font-size: 0.68rem;
+    font-weight: 700;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 9999px;
+    line-height: 1;
+}
+
+.ffm-header-btn-logout {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 5px 10px;
+    border-radius: 7px;
+    text-decoration: none;
+    font-size: 0.76rem;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+}
+
+.ffm-header-btn-logout:hover {
+    background: rgba(239, 68, 68, 0.85);
+    border-color: rgba(239, 68, 68, 0.95);
+    color: #ffffff;
+}
+
+/* ── Main Container ─────────────────────────────────────────────────────── */
+.ffm-container {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 20px 16px 40px;
 }
 
 /* ── Status Card ────────────────────────────────────────────────────────── */
@@ -936,11 +990,47 @@ body {
     .ffm-form-card {
         padding: 12px;
     }
-    .ffm-header-user span {
-        max-width: 100px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+    .ffm-header {
+        padding: 8px 12px;
+    }
+    .ffm-header-logo {
+        height: 26px;
+        padding: 2px 4px;
+    }
+    .ffm-header-title {
+        font-size: 0.88rem;
+    }
+    .ffm-header-badge-role {
+        font-size: 0.64rem;
+        padding: 1px 6px;
+    }
+    .ffm-logout-text {
+        display: none !important;
+    }
+    .ffm-header-btn-logout {
+        padding: 5px 8px;
+        min-width: 32px;
+        height: 32px;
+        justify-content: center;
+    }
+    .ffm-header-btn-action {
+        padding: 5px 8px;
+        font-size: 0.74rem;
+    }
+}
+
+@media (max-width: 767px) {
+    .ffm-header-username {
+        display: none !important;
+    }
+}
+
+@media (max-width: 360px) {
+    .ffm-action-text {
+        display: none !important;
+    }
+    .ffm-header-badge-role {
+        display: none !important;
     }
 }
 
