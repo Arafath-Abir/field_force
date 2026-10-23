@@ -835,93 +835,14 @@ class FFMController(http.Controller):
             _logger.exception("Error submitting daily expense")
             return {'status': 'error', 'message': str(exc)}
 
-    # ── 8. Today's Entries & Date/Month/Year Summary ────────────────────────
+    # ── 8. Today's Entries (Redirected to Report Cards) ────────────────────
     @http.route('/ff/entries/today', type='http', auth='user')
     def ff_entries_today(self, **kw):
-        """View today's submitted visit lines and summary metrics."""
-        ctx = self._get_app_context()
-        today_date, _now_time = self._get_dhaka_date_and_time()
-        employee = ctx['employee']
-
-        if ctx.get('is_fp'):
-            # Field Person strictly restricted to today's date only:
-            # "field person to monthly report dekhte parbe na. shudhu jedin dekhbe sediner shudhu matro calender date er ta dekhte parbe. er agar o dekhte parbe na porer o na."
-            query_date = today_date
-        else:
-            selected_date_str = kw.get('date')
-            if selected_date_str:
-                try:
-                    query_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
-                except ValueError:
-                    query_date = today_date
-            else:
-                query_date = today_date
-
-        report = False
-        chemist_visits = []
-        doctor_visits = []
-        farm_visits = []
-        journey_legs = []
-        daily_expenses = []
-        day_expense_total = 0.0
-
-        if employee:
-            report = request.env['ffm.daily.report'].sudo().search([
-                ('employee_id', '=', employee.id),
-                ('date', '=', query_date)
-            ], limit=1)
-            if report:
-                chemist_visits = report.chemist_visit_ids
-                doctor_visits = report.prescriber_visit_ids
-                farm_visits = report.farm_visit_ids
-                travel_log = report.travel_log_ids[:1]
-                if travel_log:
-                    journey_legs = travel_log.journey_ids
-
-            daily_expenses = request.env['ffm.daily.expense'].sudo().search([
-                ('employee_id', '=', employee.id),
-                ('date', '=', query_date)
-            ], order='id desc')
-            day_expense_total = sum(daily_expenses.mapped('total_amount'))
-
-        # Breakdown doctor counts by grade
-        grade_counts = {'a_plus': 0, 'a': 0, 'b': 0, 'c': 0}
-        for d in doctor_visits:
-            if d.grade in grade_counts:
-                grade_counts[d.grade] += 1
-
-        # Month totals (rolling current month)
-        first_day_of_month = query_date.replace(day=1)
-        reports_in_month = request.env['ffm.daily.report'].sudo().search([
-            ('employee_id', '=', employee.id if employee else False),
-            ('date', '>=', first_day_of_month),
-            ('date', '<=', query_date),
-        ])
-
-        month_order = sum(reports_in_month.mapped('total_order_tk'))
-        month_sale = sum(reports_in_month.mapped('total_sale_tk'))
-        month_coll = sum(reports_in_month.mapped('total_coll_tk'))
-        month_chemists = sum(reports_in_month.mapped('total_chemist_visited'))
-        month_doctors = sum(reports_in_month.mapped('total_prescriber_visited'))
-
-        ctx.update({
-            'today_str': query_date.strftime('%d %B, %Y'),
-            'query_date': str(query_date),
-            'report': report,
-            'chemist_visits': chemist_visits,
-            'doctor_visits': doctor_visits,
-            'farm_visits': farm_visits,
-            'journey_legs': journey_legs,
-            'daily_expenses': daily_expenses,
-            'day_expense_total': day_expense_total,
-            'grade_counts': grade_counts,
-            'month_order': month_order,
-            'month_sale': month_sale,
-            'month_coll': month_coll,
-            'month_chemists': month_chemists,
-            'month_doctors': month_doctors,
-        })
-        return request.render('ffm_daily_report.ff_entries_today', ctx)
+        """Redirect legacy today's entries directly to Report Cards."""
+        date_param = kw.get('date')
+        if date_param:
+            return werkzeug.utils.redirect(f'/ff/report/cards?date={date_param}')
+        return werkzeug.utils.redirect('/ff/report/cards')
 
     # ── 8. Daily & Monthly Report Cards (Phase 5) ───────────────────────────
     @http.route('/ff/report/cards', type='http', auth='user')

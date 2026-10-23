@@ -64,7 +64,10 @@
                 <!-- Header -->
                 <header class="ffm-header">
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <div class="ffm-header-title"><t t-esc="app_name or 'Newtec FFM'"/></div>
+                        <a href="/ff" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none;">
+                            <img src="https://res.cloudinary.com/dt94ywdob/image/upload/v1792770101/Newtec_logo_edkini.png" alt="Newtec Logo" style="height: 32px; max-height: 32px; width: auto; object-fit: contain; background: #ffffff; padding: 2px 6px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.12);"/>
+                            <div class="ffm-header-title" style="color: #ffffff;"><t t-esc="app_name or 'Newtec FFM'"/></div>
+                        </a>
                         <t t-if="panel_title">
                             <span class="ffm-badge" style="background: rgba(255,255,255,0.22); color: #ffffff; font-size: 0.78rem; border: 1px solid rgba(255,255,255,0.35); padding: 3px 10px; font-weight: 600; border-radius: 4px;">
                                 <t t-esc="panel_title"/>
@@ -207,19 +210,12 @@
                     <div class="ffm-tile-subtitle">Allowance &amp; vouchers</div>
                 </a>
 
-                <!-- 7. Today's Entries (For Field Person) OR Monthly Statement (For Managers/Supervisors) -->
+                <!-- 7. Daily Report Card & PDF (For Field Person) -->
                 <t t-if="is_fp">
-                    <a href="/ff/entries/today" class="ffm-tile">
-                        <div class="ffm-icon-box ffm-icon-box--indigo"><svg class="ffm-icon ffm-icon-lg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px; max-width: 18px; max-height: 18px; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor;"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></div>
-                        <div class="ffm-tile-title">Today's Entries</div>
-                        <div class="ffm-tile-subtitle">Today's visits &amp; summary</div>
-                    </a>
-
-                    <!-- 8. Daily Report Card & PDF (For Field Person) -->
                     <a href="/ff/report/cards" class="ffm-tile">
-                        <div class="ffm-icon-box ffm-icon-box--purple"><svg class="ffm-icon ffm-icon-lg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px; max-width: 18px; max-height: 18px; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor;"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></div>
+                        <div class="ffm-icon-box ffm-icon-box--indigo"><svg class="ffm-icon ffm-icon-lg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px; max-width: 18px; max-height: 18px; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor;"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></div>
                         <div class="ffm-tile-title">Daily Report Card</div>
-                        <div class="ffm-tile-subtitle">Today's summary &amp; PDF</div>
+                        <div class="ffm-tile-subtitle">Activity &amp; PDF Report</div>
                     </a>
                 </t>
                 <t t-else="">
@@ -505,8 +501,8 @@
                         <a href="/ff/visit/farm" class="ffm-btn ffm-btn-secondary" style="justify-content: flex-start; padding: 12px 16px; border-left: 4px solid #d97706;">
                             <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d97706; margin-right: 4px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> + Add Farm Visit
                         </a>
-                        <a href="/ff/entries/today" class="ffm-btn ffm-btn-secondary" style="justify-content: flex-start; padding: 12px 16px; border-left: 4px solid #4f46e5;">
-                            <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #4f46e5; margin-right: 4px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> View Today's Detailed Entries
+                        <a href="/ff/report/cards" class="ffm-btn ffm-btn-secondary" style="justify-content: flex-start; padding: 12px 16px; border-left: 4px solid #4f46e5;">
+                            <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #4f46e5; margin-right: 4px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> View Daily Report Card
                         </a>
                     </div>
 
@@ -853,7 +849,7 @@
                         if (res.status === 'success') {
                             FFM.resetUUID('ffm_chemist_visit_uuid');
                             FFM.showToast(res.message, 'success');
-                            setTimeout(function() { window.location.href = '/ff/entries/today'; }, 1000);
+                            setTimeout(function() { window.location.href = '/ff/report/cards'; }, 1000);
                         } else {
                             release();
                             FFM.showToast(res.message, 'error');
@@ -1086,7 +1082,7 @@
                         if (res.status === 'success') {
                             FFM.resetUUID('ffm_doctor_visit_uuid');
                             FFM.showToast(res.message, 'success');
-                            setTimeout(function() { window.location.href = '/ff/entries/today'; }, 1000);
+                            setTimeout(function() { window.location.href = '/ff/report/cards'; }, 1000);
                         } else {
                             release();
                             FFM.showToast(res.message, 'error');
@@ -1300,7 +1296,7 @@
                         if (res.status === 'success') {
                             FFM.resetUUID('ffm_farm_visit_uuid');
                             FFM.showToast(res.message, 'success');
-                            setTimeout(function() { window.location.href = '/ff/entries/today'; }, 1000);
+                            setTimeout(function() { window.location.href = '/ff/report/cards'; }, 1000);
                         } else {
                             release();
                             FFM.showToast(res.message, 'error');
@@ -2292,217 +2288,355 @@
                 <!-- CONTENT SECTION C: Personal / Individual Report Card       -->
                 <!-- ══════════════════════════════════════════════════════════ -->
                 <t t-else="">
-                    <!-- Header of Person being viewed -->
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
-                        <div>
-                            <h3 style="font-size: 0.95rem; font-weight: 700; color: #0f172a; margin: 0 0 2px 0;">
-                                Report Card: <t t-esc="target_employee.name if target_employee else ''"/>
-                            </h3>
-                            <div style="font-size: 0.8rem; color: #64748b;">
-                                <t t-if="target_employee and target_employee.job_id"><t t-esc="target_employee.job_id.name"/></t>
-                                <t t-if="target_employee and target_employee.hq"> • HQ: <t t-esc="target_employee.hq"/></t>
-                                • Period: <t t-esc="period_label"/>
+                    <!-- Header of Person being viewed (ONLY shown when supervisor is viewing an individual subordinate) -->
+                    <t t-if="not is_fp and report_type == 'individual'">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
+                            <div>
+                                <h3 style="font-size: 0.95rem; font-weight: 700; color: #0f172a; margin: 0 0 2px 0;">
+                                    Subordinate Report: <t t-esc="target_employee.name if target_employee else ''"/>
+                                </h3>
+                                <div style="font-size: 0.8rem; color: #64748b;">
+                                    <t t-if="target_employee and target_employee.job_id"><t t-esc="target_employee.job_id.name"/></t>
+                                    <t t-if="target_employee and target_employee.hq"> • HQ: <t t-esc="target_employee.hq"/></t>
+                                    • Period: <t t-esc="period_label"/>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <t t-if="report_state == 'approved'">
+                                    <span style="font-size: 0.75rem; padding: 4px 10px; border-radius: 4px; background: #dcfce7; color: #15803d; font-weight: 600; border: 1px solid #bbf7d0;">
+                                        Approved
+                                    </span>
+                                </t>
+                                <t t-elif="report_state == 'pending' or (single_day_attendance and report_state != 'approved')">
+                                    <span style="font-size: 0.75rem; padding: 4px 10px; border-radius: 4px; background: #fef3c7; color: #b45309; font-weight: 600; border: 1px solid #fde68a;">
+                                        Pending Approval
+                                    </span>
+                                </t>
+                                <t t-else="">
+                                    <span style="font-size: 0.75rem; padding: 4px 10px; border-radius: 4px; background: #f1f5f9; color: #64748b; font-weight: 600; border: 1px solid #e2e8f0;">
+                                        No Report
+                                    </span>
+                                </t>
                             </div>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <t t-if="report_state == 'approved'">
-                                <span style="font-size: 0.75rem; padding: 3px 10px; border-radius: 4px; background: #dcfce7; color: #15803d; font-weight: 600; border: 1px solid #bbf7d0;">
-                                    Approved
-                                </span>
-                            </t>
-                            <t t-elif="report_state == 'pending' or (single_day_attendance and report_state != 'approved')">
-                                <span style="font-size: 0.75rem; padding: 3px 10px; border-radius: 4px; background: #fef3c7; color: #b45309; font-weight: 600; border: 1px solid #fde68a;">
-                                    Pending Approval
-                                </span>
-                            </t>
-                            <t t-else="">
-                                <span style="font-size: 0.75rem; padding: 3px 10px; border-radius: 4px; background: #f1f5f9; color: #64748b; font-weight: 600; border: 1px solid #e2e8f0;">
-                                    No Report
-                                </span>
-                            </t>
-                            <t t-if="mode == 'daily'">
-                                <a t-attf-href="/ff/report/daily/pdf?date=#{query_date}&amp;employee_id=#{target_employee.id if target_employee else ''}"
-                                   class="ffm-btn ffm-btn-primary" style="min-height: 32px; padding: 4px 12px; font-size: 0.8rem; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
-                                    Download PDF
-                                </a>
-                            </t>
-                            <t t-else="">
-                                <a t-attf-href="/ff/statement/pdf?employee_id=#{target_employee.id if target_employee else ''}"
-                                   class="ffm-btn ffm-btn-primary" style="min-height: 32px; padding: 4px 12px; font-size: 0.8rem; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
-                                    Download Statement PDF
-                                </a>
-                            </t>
-                        </div>
-                    </div>
+                    </t>
 
-                    <!-- Financial Summary Box -->
-                    <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 14px; margin-bottom: 16px;">
-                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; margin-bottom: 10px;">
-                            <div style="background: #ecfdf5; border: 1px solid #a7f3d0; padding: 8px; border-radius: 6px;">
-                                <div style="font-size: 0.72rem; color: #047857; font-weight: 600;">Order</div>
-                                <div style="font-size: 0.95rem; font-weight: 700; color: #065f46;">৳<t t-esc="'%.0f' % total_order"/></div>
+                    <!-- Financial & Activity Metric Overview -->
+                    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 16px; margin-bottom: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
+                        <div style="font-size: 0.85rem; font-weight: 700; color: #1e293b; margin-bottom: 10px;">
+                            Performance Overview (<t t-esc="period_label"/>)
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 12px;">
+                            <div style="background: #ecfdf5; border: 1px solid #a7f3d0; padding: 10px; border-radius: 6px; text-align: center;">
+                                <div style="font-size: 0.74rem; color: #047857; font-weight: 600; text-transform: uppercase;">Total Order</div>
+                                <div style="font-size: 1.15rem; font-weight: 700; color: #065f46; margin-top: 2px;">৳<t t-esc="'%.0f' % total_order"/></div>
                             </div>
-                            <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 8px; border-radius: 6px;">
-                                <div style="font-size: 0.72rem; color: #1d4ed8; font-weight: 600;">Sale</div>
-                                <div style="font-size: 0.95rem; font-weight: 700; color: #1e40af;">৳<t t-esc="'%.0f' % total_sale"/></div>
+                            <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 10px; border-radius: 6px; text-align: center;">
+                                <div style="font-size: 0.74rem; color: #1d4ed8; font-weight: 600; text-transform: uppercase;">Total Sale</div>
+                                <div style="font-size: 1.15rem; font-weight: 700; color: #1e40af; margin-top: 2px;">৳<t t-esc="'%.0f' % total_sale"/></div>
                             </div>
-                            <div style="background: #fefce8; border: 1px solid #fef08a; padding: 8px; border-radius: 6px;">
-                                <div style="font-size: 0.72rem; color: #a16207; font-weight: 600;">Collection</div>
-                                <div style="font-size: 0.95rem; font-weight: 700; color: #854d0e;">৳<t t-esc="'%.0f' % total_coll"/></div>
+                            <div style="background: #fefce8; border: 1px solid #fef08a; padding: 10px; border-radius: 6px; text-align: center;">
+                                <div style="font-size: 0.74rem; color: #a16207; font-weight: 600; text-transform: uppercase;">Total Collection</div>
+                                <div style="font-size: 1.15rem; font-weight: 700; color: #854d0e; margin-top: 2px;">৳<t t-esc="'%.0f' % total_coll"/></div>
+                            </div>
+                            <div style="background: #f8fafc; border: 1px solid #cbd5e1; padding: 10px; border-radius: 6px; text-align: center;">
+                                <div style="font-size: 0.74rem; color: #475569; font-weight: 600; text-transform: uppercase;">Total Expenses</div>
+                                <div style="font-size: 1.15rem; font-weight: 700; color: #334155; margin-top: 2px;">৳<t t-esc="'%.0f' % total_expense"/></div>
                             </div>
                         </div>
 
-                        <div style="display: flex; justify-content: space-between; font-size: 0.78rem; color: #475569; padding-top: 6px; border-top: 1px solid #e2e8f0; flex-wrap: wrap; gap: 6px;">
-                            <span>Chemists: <strong style="color: #0f172a;"><t t-esc="total_chemists_count"/></strong></span>
-                            <span>Doctors: <strong style="color: #0f172a;"><t t-esc="total_doctors_count"/></strong> (A+: <t t-esc="grade_counts['a_plus']"/>, A: <t t-esc="grade_counts['a']"/>)</span>
-                            <span>Farms: <strong style="color: #0f172a;"><t t-esc="total_farms_count"/></strong></span>
-                            <span>Expenses: <strong style="color: #0f172a;">৳<t t-esc="'%.0f' % total_expense"/></strong></span>
+                        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: #475569; padding-top: 8px; border-top: 1px solid #f1f5f9; flex-wrap: wrap; gap: 8px;">
+                            <span>Chemist Visits: <strong style="color: #0f172a;"><t t-esc="total_chemists_count"/></strong></span>
+                            <span>Doctor Visits: <strong style="color: #0f172a;"><t t-esc="total_doctors_count"/></strong> (A+: <t t-esc="grade_counts['a_plus']"/>, A: <t t-esc="grade_counts['a']"/>)</span>
+                            <span>Farm Visits: <strong style="color: #0f172a;"><t t-esc="total_farms_count"/></strong></span>
+                            <span>Journey: <strong style="color: #0f172a;">৳<t t-esc="'%.0f' % total_fare"/></strong> (<t t-esc="'%.0f' % total_distance"/> km)</span>
                         </div>
                     </div>
 
                     <!-- Single Day Attendance Snapshot (if daily mode) -->
                     <t t-if="mode == 'daily'">
-                        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 10px; margin-bottom: 16px; font-size: 0.82rem;">
-                            <strong style="color: #15803d;">Attendance Status:</strong>
+                        <div style="background: #ffffff; border: 1px solid #bbf7d0; border-left: 4px solid #16a34a; border-radius: 6px; padding: 12px 14px; margin-bottom: 16px; font-size: 0.82rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                            <div>
+                                <strong style="color: #15803d; font-size: 0.85rem;">Attendance Status:</strong>
+                                <t t-if="single_day_attendance">
+                                    <span style="color: #166534; margin-left: 8px;">
+                                        Marked at <strong><t t-esc="single_day_attendance.reporting_time.strftime('%I:%M %p') if single_day_attendance.reporting_time else '09:00 AM'"/></strong>
+                                        • Location: <strong><t t-esc="single_day_attendance.place_name or 'Field Base'"/></strong>
+                                        • Mode: <strong><t t-esc="single_day_attendance.mode_of_journey or 'Field Tour'"/></strong>
+                                    </span>
+                                </t>
+                                <t t-else="">
+                                    <span style="color: #991b1b; margin-left: 8px;">No attendance recorded for this date.</span>
+                                </t>
+                            </div>
                             <t t-if="single_day_attendance">
-                                <span style="color: #166534; margin-left: 6px;">
-                                    <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px; max-width: 12px; max-height: 12px; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor;"><polyline points="20 6 9 17 4 12"></polyline></svg> Marked at <t t-esc="single_day_attendance.reporting_time.strftime('%I:%M %p') if single_day_attendance.reporting_time else ''"/> • Location: <strong><t t-esc="single_day_attendance.place_name or 'Bangladesh'"/></strong> • Mode: <t t-esc="single_day_attendance.mode_of_journey or 'Field Tour'"/>
-                                </span>
+                                <span style="font-size: 0.75rem; background: #dcfce7; color: #15803d; font-weight: 600; padding: 2px 8px; border-radius: 4px; border: 1px solid #86efac;">PRESENT</span>
                             </t>
                             <t t-else="">
-                                <span style="color: #991b1b; margin-left: 6px;">No attendance recorded</span>
+                                <span style="font-size: 0.75rem; background: #fee2e2; color: #991b1b; font-weight: 600; padding: 2px 8px; border-radius: 4px; border: 1px solid #fecaca;">ABSENT / PENDING</span>
                             </t>
                         </div>
                     </t>
 
-                    <!-- Chemist Visits -->
-                    <h3 style="font-size: 0.95rem; font-weight: 700; margin: 16px 0 8px; color: #1e293b;">
-                        Chemist Visits (<t t-esc="total_chemists_count"/>)
-                    </h3>
-                    <t t-if="chemist_visits">
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <t t-foreach="chemist_visits" t-as="c">
-                                <div style="border: 1px solid var(--ffm-border); border-radius: 6px; padding: 10px; font-size: 0.82rem;">
-                                    <div style="display: flex; justify-content: space-between; font-weight: 700;">
-                                        <span><t t-esc="c.chemist_id.name or c.chemist_name_manual"/></span>
-                                        <span style="color: var(--ffm-primary);">৳<t t-esc="'%.0f' % c.order_tk"/> (Order)</span>
-                                    </div>
-                                    <div style="color: var(--ffm-text-muted); font-size: 0.76rem; margin-top: 2px;">
-                                        Sale: ৳<t t-esc="'%.0f' % c.sale_tk"/> | Collection: ৳<t t-esc="'%.0f' % c.coll_tk"/>
-                                        <t t-if="c.address"> | <t t-esc="c.address"/></t>
-                                    </div>
-                                </div>
-                            </t>
+                    <!-- 1. Chemist Visits Table -->
+                    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 18px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
+                        <div style="background: #f8fafc; padding: 10px 14px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 0.88rem; font-weight: 700; color: #1e293b;">
+                                1. Chemist Shop Visits &amp; Commercial Bookings (<t t-esc="total_chemists_count"/>)
+                            </span>
                         </div>
-                    </t>
-                    <t t-else="">
-                        <div style="font-size: 0.8rem; color: var(--ffm-text-muted); font-style: italic;">No chemist visits recorded.</div>
-                    </t>
-
-                    <!-- Doctor Visits -->
-                    <h3 style="font-size: 0.95rem; font-weight: 700; margin: 20px 0 8px; color: #1e293b;">
-                        Doctor Visits (<t t-esc="total_doctors_count"/>)
-                    </h3>
-                    <t t-if="doctor_visits">
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <t t-foreach="doctor_visits" t-as="d">
-                                <div style="border: 1px solid var(--ffm-border); border-radius: 6px; padding: 10px; font-size: 0.82rem;">
-                                    <div style="display: flex; justify-content: space-between; font-weight: 700;">
-                                        <span><t t-esc="d.prescriber_id.name or d.prescriber_name_manual"/></span>
-                                        <span class="ffm-badge" style="background: #e0e7ff; color: #3730a3;">Grade <t t-esc="d.grade.upper() if d.grade else ''"/></span>
-                                    </div>
-                                    <div style="color: var(--ffm-text-muted); font-size: 0.76rem; margin-top: 2px;">
-                                        Discussion: <t t-esc="d.product_discussion"/> | Sample: <t t-esc="d.sample"/>
-                                    </div>
-                                </div>
-                            </t>
-                        </div>
-                    </t>
-                    <t t-else="">
-                        <div style="font-size: 0.8rem; color: var(--ffm-text-muted); font-style: italic;">No doctor visits recorded.</div>
-                    </t>
-
-                    <!-- Farm & Other Visits -->
-                    <h3 style="font-size: 0.95rem; font-weight: 700; margin: 20px 0 8px; color: #1e293b;">
-                        Farm &amp; Institutional Visits (<t t-esc="total_farms_count"/>)
-                    </h3>
-                    <t t-if="farm_visits">
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <t t-foreach="farm_visits" t-as="f">
-                                <div style="border: 1px solid var(--ffm-border); border-radius: 6px; padding: 10px; font-size: 0.82rem;">
-                                    <div style="display: flex; justify-content: space-between; font-weight: 700;">
-                                        <span><t t-esc="f.farm_name"/></span>
-                                        <t t-if="f.bird_count">
-                                            <span class="ffm-badge" style="background: #fef3c7; color: #92400e;"><t t-esc="f.bird_count"/> Animals/Birds</span>
+                        <t t-if="chemist_visits">
+                            <div style="overflow-x: auto;">
+                                <table style="width: 100%; border-collapse: collapse; font-size: 0.82rem;">
+                                    <thead>
+                                        <tr style="background: #f1f5f9; color: #475569; text-align: left; border-bottom: 1px solid #cbd5e1;">
+                                            <th style="padding: 8px 10px; width: 36px; text-align: center;">#</th>
+                                            <th style="padding: 8px 10px;">Chemist / Pharmacy Name</th>
+                                            <th style="padding: 8px 10px; text-align: right; width: 110px;">Order</th>
+                                            <th style="padding: 8px 10px; text-align: right; width: 110px;">Sale</th>
+                                            <th style="padding: 8px 10px; text-align: right; width: 110px;">Collection</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="chemist_visits" t-as="c">
+                                            <tr style="border-bottom: 1px solid #f1f5f9;">
+                                                <td style="padding: 8px 10px; text-align: center; color: #94a3b8;"><t t-esc="c_index + 1"/></td>
+                                                <td style="padding: 8px 10px;">
+                                                    <strong style="color: #0f172a;"><t t-esc="c.chemist_id.name or c.chemist_name_manual"/></strong>
+                                                    <t t-if="c.address">
+                                                        <div style="font-size: 0.75rem; color: #64748b; margin-top: 1px;"><t t-esc="c.address"/></div>
+                                                    </t>
+                                                </td>
+                                                <td style="padding: 8px 10px; text-align: right; font-weight: 700; color: #047857;">৳<t t-esc="'%.0f' % c.order_tk"/></td>
+                                                <td style="padding: 8px 10px; text-align: right; color: #1e40af;">৳<t t-esc="'%.0f' % c.sale_tk"/></td>
+                                                <td style="padding: 8px 10px; text-align: right; color: #854d0e;">৳<t t-esc="'%.0f' % c.coll_tk"/></td>
+                                            </tr>
                                         </t>
-                                    </div>
-                                    <div style="color: var(--ffm-text-muted); font-size: 0.76rem; margin-top: 2px;">
-                                        <t t-if="f.address"><t t-esc="f.address"/> • </t>
-                                        <t t-if="f.broiler">Broiler: <t t-esc="f.broiler"/> • </t>
-                                        <t t-if="f.layer">Layer: <t t-esc="f.layer"/> • </t>
-                                        <t t-if="f.sonali">Sonali: <t t-esc="f.sonali"/> • </t>
-                                        <t t-if="f.cattle">Cattle: <t t-esc="f.cattle"/> • </t>
-                                        <t t-if="f.aqua">Aqua: <t t-esc="f.aqua"/> • </t>
-                                        <t t-if="f.note">Discussion: <t t-esc="f.note"/></t>
-                                    </div>
-                                </div>
-                            </t>
-                        </div>
-                    </t>
-                    <t t-else="">
-                        <div style="font-size: 0.8rem; color: var(--ffm-text-muted); font-style: italic;">No farm or institutional visits recorded.</div>
-                    </t>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr style="background: #f8fafc; font-weight: 700; border-top: 2px solid #cbd5e1;">
+                                            <td colspan="2" style="padding: 8px 10px; text-align: right; color: #334155;">Subtotal:</td>
+                                            <td style="padding: 8px 10px; text-align: right; color: #047857;">৳<t t-esc="'%.0f' % total_order"/></td>
+                                            <td style="padding: 8px 10px; text-align: right; color: #1e40af;">৳<t t-esc="'%.0f' % total_sale"/></td>
+                                            <td style="padding: 8px 10px; text-align: right; color: #854d0e;">৳<t t-esc="'%.0f' % total_coll"/></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <div style="padding: 16px; text-align: center; color: #94a3b8; font-size: 0.82rem; font-style: italic;">No chemist visits recorded for this period.</div>
+                        </t>
+                    </div>
 
-                    <!-- Travel Legs -->
-                    <h3 style="font-size: 0.95rem; font-weight: 700; margin: 20px 0 8px; color: #1e293b;">
-                        Journey Log (<t t-esc="len(journey_legs)"/> legs)
-                    </h3>
-                    <t t-if="journey_legs">
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <t t-foreach="journey_legs" t-as="j">
-                                <div style="border: 1px solid var(--ffm-border); border-radius: 6px; padding: 10px; font-size: 0.82rem;">
-                                    <div style="display: flex; justify-content: space-between; font-weight: 700;">
-                                        <span><t t-esc="j.place_from_id.name"/> → <t t-esc="j.place_to_id.name"/></span>
-                                        <span style="color: #b45309;">৳<t t-esc="'%.0f' % j.fare_tk"/></span>
-                                    </div>
-                                    <div style="color: var(--ffm-text-muted); font-size: 0.76rem; margin-top: 2px;">
-                                        Mode: <t t-esc="j.mode.title()"/> | Distance: <t t-esc="j.distance_km"/> km
-                                    </div>
-                                </div>
-                            </t>
+                    <!-- 2. Doctor Visits Table -->
+                    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 18px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
+                        <div style="background: #f8fafc; padding: 10px 14px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 0.88rem; font-weight: 700; color: #1e293b;">
+                                2. Doctor &amp; Prescriber Visits (<t t-esc="total_doctors_count"/>)
+                            </span>
                         </div>
-                    </t>
-                    <t t-else="">
-                        <div style="font-size: 0.8rem; color: var(--ffm-text-muted); font-style: italic;">No journey legs recorded.</div>
-                    </t>
+                        <t t-if="doctor_visits">
+                            <div style="overflow-x: auto;">
+                                <table style="width: 100%; border-collapse: collapse; font-size: 0.82rem;">
+                                    <thead>
+                                        <tr style="background: #f1f5f9; color: #475569; text-align: left; border-bottom: 1px solid #cbd5e1;">
+                                            <th style="padding: 8px 10px; width: 36px; text-align: center;">#</th>
+                                            <th style="padding: 8px 10px; width: 220px;">Doctor / Prescriber</th>
+                                            <th style="padding: 8px 10px; width: 80px; text-align: center;">Grade</th>
+                                            <th style="padding: 8px 10px;">Discussion &amp; Literature</th>
+                                            <th style="padding: 8px 10px; width: 140px;">Sample / Item</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="doctor_visits" t-as="d">
+                                            <tr style="border-bottom: 1px solid #f1f5f9;">
+                                                <td style="padding: 8px 10px; text-align: center; color: #94a3b8;"><t t-esc="d_index + 1"/></td>
+                                                <td style="padding: 8px 10px;">
+                                                    <strong style="color: #0f172a;"><t t-esc="d.prescriber_id.name or d.prescriber_name_manual"/></strong>
+                                                </td>
+                                                <td style="padding: 8px 10px; text-align: center;">
+                                                    <span class="ffm-badge" style="background: #e0e7ff; color: #3730a3; padding: 2px 6px; border-radius: 4px; font-size: 0.72rem; font-weight: 600;">
+                                                        Grade <t t-esc="d.grade.upper() if d.grade else 'A'"/>
+                                                    </span>
+                                                </td>
+                                                <td style="padding: 8px 10px; color: #334155;">
+                                                    <t t-esc="d.product_discussion or 'General Discussion'"/>
+                                                </td>
+                                                <td style="padding: 8px 10px; color: #64748b;">
+                                                    <t t-esc="d.sample or 'None'"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <div style="padding: 16px; text-align: center; color: #94a3b8; font-size: 0.82rem; font-style: italic;">No doctor visits recorded for this period.</div>
+                        </t>
+                    </div>
 
-                    <!-- Daily Expenses -->
-                    <h3 style="font-size: 0.95rem; font-weight: 700; margin: 20px 0 8px; color: #1e293b;">
-                        Daily Expenses (<t t-esc="len(daily_expenses)"/> entries - Total: ৳<t t-esc="'%.0f' % total_expense"/>)
-                    </h3>
-                    <t t-if="daily_expenses">
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <t t-foreach="daily_expenses" t-as="exp">
-                                <div style="border: 1px solid var(--ffm-border); border-radius: 6px; padding: 10px; font-size: 0.82rem;">
-                                    <div style="display: flex; justify-content: space-between; font-weight: 700;">
-                                        <span>Entry #<t t-esc="exp.id"/></span>
-                                        <span style="color: #047857;">৳<t t-esc="'%.0f' % exp.total_amount"/></span>
-                                    </div>
-                                    <div style="color: var(--ffm-text-muted); font-size: 0.76rem; margin-top: 2px;">
-                                        <t t-if="exp.entertainment">Entertainment: ৳<t t-esc="'%.0f' % exp.entertainment"/> • </t>
-                                        <t t-if="exp.courier">Courier: ৳<t t-esc="'%.0f' % exp.courier"/> • </t>
-                                        <t t-if="exp.photocopy">Photocopy: ৳<t t-esc="'%.0f' % exp.photocopy"/> • </t>
-                                        <t t-if="exp.hotel_rent">Hotel: ৳<t t-esc="'%.0f' % exp.hotel_rent"/> • </t>
-                                        <t t-if="exp.bike">Bike: ৳<t t-esc="'%.0f' % exp.bike"/> • </t>
-                                        <t t-if="exp.promotion">Promotion: ৳<t t-esc="'%.0f' % exp.promotion"/></t>
-                                    </div>
-                                </div>
-                            </t>
+                    <!-- 3. Farm & Institutional Visits Table -->
+                    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 18px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
+                        <div style="background: #f8fafc; padding: 10px 14px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 0.88rem; font-weight: 700; color: #1e293b;">
+                                3. Farm &amp; Institutional Visits (<t t-esc="total_farms_count"/>)
+                            </span>
                         </div>
-                    </t>
-                    <t t-else="">
-                        <div style="font-size: 0.8rem; color: var(--ffm-text-muted); font-style: italic;">No daily expenses recorded.</div>
-                    </t>
+                        <t t-if="farm_visits">
+                            <div style="overflow-x: auto;">
+                                <table style="width: 100%; border-collapse: collapse; font-size: 0.82rem;">
+                                    <thead>
+                                        <tr style="background: #f1f5f9; color: #475569; text-align: left; border-bottom: 1px solid #cbd5e1;">
+                                            <th style="padding: 8px 10px; width: 36px; text-align: center;">#</th>
+                                            <th style="padding: 8px 10px; width: 220px;">Farm / Client Name</th>
+                                            <th style="padding: 8px 10px; width: 140px;">Flock / Animals</th>
+                                            <th style="padding: 8px 10px;">Discussion &amp; Recommendations</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="farm_visits" t-as="f">
+                                            <tr style="border-bottom: 1px solid #f1f5f9;">
+                                                <td style="padding: 8px 10px; text-align: center; color: #94a3b8;"><t t-esc="f_index + 1"/></td>
+                                                <td style="padding: 8px 10px;">
+                                                    <strong style="color: #0f172a;"><t t-esc="f.farm_name"/></strong>
+                                                    <t t-if="f.address">
+                                                        <div style="font-size: 0.75rem; color: #64748b; margin-top: 1px;"><t t-esc="f.address"/></div>
+                                                    </t>
+                                                </td>
+                                                <td style="padding: 8px 10px;">
+                                                    <t t-if="f.bird_count">
+                                                        <span class="ffm-badge" style="background: #fef3c7; color: #92400e; padding: 2px 6px; border-radius: 4px; font-size: 0.72rem; font-weight: 600;">
+                                                            <t t-esc="f.bird_count"/> Birds/Animals
+                                                        </span>
+                                                    </t>
+                                                    <div style="font-size: 0.72rem; color: #64748b; margin-top: 2px;">
+                                                        <t t-if="f.broiler">Broiler: <t t-esc="f.broiler"/> • </t>
+                                                        <t t-if="f.layer">Layer: <t t-esc="f.layer"/> • </t>
+                                                        <t t-if="f.cattle">Cattle: <t t-esc="f.cattle"/></t>
+                                                    </div>
+                                                </td>
+                                                <td style="padding: 8px 10px; color: #334155;">
+                                                    <t t-esc="f.note or 'Farm visit conducted'"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <div style="padding: 16px; text-align: center; color: #94a3b8; font-size: 0.82rem; font-style: italic;">No farm visits recorded for this period.</div>
+                        </t>
+                    </div>
+
+                    <!-- 4. Journey Log Table -->
+                    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 18px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
+                        <div style="background: #f8fafc; padding: 10px 14px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 0.88rem; font-weight: 700; color: #1e293b;">
+                                4. Journey &amp; Travel Log (<t t-esc="len(journey_legs)"/> legs)
+                            </span>
+                        </div>
+                        <t t-if="journey_legs">
+                            <div style="overflow-x: auto;">
+                                <table style="width: 100%; border-collapse: collapse; font-size: 0.82rem;">
+                                    <thead>
+                                        <tr style="background: #f1f5f9; color: #475569; text-align: left; border-bottom: 1px solid #cbd5e1;">
+                                            <th style="padding: 8px 10px; width: 36px; text-align: center;">#</th>
+                                            <th style="padding: 8px 10px;">Route (From → To)</th>
+                                            <th style="padding: 8px 10px; width: 120px;">Mode</th>
+                                            <th style="padding: 8px 10px; text-align: right; width: 100px;">Distance</th>
+                                            <th style="padding: 8px 10px; text-align: right; width: 100px;">Fare</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="journey_legs" t-as="j">
+                                            <tr style="border-bottom: 1px solid #f1f5f9;">
+                                                <td style="padding: 8px 10px; text-align: center; color: #94a3b8;"><t t-esc="j_index + 1"/></td>
+                                                <td style="padding: 8px 10px; font-weight: 600; color: #0f172a;">
+                                                    <t t-esc="j.place_from_id.name"/> → <t t-esc="j.place_to_id.name"/>
+                                                </td>
+                                                <td style="padding: 8px 10px; color: #64748b; text-transform: capitalize;">
+                                                    <t t-esc="j.mode"/>
+                                                </td>
+                                                <td style="padding: 8px 10px; text-align: right; color: #334155;">
+                                                    <t t-esc="'%.1f' % j.distance_km"/> km
+                                                </td>
+                                                <td style="padding: 8px 10px; text-align: right; font-weight: 700; color: #b45309;">
+                                                    ৳<t t-esc="'%.0f' % j.fare_tk"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr style="background: #f8fafc; font-weight: 700; border-top: 2px solid #cbd5e1;">
+                                            <td colspan="3" style="padding: 8px 10px; text-align: right; color: #334155;">Subtotal:</td>
+                                            <td style="padding: 8px 10px; text-align: right; color: #334155;"><t t-esc="'%.1f' % total_distance"/> km</td>
+                                            <td style="padding: 8px 10px; text-align: right; color: #b45309;">৳<t t-esc="'%.0f' % total_fare"/></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <div style="padding: 16px; text-align: center; color: #94a3b8; font-size: 0.82rem; font-style: italic;">No journey legs recorded for this period.</div>
+                        </t>
+                    </div>
+
+                    <!-- 5. Daily Expenses Table -->
+                    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 18px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
+                        <div style="background: #f8fafc; padding: 10px 14px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 0.88rem; font-weight: 700; color: #1e293b;">
+                                5. Daily Expenses &amp; Allowances (<t t-esc="len(daily_expenses)"/> entries)
+                            </span>
+                        </div>
+                        <t t-if="daily_expenses">
+                            <div style="overflow-x: auto;">
+                                <table style="width: 100%; border-collapse: collapse; font-size: 0.82rem;">
+                                    <thead>
+                                        <tr style="background: #f1f5f9; color: #475569; text-align: left; border-bottom: 1px solid #cbd5e1;">
+                                            <th style="padding: 8px 10px; width: 36px; text-align: center;">#</th>
+                                            <th style="padding: 8px 10px;">Expense Item Breakdown</th>
+                                            <th style="padding: 8px 10px; width: 100px; text-align: center;">Date</th>
+                                            <th style="padding: 8px 10px; text-align: right; width: 110px;">Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="daily_expenses" t-as="exp">
+                                            <tr style="border-bottom: 1px solid #f1f5f9;">
+                                                <td style="padding: 8px 10px; text-align: center; color: #94a3b8;"><t t-esc="exp_index + 1"/></td>
+                                                <td style="padding: 8px 10px; color: #334155;">
+                                                    <span style="font-weight: 600; color: #0f172a;">Entry #<t t-esc="exp.id"/>:</span>
+                                                    <t t-if="exp.entertainment"> Entertainment: ৳<t t-esc="'%.0f' % exp.entertainment"/> • </t>
+                                                    <t t-if="exp.courier"> Courier: ৳<t t-esc="'%.0f' % exp.courier"/> • </t>
+                                                    <t t-if="exp.photocopy"> Photocopy: ৳<t t-esc="'%.0f' % exp.photocopy"/> • </t>
+                                                    <t t-if="exp.hotel_rent"> Hotel: ৳<t t-esc="'%.0f' % exp.hotel_rent"/> • </t>
+                                                    <t t-if="exp.bike"> Bike: ৳<t t-esc="'%.0f' % exp.bike"/> • </t>
+                                                    <t t-if="exp.promotion"> Promotion: ৳<t t-esc="'%.0f' % exp.promotion"/></t>
+                                                </td>
+                                                <td style="padding: 8px 10px; text-align: center; color: #64748b;">
+                                                    <t t-esc="exp.date"/>
+                                                </td>
+                                                <td style="padding: 8px 10px; text-align: right; font-weight: 700; color: #047857;">
+                                                    ৳<t t-esc="'%.0f' % exp.total_amount"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr style="background: #f8fafc; font-weight: 700; border-top: 2px solid #cbd5e1;">
+                                            <td colspan="3" style="padding: 8px 10px; text-align: right; color: #334155;">Total Expenses:</td>
+                                            <td style="padding: 8px 10px; text-align: right; color: #047857;">৳<t t-esc="'%.0f' % total_expense"/></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <div style="padding: 16px; text-align: center; color: #94a3b8; font-size: 0.82rem; font-style: italic;">No daily expenses recorded for this period.</div>
+                        </t>
+                    </div>
                 </t>
             </div>
         </t>
