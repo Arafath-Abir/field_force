@@ -74,11 +74,8 @@ class FFMHome(Home):
                 is_manager = user.has_group('field_force_management.group_ffm_nsm')
                 is_rsm = user.has_group('field_force_management.group_ffm_rsm')
                 is_asm = user.has_group('field_force_management.group_ffm_asm')
-                if is_admin:
-                    return '/ff/manager'
-                elif is_manager or is_rsm or is_asm:
-                    return '/ff/manager'
-                elif user.has_group('field_force_management.group_ffm_field_person'):
+                is_fp = user.has_group('field_force_management.group_ffm_field_person')
+                if is_admin or is_manager or is_rsm or is_asm or is_fp:
                     return '/ff'
         return super(FFMHome, self)._login_redirect(uid, redirect=redirect)
 
@@ -93,14 +90,13 @@ class FFMHome(Home):
                             user.has_group('base.group_system'))
                 if is_admin:
                     if not kw.get('backend'):
-                        return werkzeug.utils.redirect('/ff/manager', 303)
+                        return werkzeug.utils.redirect('/ff', 303)
                 else:
                     is_manager = user.has_group('field_force_management.group_ffm_nsm')
                     is_rsm = user.has_group('field_force_management.group_ffm_rsm')
                     is_asm = user.has_group('field_force_management.group_ffm_asm')
-                    if is_manager or is_rsm or is_asm:
-                        return werkzeug.utils.redirect('/ff/manager', 303)
-                    elif user.has_group('field_force_management.group_ffm_field_person'):
+                    is_fp = user.has_group('field_force_management.group_ffm_field_person')
+                    if is_manager or is_rsm or is_asm or is_fp:
                         return werkzeug.utils.redirect('/ff', 303)
         return super(FFMHome, self).web_client(s_action=s_action, **kw)
 
@@ -194,21 +190,12 @@ class FFMController(http.Controller):
     # ── 1. Dashboard ────────────────────────────────────────────────────────
     @http.route('/ff', type='http', auth='user')
     def ff_dashboard(self, **kw):
-        """Field activities start page with the 8 tiles.
-        Field Person lands here directly.
-        Super Admin, Manager, RSM, ASM land on /ff/manager unless marketer_view is explicitly requested.
+        """Field activities start page with all field tiles for all roles.
+        Field Persons, ASMs, RSMs, and Managers land here.
+        Supervisors have a dedicated Team Approvals tile to review & approve subordinate reports.
         """
-        user = request.env.user
-        is_supervisor = (request.env.is_admin() or
-                         user.has_group('field_force_management.group_ffm_admin') or
-                         user.has_group('base.group_system') or
-                         user.has_group('field_force_management.group_ffm_nsm') or
-                         user.has_group('field_force_management.group_ffm_rsm') or
-                         user.has_group('field_force_management.group_ffm_asm'))
-        if is_supervisor and not kw.get('marketer_view'):
-            return werkzeug.utils.redirect('/ff/manager')
-
         ctx = self._get_app_context()
+        user = request.env.user
         today_date, _now_time = self._get_dhaka_date_and_time()
         employee = ctx['employee']
 
@@ -253,15 +240,7 @@ class FFMController(http.Controller):
         pending_reports_count = 0
         present_count = 0
         if sub_ids:
-            if is_super_admin or is_manager:
-                approvable_sub_ids = sub_ids
-            elif employee:
-                approvable_sub_ids = request.env['hr.employee'].sudo().search([
-                    ('active', '=', True),
-                    ('parent_id', '=', employee.id),
-                ]).ids
-            else:
-                approvable_sub_ids = []
+            approvable_sub_ids = sub_ids
 
             pending_reports_count = request.env['ffm.daily.report'].sudo().search_count([
                 ('employee_id', 'in', approvable_sub_ids),
@@ -276,9 +255,12 @@ class FFMController(http.Controller):
             'today_str': today_date.strftime('%d %B, %Y'),
             'attendance_today': bool(attendance_today),
             'today_report': today_report,
-            'is_manager': is_supervisor,
+            'is_supervisor': is_supervisor,
+            'is_super_admin': is_super_admin,
+            'is_manager': is_manager,
             'is_asm': is_asm,
             'is_rsm': is_rsm,
+            'is_fp': ctx.get('is_fp', False),
             'sub_count': len(subordinates),
             'pending_reports_count': pending_reports_count,
             'present_count': present_count,
