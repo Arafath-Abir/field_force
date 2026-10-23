@@ -71,11 +71,16 @@ class FFMHome(Home):
                 is_admin = (user._is_admin() or
                             user.has_group('field_force_management.group_ffm_admin') or
                             user.has_group('base.group_system'))
-                is_manager = user.has_group('field_force_management.group_ffm_nsm')
-                is_rsm = user.has_group('field_force_management.group_ffm_rsm')
-                is_asm = user.has_group('field_force_management.group_ffm_asm')
-                is_fp = user.has_group('field_force_management.group_ffm_field_person')
-                if is_admin or is_manager or is_rsm or is_asm or is_fp:
+                is_manager = (user.has_group('field_force_management.group_ffm_nsm') or
+                              user.has_group('field_force_management.group_ffm_director')) and not is_admin
+                is_rsm = user.has_group('field_force_management.group_ffm_rsm') and not (is_admin or is_manager)
+                is_asm = user.has_group('field_force_management.group_ffm_asm') and not (is_admin or is_manager or is_rsm)
+                is_fp = not (is_admin or is_manager or is_rsm or is_asm)
+
+                # Management-only roles (NSM, MM, Admin) land directly on the Manager Panel
+                if is_admin or is_manager:
+                    return '/ff/manager'
+                elif is_rsm or is_asm or is_fp:
                     return '/ff'
         return super(FFMHome, self)._login_redirect(uid, redirect=redirect)
 
@@ -88,16 +93,17 @@ class FFMHome(Home):
                 is_admin = (user._is_admin() or
                             user.has_group('field_force_management.group_ffm_admin') or
                             user.has_group('base.group_system'))
-                if is_admin:
+                is_manager = (user.has_group('field_force_management.group_ffm_nsm') or
+                              user.has_group('field_force_management.group_ffm_director')) and not is_admin
+                is_rsm = user.has_group('field_force_management.group_ffm_rsm') and not (is_admin or is_manager)
+                is_asm = user.has_group('field_force_management.group_ffm_asm') and not (is_admin or is_manager or is_rsm)
+                is_fp = not (is_admin or is_manager or is_rsm or is_asm)
+
+                if is_admin or is_manager:
                     if not kw.get('backend'):
-                        return werkzeug.utils.redirect('/ff', 303)
-                else:
-                    is_manager = user.has_group('field_force_management.group_ffm_nsm')
-                    is_rsm = user.has_group('field_force_management.group_ffm_rsm')
-                    is_asm = user.has_group('field_force_management.group_ffm_asm')
-                    is_fp = user.has_group('field_force_management.group_ffm_field_person')
-                    if is_manager or is_rsm or is_asm or is_fp:
-                        return werkzeug.utils.redirect('/ff', 303)
+                        return werkzeug.utils.redirect('/ff/manager', 303)
+                elif is_rsm or is_asm or is_fp:
+                    return werkzeug.utils.redirect('/ff', 303)
         return super(FFMHome, self).web_client(s_action=s_action, **kw)
 
 
@@ -151,10 +157,13 @@ class FFMController(http.Controller):
         app_name = request.env['ir.config_parameter'].sudo().get_param('ffm.app_name', default='Newtec FFM')
         
         is_super_admin = (user._is_admin() or user.has_group('field_force_management.group_ffm_admin') or user.has_group('base.group_system'))
-        is_manager = user.has_group('field_force_management.group_ffm_nsm') and not is_super_admin
+        is_manager = (user.has_group('field_force_management.group_ffm_nsm') or user.has_group('field_force_management.group_ffm_director')) and not is_super_admin
         is_rsm = user.has_group('field_force_management.group_ffm_rsm') and not (is_super_admin or is_manager)
         is_asm = user.has_group('field_force_management.group_ffm_asm') and not (is_super_admin or is_manager or is_rsm)
         is_fp = not (is_super_admin or is_manager or is_rsm or is_asm)
+
+        is_management_only = is_super_admin or is_manager
+        has_field_operations = not is_management_only
 
         if is_super_admin:
             panel_title = 'Super Admin Panel'
@@ -183,6 +192,8 @@ class FFMController(http.Controller):
             'is_rsm': is_rsm,
             'is_asm': is_asm,
             'is_fp': is_fp,
+            'is_management_only': is_management_only,
+            'has_field_operations': has_field_operations,
             'panel_title': panel_title,
             'role_badge': role_badge,
         }
@@ -190,11 +201,14 @@ class FFMController(http.Controller):
     # ── 1. Dashboard ────────────────────────────────────────────────────────
     @http.route('/ff', type='http', auth='user')
     def ff_dashboard(self, **kw):
-        """Field activities start page with all field tiles for all roles.
-        Field Persons, ASMs, RSMs, and Managers land here.
-        Supervisors have a dedicated Team Approvals tile to review & approve subordinate reports.
+        """Field activities start page with field tiles for operational staff (FP, ASM, RSM).
+        Management-only roles (NSM, MM, Admin) have no field visits/attendance, so they
+        are redirected directly to /ff/manager.
         """
         ctx = self._get_app_context()
+        if ctx.get('is_management_only'):
+            return werkzeug.utils.redirect('/ff/manager', 303)
+
         user = request.env.user
         today_date, _now_time = self._get_dhaka_date_and_time()
         employee = ctx['employee']
@@ -271,6 +285,8 @@ class FFMController(http.Controller):
     @http.route('/ff/attendance', type='http', auth='user')
     def ff_attendance(self, **kw):
         ctx = self._get_app_context()
+        if ctx.get('is_management_only'):
+            return werkzeug.utils.redirect('/ff/manager', 303)
         today_date, _now_time = self._get_dhaka_date_and_time()
         employee = ctx['employee']
 
@@ -314,6 +330,8 @@ class FFMController(http.Controller):
     def ff_daily_report(self, **kw):
         """View or initialize today's daily report (strictly current date)."""
         ctx = self._get_app_context()
+        if ctx.get('is_management_only'):
+            return werkzeug.utils.redirect('/ff/manager', 303)
         today_date, _now_time = self._get_dhaka_date_and_time()
         employee = ctx['employee']
 
@@ -376,6 +394,8 @@ class FFMController(http.Controller):
     @http.route('/ff/visit/chemist', type='http', auth='user')
     def ff_visit_chemist(self, **kw):
         ctx = self._get_app_context()
+        if ctx.get('is_management_only'):
+            return werkzeug.utils.redirect('/ff/manager', 303)
         today_date, _now_time = self._get_dhaka_date_and_time()
         employee = ctx['employee']
 
@@ -485,6 +505,8 @@ class FFMController(http.Controller):
     @http.route('/ff/visit/doctor', type='http', auth='user')
     def ff_visit_doctor(self, **kw):
         ctx = self._get_app_context()
+        if ctx.get('is_management_only'):
+            return werkzeug.utils.redirect('/ff/manager', 303)
         today_date, _now_time = self._get_dhaka_date_and_time()
         employee = ctx['employee']
 
@@ -590,6 +612,8 @@ class FFMController(http.Controller):
     @http.route('/ff/visit/farm', type='http', auth='user')
     def ff_visit_farm(self, **kw):
         ctx = self._get_app_context()
+        if ctx.get('is_management_only'):
+            return werkzeug.utils.redirect('/ff/manager', 303)
         today_date, _now_time = self._get_dhaka_date_and_time()
         employee = ctx['employee']
 
@@ -688,6 +712,8 @@ class FFMController(http.Controller):
     def ff_daily_expense_page(self, **kw):
         """Marketer Daily Expense form and today's submitted expenses."""
         ctx = self._get_app_context()
+        if ctx.get('is_management_only'):
+            return werkzeug.utils.redirect('/ff/manager', 303)
         today_date, _now_time = self._get_dhaka_date_and_time()
         employee = ctx['employee']
 
@@ -914,7 +940,9 @@ class FFMController(http.Controller):
 
         # 4. Target Employee selection
         target_employee = employee
-        report_type = kw.get('report_type') or 'personal'
+        report_type = kw.get('report_type')
+        if not report_type:
+            report_type = 'team' if ctx.get('is_management_only') else 'personal'
 
         if is_fp:
             # Field Person can ONLY view their own report card
@@ -928,7 +956,7 @@ class FFMController(http.Controller):
                 except (ValueError, TypeError):
                     target_emp_id_int = employee.id if employee else 0
 
-                if employee and target_emp_id_int == employee.id:
+                if employee and target_emp_id_int == employee.id and not ctx.get('is_management_only'):
                     target_employee = employee
                     report_type = 'personal'
                 else:
@@ -936,10 +964,12 @@ class FFMController(http.Controller):
                     if found:
                         target_employee = found[0]
                         report_type = 'individual'
+                    elif ctx.get('is_management_only'):
+                        report_type = 'team'
                     else:
                         target_employee = employee
                         report_type = 'personal'
-            elif kw.get('view') == 'team' or report_type in ('team', 'asm', 'rsm'):
+            elif kw.get('view') == 'team' or report_type in ('team', 'asm', 'rsm') or ctx.get('is_management_only'):
                 report_type = 'team'
             elif report_type == 'attendance':
                 target_employee = employee
