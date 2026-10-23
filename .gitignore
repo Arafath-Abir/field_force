@@ -11,6 +11,7 @@ field_force_management/
 *.tmp
 *.bak
 *.zip
+scratch/
 
 # Odoo configuration containing real database credentials
 odoo.conf

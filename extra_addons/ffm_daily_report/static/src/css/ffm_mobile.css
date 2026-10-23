@@ -383,64 +383,104 @@ body {
     pointer-events: none;
 }
 
-/* ── Form Cards & Controls (Compact) ────────────────────────────────────── */
+/* ── Form Cards & Controls (Industry Standard Corporate) ─────────────────── */
 .ffm-form-card {
-    background: var(--ffm-card-bg);
-    border: 1px solid var(--ffm-border);
-    border-radius: var(--ffm-radius);
-    padding: 14px 16px;
-    box-shadow: var(--ffm-shadow-sm);
-    margin-bottom: 14px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px 22px;
+    box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+    margin-bottom: 18px;
+}
+
+.ffm-form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.ffm-form-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 4px 0;
+    letter-spacing: -0.01em;
+}
+
+.ffm-form-subtitle {
+    font-size: 0.82rem;
+    color: #64748b;
+    margin: 0;
 }
 
 .ffm-form-group {
-    margin-bottom: 12px;
+    margin-bottom: 15px;
 }
 
 .ffm-form-label {
-    display: block;
-    font-size: 0.78rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.82rem;
     font-weight: 600;
-    margin-bottom: 4px;
-    color: #334155;
+    margin-bottom: 6px;
+    color: #1e293b;
     letter-spacing: -0.01em;
 }
 
 .ffm-form-control {
     width: 100%;
-    padding: 8px 11px;
+    min-height: 42px;
+    padding: 9px 13px;
     font-size: 15px; /* iOS zoom prevention */
     font-family: inherit;
-    border: 1px solid var(--ffm-border);
-    border-radius: var(--ffm-radius-sm);
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
     outline: none;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    transition: all 0.15s ease;
     background-color: #ffffff;
-    color: var(--ffm-text);
+    color: #0f172a;
+    box-sizing: border-box;
 }
 
 .ffm-form-control:focus {
-    border-color: var(--ffm-primary);
-    box-shadow: 0 0 0 2px var(--ffm-primary-focus);
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    background-color: #ffffff;
 }
 
-/* ── Buttons (Proportional) ─────────────────────────────────────────────── */
+/* Financial inputs with currency accent */
+.ffm-amount-group {
+    position: relative;
+}
+
+.ffm-amount-control {
+    font-weight: 600;
+    font-size: 1.02rem;
+    letter-spacing: -0.01em;
+}
+
+/* ── Buttons (Proportional & Polished) ─────────────────────────────────── */
 .ffm-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    min-height: 38px;
+    gap: 7px;
+    min-height: 42px;
     width: 100%;
-    padding: 7px 14px;
-    font-size: 0.84rem;
+    padding: 8px 16px;
+    font-size: 0.88rem;
     font-weight: 600;
     font-family: inherit;
-    border-radius: var(--ffm-radius-sm);
+    border-radius: 8px;
     border: 1px solid transparent;
     cursor: pointer;
     text-decoration: none;
-    transition: background 0.15s ease, transform 0.1s ease;
+    transition: all 0.15s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .ffm-btn:active {
@@ -448,23 +488,27 @@ body {
 }
 
 .ffm-btn-primary {
-    background-color: var(--ffm-primary);
+    background: linear-gradient(135deg, #107c41 0%, #0d6334 100%);
     color: #ffffff;
-    border-color: var(--ffm-primary);
+    border-color: #0d6334;
 }
 
 .ffm-btn-primary:hover {
-    background-color: var(--ffm-primary-dark);
+    background: linear-gradient(135deg, #0d6334 0%, #094725 100%);
+    box-shadow: 0 4px 12px rgba(16, 124, 65, 0.25);
+    color: #ffffff;
 }
 
 .ffm-btn-secondary {
-    background-color: #f1f5f9;
+    background-color: #ffffff;
     color: #334155;
     border-color: #cbd5e1;
 }
 
 .ffm-btn-secondary:hover {
-    background-color: #e2e8f0;
+    background-color: #f8fafc;
+    border-color: #94a3b8;
+    color: #0f172a;
 }
 
 .ffm-btn-danger {
@@ -476,16 +520,69 @@ body {
     opacity: 0.55;
     cursor: not-allowed;
     transform: none;
+    box-shadow: none;
+}
+
+/* ── Journey Card Widget ────────────────────────────────────────────────── */
+.ffm-journey-card {
+    background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+    border: 1.5px solid #cbd5e1;
+    border-radius: 10px;
+    padding: 16px;
+    margin: 18px 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.ffm-journey-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 12px;
+}
+
+/* ── Expense Card Widget ────────────────────────────────────────────────── */
+.ffm-expense-card {
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-left: 4px solid #3b82f6;
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ffm-expense-card:focus-within {
+    border-color: #cbd5e1;
+    border-left-color: #2563eb;
+    box-shadow: 0 3px 8px rgba(37, 99, 235, 0.08);
+}
+
+.ffm-upload-box {
+    background: #f8fafc;
+    border: 1.5px dashed #cbd5e1;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 10px;
+    transition: all 0.2s ease;
+}
+
+.ffm-upload-box:hover {
+    background: #eff6ff;
+    border-color: #93c5fd;
 }
 
 /* ── GPS Location Widget ────────────────────────────────────────────────── */
 .ffm-gps-box {
-    background: #f8fafc;
-    border: 1px dashed #cbd5e1;
-    border-radius: var(--ffm-radius);
-    padding: 12px;
+    background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+    border: 1.5px dashed #86efac;
+    border-radius: 10px;
+    padding: 18px;
     text-align: center;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
 }
 
 .ffm-gps-coords {
@@ -685,5 +782,111 @@ body {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+    }
+}
+
+/* ── Desktop Professional Corporate Refinements (Desktop Viewport) ────── */
+@media (min-width: 1024px) {
+    .ffm-container {
+        max-width: 1400px;
+        padding: 24px 36px;
+    }
+
+    .ffm-header {
+        padding: 12px 36px !important;
+    }
+
+    .ffm-header-title {
+        font-size: 1.15rem;
+    }
+
+    .ffm-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 16px !important;
+    }
+
+    .ffm-tile {
+        padding: 20px 16px !important;
+        min-height: 125px !important;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .ffm-tile:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    .ffm-tile-title {
+        font-size: 0.95rem !important;
+        margin-top: 4px;
+    }
+
+    .ffm-tile-subtitle {
+        font-size: 0.8rem !important;
+    }
+
+    .ffm-form-card {
+        padding: 24px 28px !important;
+        border-radius: 10px !important;
+    }
+
+    .ffm-status-card {
+        padding: 18px 24px !important;
+        border-radius: 10px !important;
+    }
+
+    /* Industry-Standard Desktop Tables */
+    .ffm-table-responsive {
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        margin-bottom: 20px;
+    }
+
+    .ffm-table-responsive table {
+        font-size: 0.86rem;
+    }
+
+    .ffm-table-responsive th {
+        padding: 10px 14px;
+        font-size: 0.78rem;
+        background: #f8fafc;
+        border-bottom: 2px solid #e2e8f0;
+        letter-spacing: 0.03em;
+    }
+
+    .ffm-table-responsive td {
+        padding: 11px 14px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .ffm-table-responsive tbody tr:hover td {
+        background-color: #f8fafc;
+    }
+
+    /* Desktop Form Grids */
+    .ffm-form-grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    .ffm-form-grid-3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 16px;
+    }
+
+    /* Tabs Bar Desktop */
+    .ffm-tabs-nav {
+        gap: 8px;
+        padding-bottom: 6px;
+        margin-bottom: 18px;
+    }
+
+    .ffm-tab-pill {
+        padding: 8px 18px;
+        font-size: 0.88rem;
+        border-radius: 6px;
     }
 }

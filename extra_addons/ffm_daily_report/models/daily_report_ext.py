@@ -29,6 +29,47 @@ class DailyReport(models.Model):
         for rec in self:
             rec.total_expense_tk = sum(rec.expense_ids.mapped('total_amount'))
 
+    attendance_record = fields.Many2one(
+        'ffm.attendance', string='Day Attendance', compute='_compute_attendance_record')
+
+    def _compute_attendance_record(self):
+        for rec in self:
+            rec.attendance_record = self.env['ffm.attendance'].sudo().search([
+                ('employee_id', '=', rec.employee_id.id),
+                ('date', '=', rec.date)
+            ], limit=1)
+
+    def get_live_chemist_totals(self):
+        self.ensure_one()
+        lines = self.chemist_visit_ids
+        sum_order = sum(lines.mapped('order_tk'))
+        sum_sale = sum(lines.mapped('sale_tk'))
+        sum_coll = sum(lines.mapped('coll_tk'))
+        return {
+            'order': sum_order if sum_order > 0 else self.total_order_tk,
+            'sale': sum_sale if sum_sale > 0 else self.total_sale_tk,
+            'coll': sum_coll if sum_coll > 0 else self.total_coll_tk,
+            'count': len(lines),
+        }
+
+    def get_live_journey_totals(self):
+        self.ensure_one()
+        legs = self.travel_log_ids.mapped('journey_ids')
+        sum_dist = sum(legs.mapped('distance_km'))
+        sum_fare = sum(legs.mapped('fare_tk'))
+        log_fare = sum(self.travel_log_ids.mapped('total_fare_tk'))
+        log_dist = sum(self.travel_log_ids.mapped('total_distance_km'))
+        return {
+            'distance': sum_dist if sum_dist > 0 else log_dist,
+            'fare': sum_fare if sum_fare > 0 else log_fare,
+            'legs_count': len(legs),
+        }
+
+    def get_live_expense_total(self):
+        self.ensure_one()
+        sum_exp = sum(self.expense_ids.mapped('total_amount'))
+        return sum_exp if sum_exp > 0 else self.total_expense_tk
+
     @classmethod
     def get_dhaka_today(cls):
         tz = pytz.timezone('Asia/Dhaka')

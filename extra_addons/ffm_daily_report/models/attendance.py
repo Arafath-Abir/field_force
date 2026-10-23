@@ -84,14 +84,15 @@ class FFMAttendance(models.Model):
                 _logger.info("Idempotent hit: Attendance already recorded with client_uuid %s", client_uuid)
                 return existing
 
-        # Friendly check 2: Check if employee already checked in today
+        # Enforce exactly one attendance per calendar date
         existing_today = self.sudo().search([
             ('employee_id', '=', employee.id),
             ('date', '=', server_today)
         ], limit=1)
         if existing_today:
-            _logger.info("Friendly check hit: Attendance already exists for employee %s on date %s", employee.name, server_today)
-            return existing_today
+            if client_uuid and existing_today.client_uuid == client_uuid:
+                return existing_today
+            raise UserError(_("Attendance has already been recorded for today (%s). You can only submit attendance once per calendar date.") % server_today)
 
         # Coordinate extraction & validation
         try:

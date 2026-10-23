@@ -70,10 +70,13 @@ class FFMHome(Home):
             if user.exists():
                 is_admin = (user._is_admin() or
                             user.has_group('field_force_management.group_ffm_admin') or
-                            user.has_group('base.group_system') or
-                            user.has_group('field_force_management.group_ffm_nsm') or
-                            user.has_group('field_force_management.group_ffm_director'))
+                            user.has_group('base.group_system'))
+                is_manager = user.has_group('field_force_management.group_ffm_nsm')
+                is_rsm = user.has_group('field_force_management.group_ffm_rsm')
+                is_asm = user.has_group('field_force_management.group_ffm_asm')
                 if is_admin:
+                    return '/ff/manager'
+                elif is_manager or is_rsm or is_asm:
                     return '/ff/manager'
                 elif user.has_group('field_force_management.group_ffm_field_person'):
                     return '/ff'
@@ -84,16 +87,21 @@ class FFMHome(Home):
         if request.session.uid:
             request.uid = request.session.uid
             user = request.env['res.users'].sudo().browse(request.session.uid)
-            if user.exists() and not kw.get('backend'):
+            if user.exists():
                 is_admin = (user._is_admin() or
                             user.has_group('field_force_management.group_ffm_admin') or
-                            user.has_group('base.group_system') or
-                            user.has_group('field_force_management.group_ffm_nsm') or
-                            user.has_group('field_force_management.group_ffm_director'))
+                            user.has_group('base.group_system'))
                 if is_admin:
-                    return werkzeug.utils.redirect('/ff/manager', 303)
-                elif user.has_group('field_force_management.group_ffm_field_person'):
-                    return werkzeug.utils.redirect('/ff', 303)
+                    if not kw.get('backend'):
+                        return werkzeug.utils.redirect('/ff/manager', 303)
+                else:
+                    is_manager = user.has_group('field_force_management.group_ffm_nsm')
+                    is_rsm = user.has_group('field_force_management.group_ffm_rsm')
+                    is_asm = user.has_group('field_force_management.group_ffm_asm')
+                    if is_manager or is_rsm or is_asm:
+                        return werkzeug.utils.redirect('/ff/manager', 303)
+                    elif user.has_group('field_force_management.group_ffm_field_person'):
+                        return werkzeug.utils.redirect('/ff', 303)
         return super(FFMHome, self).web_client(s_action=s_action, **kw)
 
 
@@ -104,33 +112,100 @@ class FFMController(http.Controller):
         now = datetime.now(tz)
         return now.date(), now.strftime('%I:%M %p')
 
+    def _generate_report_pdf(self, report):
+        """Render report to PDF using Odoo actions or resilient xhtml2pdf fallback."""
+        try:
+            pdf_content, _ = request.env.ref('ffm_daily_report.action_report_ffm_daily_report_pdf').sudo()._render_qweb_pdf(report.ids)
+            return pdf_content
+        except Exception:
+            from xhtml2pdf import pisa
+            import io
+            import re
+            html = request.env['ir.qweb']._render('ffm_daily_report.report_daily_report_pdf_document', {'docs': report})
+            if isinstance(html, bytes):
+                html = html.decode('utf-8')
+            cleaned = re.sub(r'<link[^>]*rel=[\"\']stylesheet[\"\'][^>]*>', '', html, flags=re.IGNORECASE)
+            cleaned = re.sub(r'<script[^>]*>.*?</script>', '', cleaned, flags=re.DOTALL | re.IGNORECASE)
+            out = io.BytesIO()
+            pisa.CreatePDF(cleaned, dest=out)
+            return out.getvalue()
+
+    def _generate_statement_pdf(self, statement):
+        """Render monthly statement to PDF using Odoo actions or resilient xhtml2pdf fallback."""
+        try:
+            pdf_content, _ = request.env.ref('ffm_daily_report.action_report_ffm_expense_statement_pdf').sudo()._render_qweb_pdf(statement.ids)
+            return pdf_content
+        except Exception:
+            from xhtml2pdf import pisa
+            import io
+            import re
+            html = request.env['ir.qweb']._render('ffm_daily_report.report_expense_statement_pdf_document', {'docs': statement})
+            if isinstance(html, bytes):
+                html = html.decode('utf-8')
+            cleaned = re.sub(r'<link[^>]*rel=[\"\']stylesheet[\"\'][^>]*>', '', html, flags=re.IGNORECASE)
+            cleaned = re.sub(r'<script[^>]*>.*?</script>', '', cleaned, flags=re.DOTALL | re.IGNORECASE)
+            out = io.BytesIO()
+            pisa.CreatePDF(cleaned, dest=out)
+            return out.getvalue()
+
     def _get_app_context(self):
         user = request.env.user
         employee = user.employee_id or request.env['hr.employee'].sudo().search([('user_id', '=', user.id)], limit=1)
         territory = user.territory_id if hasattr(user, 'territory_id') else False
         app_name = request.env['ir.config_parameter'].sudo().get_param('ffm.app_name', default='Newtec FFM')
+        
+        is_super_admin = (user._is_admin() or user.has_group('field_force_management.group_ffm_admin') or user.has_group('base.group_system'))
+        is_manager = user.has_group('field_force_management.group_ffm_nsm') and not is_super_admin
+        is_rsm = user.has_group('field_force_management.group_ffm_rsm') and not (is_super_admin or is_manager)
+        is_asm = user.has_group('field_force_management.group_ffm_asm') and not (is_super_admin or is_manager or is_rsm)
+        is_fp = not (is_super_admin or is_manager or is_rsm or is_asm)
+
+        if is_super_admin:
+            panel_title = 'Super Admin Panel'
+            role_badge = 'Super Admin'
+        elif is_manager:
+            panel_title = 'Manager Panel'
+            role_badge = 'Manager'
+        elif is_rsm:
+            panel_title = 'RSM Panel'
+            role_badge = 'RSM'
+        elif is_asm:
+            panel_title = 'ASM Panel'
+            role_badge = 'ASM'
+        else:
+            panel_title = 'Field Person Portal'
+            role_badge = 'Field Person'
+
         return {
             'user': user,
             'user_name': user.name,
             'employee': employee,
             'territory': territory,
             'app_name': app_name,
+            'is_super_admin': is_super_admin,
+            'is_manager': is_manager,
+            'is_rsm': is_rsm,
+            'is_asm': is_asm,
+            'is_fp': is_fp,
+            'panel_title': panel_title,
+            'role_badge': role_badge,
         }
 
     # ── 1. Dashboard ────────────────────────────────────────────────────────
     @http.route('/ff', type='http', auth='user')
     def ff_dashboard(self, **kw):
-        """Field activities mobile start page with the 8 tiles.
-        Accessible to Field Person, ASM, and RSM to perform their daily field entries.
-        System admin users land on /ff/manager unless marketer_view is explicitly requested.
+        """Field activities start page with the 8 tiles.
+        Field Person lands here directly.
+        Super Admin, Manager, RSM, ASM land on /ff/manager unless marketer_view is explicitly requested.
         """
         user = request.env.user
-        is_admin = (request.env.is_admin() or
-                    user.has_group('field_force_management.group_ffm_admin') or
-                    user.has_group('base.group_system') or
-                    user.has_group('field_force_management.group_ffm_nsm') or
-                    user.has_group('field_force_management.group_ffm_director'))
-        if is_admin and not kw.get('marketer_view'):
+        is_supervisor = (request.env.is_admin() or
+                         user.has_group('field_force_management.group_ffm_admin') or
+                         user.has_group('base.group_system') or
+                         user.has_group('field_force_management.group_ffm_nsm') or
+                         user.has_group('field_force_management.group_ffm_rsm') or
+                         user.has_group('field_force_management.group_ffm_asm'))
+        if is_supervisor and not kw.get('marketer_view'):
             return werkzeug.utils.redirect('/ff/manager')
 
         ctx = self._get_app_context()
@@ -149,13 +224,20 @@ class FFMController(http.Controller):
                 ('date', '=', today_date)
             ], limit=1)
 
-        # Manager status and subordinate metrics for ASM / RSM
-        is_rsm = user.has_group('field_force_management.group_ffm_rsm')
-        is_asm = user.has_group('field_force_management.group_ffm_asm') and not is_rsm
-        is_manager = is_asm or is_rsm or is_admin
+        # Manager status and subordinate metrics for ASM / RSM / Manager
+        is_super_admin = ctx.get('is_super_admin', False)
+        is_manager = ctx.get('is_manager', False)
+        is_rsm = ctx.get('is_rsm', False)
+        is_asm = ctx.get('is_asm', False)
+        is_supervisor = is_super_admin or is_manager or is_rsm or is_asm
 
         subordinates = request.env['hr.employee'].browse([])
-        if is_rsm and employee:
+        if (is_super_admin or is_manager) and employee:
+            subordinates = request.env['hr.employee'].sudo().search([
+                ('active', '=', True),
+                ('id', '!=', employee.id)
+            ], order='name')
+        elif is_rsm and employee:
             subordinates = request.env['hr.employee'].sudo().search([
                 ('active', '=', True),
                 ('id', 'child_of', employee.id),
@@ -171,7 +253,7 @@ class FFMController(http.Controller):
         pending_reports_count = 0
         present_count = 0
         if sub_ids:
-            if is_admin:
+            if is_super_admin or is_manager:
                 approvable_sub_ids = sub_ids
             elif employee:
                 approvable_sub_ids = request.env['hr.employee'].sudo().search([
@@ -194,7 +276,7 @@ class FFMController(http.Controller):
             'today_str': today_date.strftime('%d %B, %Y'),
             'attendance_today': bool(attendance_today),
             'today_report': today_report,
-            'is_manager': is_manager,
+            'is_manager': is_supervisor,
             'is_asm': is_asm,
             'is_rsm': is_rsm,
             'sub_count': len(subordinates),
@@ -248,7 +330,7 @@ class FFMController(http.Controller):
     # ── 3. Daily Report Header ──────────────────────────────────────────────
     @http.route('/ff/report/daily', type='http', auth='user')
     def ff_daily_report(self, **kw):
-        """View or initialize today's daily report."""
+        """View or initialize today's daily report (strictly current date)."""
         ctx = self._get_app_context()
         today_date, _now_time = self._get_dhaka_date_and_time()
         employee = ctx['employee']
@@ -761,14 +843,19 @@ class FFMController(http.Controller):
         today_date, _now_time = self._get_dhaka_date_and_time()
         employee = ctx['employee']
 
-        selected_date_str = kw.get('date')
-        if selected_date_str:
-            try:
-                query_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
-            except ValueError:
-                query_date = today_date
-        else:
+        if ctx.get('is_fp'):
+            # Field Person strictly restricted to today's date only:
+            # "field person to monthly report dekhte parbe na. shudhu jedin dekhbe sediner shudhu matro calender date er ta dekhte parbe. er agar o dekhte parbe na porer o na."
             query_date = today_date
+        else:
+            selected_date_str = kw.get('date')
+            if selected_date_str:
+                try:
+                    query_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
+                except ValueError:
+                    query_date = today_date
+            else:
+                query_date = today_date
 
         report = False
         chemist_visits = []
@@ -839,16 +926,28 @@ class FFMController(http.Controller):
     # ── 8. Daily & Monthly Report Cards (Phase 5) ───────────────────────────
     @http.route('/ff/report/cards', type='http', auth='user')
     def ff_report_cards(self, **kw):
-        """Daily & Monthly Report Cards with role scoping, team attendance, and pagination."""
+        """Daily & Monthly Report Cards with role scoping, team attendance, search and pagination."""
         ctx = self._get_app_context()
         today_date, _now_time = self._get_dhaka_date_and_time()
         employee = ctx['employee']
         user = request.env.user
 
-        mode = kw.get('mode') or 'daily'  # 'daily' or 'monthly'
-        report_type = kw.get('report_type') or 'personal'  # 'personal', 'asm', 'attendance', 'individual', 'rsm'
+        is_super_admin = ctx.get('is_super_admin', False)
+        is_manager = ctx.get('is_manager', False)
+        is_rsm = ctx.get('is_rsm', False)
+        is_asm = ctx.get('is_asm', False)
+        is_fp = ctx.get('is_fp', False)
 
-        # Date calculations
+        search_query = (kw.get('search') or '').strip()
+
+        # 1. Mode determination
+        if is_fp:
+            # Field Person is strictly daily reports for any calendar date
+            mode = 'daily'
+        else:
+            mode = kw.get('mode') or 'daily'  # 'daily' or 'monthly'
+
+        # 2. Date / Period calculations
         if mode == 'daily':
             date_str = kw.get('date')
             if date_str:
@@ -862,7 +961,7 @@ class FFMController(http.Controller):
             date_end = query_date
             period_label = query_date.strftime('%d %B, %Y')
         else:
-            # Monthly
+            # Monthly mode
             period = kw.get('period') or 'current'  # 'current', 'last_30_days', 'prev'
             if period == 'last_30_days':
                 date_start = today_date - timedelta(days=30)
@@ -875,43 +974,85 @@ class FFMController(http.Controller):
                 date_end = last_prev_month
                 period_label = date_start.strftime('%B, %Y')
             else:
-                # Current month
                 date_start = today_date.replace(day=1)
                 date_end = today_date
                 period_label = date_start.strftime('%B, %Y')
 
-        # Subordinates & Scoping (strict adherence to hierarchy)
-        is_higher_role = (
-            user.has_group('field_force_management.group_ffm_admin') or
-            user.has_group('field_force_management.group_ffm_director') or
-            user.has_group('field_force_management.group_ffm_nsm')
-        )
-        if is_higher_role:
-            allowed_subordinates = request.env['hr.employee'].sudo().search([('active', '=', True)], order='name asc')
-        elif employee:
-            allowed_subordinates = request.env['hr.employee'].sudo().search([('id', 'child_of', employee.id), ('active', '=', True)], order='name asc')
+        # 3. Subordinates strictly by hierarchy
+        if is_super_admin or is_manager:
+            # Manager Panel: all active field personnel across company
+            all_active = request.env['hr.employee'].sudo().search([('active', '=', True)], order='name asc')
+            subordinates = all_active.filtered(lambda e: e.user_id != user)
+        elif is_rsm and employee:
+            # RSM: all ASMs under him + Field Persons under those ASMs
+            subordinates = request.env['hr.employee'].sudo().search([
+                ('active', '=', True),
+                ('id', 'child_of', employee.id),
+                ('id', '!=', employee.id)
+            ], order='name asc')
+        elif is_asm and employee:
+            # ASM: Field Persons directly reporting to him
+            subordinates = request.env['hr.employee'].sudo().search([
+                ('active', '=', True),
+                ('parent_id', '=', employee.id)
+            ], order='name asc')
         else:
-            allowed_subordinates = request.env['hr.employee'].sudo().browse([])
+            # Field Person: No subordinates
+            subordinates = request.env['hr.employee'].sudo().browse([])
 
-        # Target employee for individual / personal report
+        # Filter subordinates by search query if present
+        filtered_subordinates = subordinates
+        if search_query:
+            filtered_subordinates = subordinates.filtered(
+                lambda e: search_query.lower() in (e.name or '').lower() or
+                          search_query.lower() in (e.job_id.name or '').lower() or
+                          search_query.lower() in (e.hq or '').lower()
+            )
+
+        # 4. Target Employee selection
         target_employee = employee
-        if report_type == 'individual':
+        report_type = kw.get('report_type') or 'personal'
+
+        if is_fp:
+            # Field Person can ONLY view their own report card
+            target_employee = employee
+            report_type = 'personal'
+        else:
             target_emp_id = kw.get('employee_id')
             if target_emp_id:
                 try:
-                    found = allowed_subordinates.filtered(lambda e: e.id == int(target_emp_id))
+                    target_emp_id_int = int(target_emp_id)
+                except (ValueError, TypeError):
+                    target_emp_id_int = employee.id if employee else 0
+
+                if employee and target_emp_id_int == employee.id:
+                    target_employee = employee
+                    report_type = 'personal'
+                else:
+                    found = subordinates.filtered(lambda e: e.id == target_emp_id_int)
                     if found:
                         target_employee = found[0]
-                except (ValueError, TypeError):
-                    pass
+                        report_type = 'individual'
+                    else:
+                        target_employee = employee
+                        report_type = 'personal'
+            elif kw.get('view') == 'team' or report_type in ('team', 'asm', 'rsm'):
+                report_type = 'team'
+            elif report_type == 'attendance':
+                target_employee = employee
+            else:
+                target_employee = employee
+                report_type = 'personal'
 
         # Pagination setup
         page = max(1, int(kw.get('page') or 1))
-        limit = 10
+        limit = 15
 
-        # Context output variables
+        # Output collections
         attendance_summary = {}
-        target_reports = []
+        target_report = False
+        report_state = 'none'
+        single_day_attendance = False
         chemist_visits = []
         doctor_visits = []
         farm_visits = []
@@ -931,49 +1072,28 @@ class FFMController(http.Controller):
         total_pages = 1
         total_items = 0
 
-        # ── Scenario A: Territory Attendance ──────────────────────────────
-        if report_type == 'attendance':
-            emp_ids = allowed_subordinates.ids
-            attendances = request.env['ffm.attendance'].sudo().search([
-                ('employee_id', 'in', emp_ids),
-                ('date', '=', date_start)
-            ])
-            att_map = {att.employee_id.id: att for att in attendances}
-            present_list = []
-            absent_list = []
-            for emp in allowed_subordinates:
-                if emp.id in att_map:
-                    present_list.append({
-                        'employee': emp,
-                        'attendance': att_map[emp.id],
-                    })
-                else:
-                    absent_list.append({
-                        'employee': emp,
-                    })
-
-            attendance_summary = {
-                'total_strength': len(allowed_subordinates),
-                'present_count': len(present_list),
-                'absent_count': len(absent_list),
-                'present_list': present_list,
-                'absent_list': absent_list,
-            }
-
-        # ── Scenario B: ASM / RSM Team Reports ────────────────────────────
-        elif report_type in ('asm', 'rsm'):
-            emp_ids = allowed_subordinates.ids
+        # ── Scenario A: Team Overview (ASM / RSM / Manager Panel) ─────────────
+        if report_type == 'team' and not is_fp:
+            emp_ids = filtered_subordinates.ids
             reports = request.env['ffm.daily.report'].sudo().search([
                 ('employee_id', 'in', emp_ids),
                 ('date', '>=', date_start),
                 ('date', '<=', date_end),
             ], order='date desc')
 
-            # Aggregate per employee
+            # Pre-fetch attendance for date_start
+            attendances = request.env['ffm.attendance'].sudo().search([
+                ('employee_id', 'in', emp_ids),
+                ('date', '=', date_start)
+            ])
+            att_map = {att.employee_id.id: att for att in attendances}
+
+            # Map metrics per subordinate
             emp_metrics = {}
-            for emp in allowed_subordinates:
+            for emp in filtered_subordinates:
                 emp_metrics[emp.id] = {
                     'employee': emp,
+                    'attendance': att_map.get(emp.id, False),
                     'reports_count': 0,
                     'order': 0.0,
                     'sale': 0.0,
@@ -984,6 +1104,7 @@ class FFMController(http.Controller):
                     'distance': 0.0,
                     'fare': 0.0,
                     'expense': 0.0,
+                    'latest_state': False,
                 }
 
             for rep in reports:
@@ -991,6 +1112,8 @@ class FFMController(http.Controller):
                 if eid in emp_metrics:
                     m = emp_metrics[eid]
                     m['reports_count'] += 1
+                    if not m['latest_state']:
+                        m['latest_state'] = rep.state
                     m['order'] += rep.total_order_tk
                     m['sale'] += rep.total_sale_tk
                     m['coll'] += rep.total_coll_tk
@@ -1020,44 +1143,100 @@ class FFMController(http.Controller):
             total_pages = max(1, math.ceil(total_items / limit))
             team_members_data = all_team_list[(page - 1) * limit : page * limit]
 
-        # ── Scenario C: Personal / Individual Report ──────────────────────
+        # ── Scenario Attendance: Territory Attendance ──────────────────────────
+        elif report_type == 'attendance' and not is_fp:
+            present_records = request.env['ffm.attendance'].sudo().search([
+                ('employee_id', 'in', filtered_subordinates.ids),
+                ('date', '=', date_start)
+            ])
+            present_map = {a.employee_id.id: a for a in present_records}
+            present_list = [{'employee': a.employee_id, 'attendance': a} for a in present_records]
+            absent_list = [{'employee': e} for e in filtered_subordinates if e.id not in present_map]
+            attendance_summary = {
+                'total_strength': len(filtered_subordinates),
+                'present_count': len(present_list),
+                'absent_count': len(absent_list),
+                'present_list': present_list,
+                'absent_list': absent_list,
+            }
+
+        # ── Scenario B: Individual / Personal Report (Latest Live Data) ───────
         else:
             if target_employee:
-                target_reports = request.env['ffm.daily.report'].sudo().search([
-                    ('employee_id', '=', target_employee.id),
-                    ('date', '>=', date_start),
-                    ('date', '<=', date_end),
-                ], order='date desc')
+                if mode == 'daily':
+                    # Single day attendance
+                    single_day_attendance = request.env['ffm.attendance'].sudo().search([
+                        ('employee_id', '=', target_employee.id),
+                        ('date', '=', date_start)
+                    ], limit=1)
 
-                for rep in target_reports:
-                    total_order += rep.total_order_tk
-                    total_sale += rep.total_sale_tk
-                    total_coll += rep.total_coll_tk
-                    total_chemists_count += rep.total_chemist_visited
-                    total_doctors_count += rep.total_prescriber_visited
-                    total_farms_count += rep.total_farm_visited
-                    total_expense += rep.total_expense_tk
-                    tl = rep.travel_log_ids[:1]
-                    if tl:
-                        total_distance += tl.total_distance_km
-                        total_fare += tl.total_fare_tk
-                        journey_legs.extend(tl.journey_ids)
+                    # Single day report
+                    target_report = request.env['ffm.daily.report'].sudo().search([
+                        ('employee_id', '=', target_employee.id),
+                        ('date', '=', date_start)
+                    ], limit=1)
 
-                    chemist_visits.extend(rep.chemist_visit_ids)
-                    doctor_visits.extend(rep.prescriber_visit_ids)
-                    farm_visits.extend(rep.farm_visit_ids)
+                    if target_report:
+                        report_state = target_report.state
+                        chemist_visits = list(target_report.chemist_visit_ids)
+                        doctor_visits = list(target_report.prescriber_visit_ids)
+                        farm_visits = list(target_report.farm_visit_ids)
+                        journey_legs = list(target_report.travel_log_ids.mapped('journey_ids'))
 
-                expenses = request.env['ffm.daily.expense'].sudo().search([
-                    ('employee_id', '=', target_employee.id),
-                    ('date', '>=', date_start),
-                    ('date', '<=', date_end),
-                ], order='date desc, id desc')
-                daily_expenses = expenses
+                        total_order = sum(c.order_tk for c in chemist_visits)
+                        total_sale = sum(c.sale_tk for c in chemist_visits)
+                        total_coll = sum(c.coll_tk for c in chemist_visits)
+                        total_distance = sum(j.distance_km for j in journey_legs)
+                        total_fare = sum(j.fare_tk for j in journey_legs)
+                    else:
+                        report_state = 'pending' if single_day_attendance else 'none'
 
-                # Paginate chemist visits if many
-                total_items = len(chemist_visits)
-                total_pages = max(1, math.ceil(total_items / limit))
-                chemist_visits = chemist_visits[(page - 1) * limit : page * limit]
+                    daily_expenses = list(request.env['ffm.daily.expense'].sudo().search([
+                        ('employee_id', '=', target_employee.id),
+                        ('date', '=', date_start)
+                    ], order='id desc'))
+                    total_expense = sum(e.total_amount for e in daily_expenses)
+
+                else:
+                    # Monthly mode
+                    monthly_reports = request.env['ffm.daily.report'].sudo().search([
+                        ('employee_id', '=', target_employee.id),
+                        ('date', '>=', date_start),
+                        ('date', '<=', date_end),
+                    ], order='date desc, id desc')
+
+                    for rep in monthly_reports:
+                        chem_list = list(rep.chemist_visit_ids)
+                        doc_list = list(rep.prescriber_visit_ids)
+                        farm_list = list(rep.farm_visit_ids)
+                        legs_list = list(rep.travel_log_ids.mapped('journey_ids'))
+
+                        chemist_visits.extend(chem_list)
+                        doctor_visits.extend(doc_list)
+                        farm_visits.extend(farm_list)
+                        journey_legs.extend(legs_list)
+
+                        total_order += (sum(c.order_tk for c in chem_list) or rep.total_order_tk)
+                        total_sale += (sum(c.sale_tk for c in chem_list) or rep.total_sale_tk)
+                        total_coll += (sum(c.coll_tk for c in chem_list) or rep.total_coll_tk)
+                        total_distance += sum(j.distance_km for j in legs_list)
+                        total_fare += sum(j.fare_tk for j in legs_list)
+
+                    if monthly_reports:
+                        report_state = monthly_reports[0].state
+                    else:
+                        report_state = 'none'
+
+                    daily_expenses = list(request.env['ffm.daily.expense'].sudo().search([
+                        ('employee_id', '=', target_employee.id),
+                        ('date', '>=', date_start),
+                        ('date', '<=', date_end),
+                    ], order='date desc, id desc'))
+                    total_expense = sum(e.total_amount for e in daily_expenses)
+
+                total_chemists_count = len(chemist_visits)
+                total_doctors_count = len(doctor_visits)
+                total_farms_count = len(farm_visits)
 
         # Doctor grades count
         grade_counts = {'a_plus': 0, 'a': 0, 'b': 0, 'c': 0}
@@ -1065,22 +1244,17 @@ class FFMController(http.Controller):
             if d.grade in grade_counts:
                 grade_counts[d.grade] += 1
 
-        # Attendance record for single day view
-        single_day_attendance = False
-        if mode == 'daily' and target_employee:
-            single_day_attendance = request.env['ffm.attendance'].sudo().search([
-                ('employee_id', '=', target_employee.id),
-                ('date', '=', date_start)
-            ], limit=1)
-
         ctx.update({
             'mode': mode,
             'report_type': report_type,
             'query_date': str(date_start),
             'period_label': period_label,
-            'allowed_subordinates': allowed_subordinates,
+            'allowed_subordinates': subordinates,
+            'filtered_subordinates': filtered_subordinates,
+            'search_query': search_query,
             'target_employee': target_employee,
-            'attendance_summary': attendance_summary,
+            'target_report': target_report,
+            'report_state': report_state,
             'single_day_attendance': single_day_attendance,
             'team_members_data': team_members_data,
             'chemist_visits': chemist_visits,
@@ -1108,38 +1282,84 @@ class FFMController(http.Controller):
 
     @http.route('/ff/report/daily/pdf', type='http', auth='user')
     def ff_report_daily_pdf(self, **kw):
-        """Direct stream download of Daily Report PDF with Bengali font."""
+        """Direct stream download of Daily Report PDF with hierarchy scoping and auto-initialization."""
         user = request.env.user
         employee = user.employee_id or request.env['hr.employee'].sudo().search([('user_id', '=', user.id)], limit=1)
-        target_emp_id = kw.get('employee_id')
-        if target_emp_id:
-            target_emp = request.env['hr.employee'].sudo().browse(int(target_emp_id))
-            allowed = request.env['hr.employee'].search([('id', 'child_of', employee.id)]).ids
-            if (target_emp.id in allowed or
-                user.has_group('field_force_management.group_ffm_nsm') or
-                user.has_group('field_force_management.group_ffm_director') or
-                user.has_group('field_force_management.group_ffm_admin')):
-                employee = target_emp
+        
+        is_super_admin = (user._is_admin() or user.has_group('field_force_management.group_ffm_admin') or user.has_group('base.group_system'))
+        is_manager = user.has_group('field_force_management.group_ffm_nsm') or user.has_group('field_force_management.group_ffm_director')
+        is_rsm = user.has_group('field_force_management.group_ffm_rsm')
+        is_asm = user.has_group('field_force_management.group_ffm_asm')
+        is_fp = not (is_super_admin or is_manager or is_rsm or is_asm)
 
-        query_date_str = kw.get('date')
-        if query_date_str:
+        report = False
+        today_date, _ = self._get_dhaka_date_and_time()
+
+        if kw.get('report_id'):
             try:
-                q_date = datetime.strptime(query_date_str, '%Y-%m-%d').date()
-            except ValueError:
-                q_date = date.today()
+                report = request.env['ffm.daily.report'].sudo().browse(int(kw['report_id']))
+            except (ValueError, TypeError):
+                report = False
         else:
-            q_date = date.today()
+            if kw.get('employee_id'):
+                try:
+                    target_emp_id = int(kw['employee_id'])
+                except (ValueError, TypeError):
+                    target_emp_id = employee.id if employee else False
+            elif employee:
+                target_emp_id = employee.id
+            else:
+                target_emp_id = False
 
-        report = request.env['ffm.daily.report'].sudo().search([
-            ('employee_id', '=', employee.id),
-            ('date', '=', q_date)
-        ], limit=1)
+            query_date_str = kw.get('date')
+            if query_date_str:
+                try:
+                    q_date = datetime.strptime(query_date_str, '%Y-%m-%d').date()
+                except ValueError:
+                    q_date = today_date
+            else:
+                q_date = today_date
 
-        if not report:
+            if target_emp_id:
+                report = request.env['ffm.daily.report'].sudo().search([
+                    ('employee_id', '=', target_emp_id),
+                    ('date', '=', q_date)
+                ], limit=1)
+
+                if not report:
+                    # Auto-initialize a draft daily report so PDF can be rendered with attendance and 'PENDING' status
+                    report = request.env['ffm.daily.report'].sudo().create({
+                        'employee_id': target_emp_id,
+                        'date': q_date,
+                        'state': 'draft',
+                    })
+
+        if not report or not report.exists():
             return request.not_found()
 
-        pdf_content, _ = request.env.ref('ffm_daily_report.action_report_ffm_daily_report_pdf').sudo()._render_qweb_pdf(report.ids)
-        pdf_filename = f"Daily_Report_{employee.name}_{q_date}.pdf"
+        # Permission check based on hierarchy
+        allowed = False
+        if is_super_admin or is_manager:
+            # Manager panel / Super Admin: any report
+            allowed = True
+        elif is_rsm and employee:
+            # RSM: self, ASMs under him, or Field Persons under those ASMs
+            rsm_subs = request.env['hr.employee'].sudo().search([('id', 'child_of', employee.id)]).ids
+            allowed = (report.employee_id.id in rsm_subs or report.employee_id.id == employee.id)
+        elif is_asm and employee:
+            # ASM: self or direct Field Persons
+            asm_subs = request.env['hr.employee'].sudo().search([('parent_id', '=', employee.id)]).ids
+            allowed = (report.employee_id.id in asm_subs or report.employee_id.id == employee.id)
+        else:
+            # Field Person: strictly own report for any calendar date
+            allowed = bool(employee and report.employee_id.id == employee.id)
+
+        if not allowed:
+            return Response("Forbidden: Access Denied", status=403)
+
+        pdf_content = self._generate_report_pdf(report)
+        emp_clean_name = (report.employee_id.name or 'Staff').replace(' ', '_').replace('/', '_')
+        pdf_filename = f"Daily_Report_{emp_clean_name}_{report.date}.pdf"
         return Response(
             pdf_content,
             headers=[
@@ -1151,8 +1371,11 @@ class FFMController(http.Controller):
     # ── 8b. Monthly Expense Statement Portal Routes ─────────────────────────
     @http.route('/ff/statement', type='http', auth='user')
     def ff_statement(self, **kw):
-        """View monthly expense statement for logged in marketer."""
+        """View monthly expense statement (Supervisors/Managers only; Field Person blocked)."""
         ctx = self._get_app_context()
+        if ctx.get('is_fp'):
+            return werkzeug.utils.redirect('/ff')
+
         employee = ctx['employee']
         today_date, _ = self._get_dhaka_date_and_time()
 
@@ -1181,6 +1404,9 @@ class FFMController(http.Controller):
     def ff_statement_generate(self, **kw):
         """Generate or refresh monthly expense statement for the selected period."""
         ctx = self._get_app_context()
+        if ctx.get('is_fp'):
+            return werkzeug.utils.redirect('/ff')
+
         employee = ctx['employee']
         if not employee:
             return werkzeug.utils.redirect('/ff')
@@ -1215,6 +1441,9 @@ class FFMController(http.Controller):
     def ff_statement_submit(self, **kw):
         """Submit the statement for superior approval."""
         ctx = self._get_app_context()
+        if ctx.get('is_fp'):
+            return werkzeug.utils.redirect('/ff')
+
         employee = ctx['employee']
         statement_id = kw.get('statement_id')
         remarks = kw.get('remarks')
@@ -1231,30 +1460,73 @@ class FFMController(http.Controller):
 
     @http.route('/ff/statement/pdf', type='http', auth='user')
     def ff_statement_pdf(self, **kw):
-        """Download Monthly Expense Statement PDF."""
-        ctx = self._get_app_context()
-        employee = ctx['employee']
+        """Download Monthly Expense Statement PDF in clean table format."""
+        user = request.env.user
+        is_super_admin = (user._is_admin() or user.has_group('field_force_management.group_ffm_admin') or user.has_group('base.group_system'))
+        is_manager = user.has_group('field_force_management.group_ffm_nsm')
+        is_rsm = user.has_group('field_force_management.group_ffm_rsm')
+        is_asm = user.has_group('field_force_management.group_ffm_asm')
+        is_fp = not (is_super_admin or is_manager or is_rsm or is_asm)
+
+        if is_fp:
+            # Field Person cannot download monthly expense statement PDF
+            return werkzeug.utils.redirect('/ff')
+
+        employee = user.employee_id or request.env['hr.employee'].sudo().search([('user_id', '=', user.id)], limit=1)
         today_date, _ = self._get_dhaka_date_and_time()
 
-        selected_month = kw.get('month') or f"{today_date.month:02d}"
-        try:
-            selected_year = int(kw.get('year') or today_date.year)
-        except (ValueError, TypeError):
-            selected_year = today_date.year
-
         statement = False
-        if employee:
+        if kw.get('statement_id'):
+            try:
+                statement = request.env['ffm.expense.statement'].sudo().browse(int(kw['statement_id']))
+            except (ValueError, TypeError):
+                statement = False
+        elif kw.get('employee_id'):
+            target_emp_id = int(kw.get('employee_id'))
+            selected_month = kw.get('month') or f"{today_date.month:02d}"
+            try:
+                selected_year = int(kw.get('year') or today_date.year)
+            except (ValueError, TypeError):
+                selected_year = today_date.year
             statement = request.env['ffm.expense.statement'].sudo().search([
-                ('employee_id', '=', employee.id),
+                ('employee_id', '=', target_emp_id),
                 ('month', '=', selected_month),
                 ('year', '=', selected_year),
             ], limit=1)
+        else:
+            selected_month = kw.get('month') or f"{today_date.month:02d}"
+            try:
+                selected_year = int(kw.get('year') or today_date.year)
+            except (ValueError, TypeError):
+                selected_year = today_date.year
+            if employee:
+                statement = request.env['ffm.expense.statement'].sudo().search([
+                    ('employee_id', '=', employee.id),
+                    ('month', '=', selected_month),
+                    ('year', '=', selected_year),
+                ], limit=1)
 
-        if not statement:
+        if not statement or not statement.exists():
             return request.not_found()
 
-        pdf_content, _ = request.env.ref('ffm_daily_report.action_report_ffm_expense_statement_pdf').sudo()._render_qweb_pdf(statement.ids)
-        pdf_filename = f"Monthly_Statement_{employee.name}_{selected_year}_{selected_month}.pdf"
+        # Hierarchy permission check
+        allowed = False
+        if is_super_admin or is_manager:
+            allowed = True
+        elif is_rsm and employee:
+            sub_ids = request.env['hr.employee'].sudo().search([('id', 'child_of', employee.id)]).ids
+            allowed = (statement.employee_id.id in sub_ids or statement.employee_id.id == employee.id)
+        elif is_asm and employee:
+            allowed = (statement.employee_id.parent_id.id == employee.id or statement.employee_id.id == employee.id)
+        else:
+            allowed = (employee and statement.employee_id.id == employee.id)
+
+        if not allowed:
+            return Response("Forbidden: Access Denied", status=403)
+
+        pdf_content = self._generate_statement_pdf(statement)
+        emp_clean_name = (statement.employee_id.name or 'Staff').replace(' ', '_').replace('/', '_')
+        pdf_filename = f"Monthly_Statement_{emp_clean_name}_{statement.year}_{statement.month}.pdf"
         return Response(
             pdf_content,
             headers=[
@@ -1357,69 +1629,61 @@ class FFMController(http.Controller):
         today_date, now_time_str = self._get_dhaka_date_and_time()
         employee = ctx['employee']
 
-        is_admin = (request.env.is_admin() or
-                    user.has_group('field_force_management.group_ffm_admin') or
-                    user.has_group('base.group_system') or
-                    user.has_group('field_force_management.group_ffm_nsm') or
-                    user.has_group('field_force_management.group_ffm_director'))
-        is_rsm = user.has_group('field_force_management.group_ffm_rsm') and not is_admin
-        is_asm = user.has_group('field_force_management.group_ffm_asm') and not is_rsm and not is_admin
+        is_super_admin = (request.env.is_admin() or
+                          user.has_group('field_force_management.group_ffm_admin') or
+                          user.has_group('base.group_system'))
+        is_manager = user.has_group('field_force_management.group_ffm_nsm') and not is_super_admin
+        is_rsm = user.has_group('field_force_management.group_ffm_rsm') and not (is_super_admin or is_manager)
+        is_asm = user.has_group('field_force_management.group_ffm_asm') and not (is_super_admin or is_manager or is_rsm)
 
-        if is_admin:
-            role_badge = 'System Administrator (Main Admin)'
+        if is_super_admin:
+            role_badge = 'Super Admin'
+            panel_title = 'Super Admin Panel'
+        elif is_manager:
+            role_badge = 'Manager'
+            panel_title = 'Manager Panel'
+        elif is_rsm:
+            role_badge = 'Regional Sales Manager (RSM)'
+            panel_title = 'RSM Panel'
+        elif is_asm:
+            role_badge = 'Area Sales Manager (ASM)'
+            panel_title = 'ASM Panel'
+        else:
+            role_badge = 'Field Person'
+            panel_title = 'Field Person Portal'
+
+        if is_super_admin or is_manager:
+            # Nationwide: all active subordinates in field force hierarchy
             all_active_emps = request.env['hr.employee'].sudo().search([
                 ('active', '=', True),
             ], order='name')
             subordinates = all_active_emps.filtered(
-                lambda e: (
-                    (e.user_id and (
-                        e.user_id.has_group('field_force_management.group_ffm_field_person') or
-                        e.user_id.has_group('field_force_management.group_ffm_asm') or
-                        e.user_id.has_group('field_force_management.group_ffm_rsm')
-                    ) and not (
-                        e.user_id.has_group('field_force_management.group_ffm_admin') or
-                        e.user_id.has_group('base.group_system')
-                    ))
-                    or (not e.user_id and e.branch_id)
-                )
+                lambda e: (e.user_id != user and not (e.user_id and e.user_id.login == 'admin'))
             )
+            approvable_subordinates = subordinates
         elif is_rsm and employee:
-            role_badge = 'Regional Sales Manager (RSM)'
             subordinates = request.env['hr.employee'].sudo().search([
                 ('active', '=', True),
                 ('id', 'child_of', employee.id),
                 ('id', '!=', employee.id)
             ], order='name')
-        elif employee:
-            role_badge = 'Area Sales Manager (ASM)'
+            approvable_subordinates = subordinates
+        elif is_asm and employee:
             subordinates = request.env['hr.employee'].sudo().search([
                 ('active', '=', True),
                 ('parent_id', '=', employee.id)
             ], order='name')
+            approvable_subordinates = subordinates
         else:
-            role_badge = 'Manager'
             subordinates = request.env['hr.employee'].browse([])
+            approvable_subordinates = request.env['hr.employee'].browse([])
 
         sub_ids = subordinates.ids
-
-        # Approvable subordinates:
-        # - ASM approves direct subordinates (Field Persons)
-        # - RSM approves direct subordinates (ASMs and any direct Field Persons)
-        # - Admin approves all subordinates
-        if is_admin:
-            approvable_subordinates = subordinates
-        elif (is_rsm or is_asm) and employee:
-            approvable_subordinates = request.env['hr.employee'].sudo().search([
-                ('active', '=', True),
-                ('parent_id', '=', employee.id),
-            ], order='name')
-        else:
-            approvable_subordinates = request.env['hr.employee'].browse([])
         approvable_sub_ids = approvable_subordinates.ids
 
         # Admin Management Data (Employees, Roles, Territories, Branches)
         emp_role_map = {}
-        if is_admin:
+        if is_super_admin:
             for emp in subordinates:
                 u = emp.user_id
                 jname = (emp.job_id.name or '').lower()
@@ -1441,7 +1705,7 @@ class FFMController(http.Controller):
             all_territories = request.env['territory.territory'].browse([])
             all_branches = request.env['aam.branch'].browse([])
 
-        # 1. Team Attendance Today
+        # 1. Team Attendance Today & Recent
         att_records = request.env['ffm.attendance'].sudo().search([
             ('employee_id', 'in', sub_ids),
             ('date', '=', today_date)
@@ -1449,7 +1713,7 @@ class FFMController(http.Controller):
         present_emp_ids = att_records.mapped('employee_id.id')
         absent_employees = subordinates.filtered(lambda e: e.id not in present_emp_ids)
 
-        # 2. Daily Reports (Pending Approval & Today)
+        # 2. Daily Reports (Pending Approval, Today & Recent History)
         pending_reports = request.env['ffm.daily.report'].sudo().search([
             ('employee_id', 'in', approvable_sub_ids),
             ('state', '=', 'submitted')
@@ -1458,37 +1722,39 @@ class FFMController(http.Controller):
             ('employee_id', 'in', sub_ids),
             ('date', '=', today_date)
         ], order='id desc')
+        all_recent_reports = request.env['ffm.daily.report'].sudo().search([
+            ('employee_id', 'in', sub_ids)
+        ], order='date desc, id desc', limit=50)
 
-        # 3. Customer & Field Visits Today
+        # 3. Customer & Field Visits Today & Recent
         chemist_visits = request.env['ffm.chemist.visit'].sudo().search([
             ('report_id.employee_id', 'in', sub_ids),
-            ('report_id.date', '=', today_date)
-        ], order='id desc')
+        ], order='id desc', limit=50)
         doctor_visits = request.env['ffm.prescriber.visit'].sudo().search([
             ('report_id.employee_id', 'in', sub_ids),
-            ('report_id.date', '=', today_date)
-        ], order='id desc')
+        ], order='id desc', limit=50)
         farm_visits = request.env['ffm.farm.visit'].sudo().search([
             ('report_id.employee_id', 'in', sub_ids),
-            ('report_id.date', '=', today_date)
-        ], order='id desc')
+        ], order='id desc', limit=50)
 
-        # 4. Daily Expenses Submitted Today
+        # 4. Daily Expenses Submitted
         team_expenses = request.env['ffm.daily.expense'].sudo().search([
             ('employee_id', 'in', sub_ids),
-            ('date', '=', today_date)
-        ], order='id desc')
+        ], order='date desc, id desc', limit=50)
 
-        # 5. Monthly Statements Pending Verification
+        # 5. Monthly Statements
         submitted_statements = request.env['ffm.expense.statement'].sudo().search([
             ('employee_id', 'in', approvable_sub_ids),
             ('state', '=', 'submitted')
         ], order='year desc, month desc, id desc')
+        all_team_statements = request.env['ffm.expense.statement'].sudo().search([
+            ('employee_id', 'in', sub_ids)
+        ], order='year desc, month desc, id desc', limit=50)
 
-        # Aggregate Metrics
-        total_order_today = sum(chemist_visits.mapped('order_tk'))
-        total_sale_today = sum(chemist_visits.mapped('sale_tk'))
-        total_coll_today = sum(chemist_visits.mapped('coll_tk'))
+        # Aggregate Metrics (Today or Overall)
+        total_order_today = sum(today_reports.mapped('total_order_tk')) if today_reports else sum(chemist_visits.mapped('order_tk'))
+        total_sale_today = sum(today_reports.mapped('total_sale_tk')) if today_reports else sum(chemist_visits.mapped('sale_tk'))
+        total_coll_today = sum(today_reports.mapped('total_coll_tk')) if today_reports else sum(chemist_visits.mapped('coll_tk'))
         total_expense_today = sum(team_expenses.mapped('total_amount'))
 
         tab = kw.get('tab', 'approvals')
@@ -1496,10 +1762,14 @@ class FFMController(http.Controller):
         ctx.update({
             'today_str': today_date.strftime('%d %B, %Y'),
             'now_time_str': now_time_str,
+            'panel_title': panel_title,
             'role_badge': role_badge,
             'is_asm': is_asm,
             'is_rsm': is_rsm,
-            'is_admin': is_admin,
+            'is_manager': is_manager,
+            'is_super_admin': is_super_admin,
+            'is_admin': is_super_admin,
+            'can_manage_system': is_super_admin,
             'subordinates': subordinates,
             'sub_count': len(subordinates),
             'all_employees': all_employees,
@@ -1513,11 +1783,13 @@ class FFMController(http.Controller):
             'absent_employees': absent_employees,
             'pending_reports': pending_reports,
             'today_reports': today_reports,
+            'all_recent_reports': all_recent_reports,
             'chemist_visits': chemist_visits,
             'doctor_visits': doctor_visits,
             'farm_visits': farm_visits,
             'team_expenses': team_expenses,
             'submitted_statements': submitted_statements,
+            'all_team_statements': all_team_statements,
             'total_order_today': total_order_today,
             'total_sale_today': total_sale_today,
             'total_coll_today': total_coll_today,

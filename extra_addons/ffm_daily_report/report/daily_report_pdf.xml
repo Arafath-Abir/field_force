@@ -17,104 +17,142 @@
     <template id="report_daily_report_pdf_document">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="doc">
-                <div class="article" style="font-family: 'Nirmala UI', 'Vrinda', 'Segoe UI', Arial, sans-serif; font-size: 12px; color: #111; line-height: 1.35; padding: 10px;">
+                <div class="article" style="font-family: Helvetica, Arial, sans-serif; font-size: 8.5pt; color: #111111; line-height: 1.3; padding: 4px;">
                     <style type="text/css">
-                        @font-face {
-                            font-family: 'Nirmala UI';
-                            src: local('Nirmala UI'), local('Vrinda');
+                        @page {
+                            size: a4 portrait;
+                            margin: 1cm;
                         }
                         body, table, td, th, p, span, div, h1, h2, h3, h4 {
-                            font-family: 'Nirmala UI', 'Vrinda', 'Segoe UI', Arial, sans-serif !important;
+                            font-family: Helvetica, Arial, sans-serif !important;
                         }
                         .report-header {
                             text-align: center;
                             border-bottom: 2px solid #107c41;
-                            padding-bottom: 8px;
-                            margin-bottom: 12px;
+                            padding-bottom: 4px;
+                            margin-bottom: 8px;
                         }
-                        .report-title {
-                            font-size: 18px;
+                        .company-name {
+                            font-size: 15pt;
                             font-weight: bold;
                             color: #107c41;
-                            margin: 0;
+                            margin: 0 0 2px 0;
                             text-transform: uppercase;
                         }
-                        .report-subtitle {
-                            font-size: 13px;
-                            font-weight: 600;
-                            color: #333;
-                            margin-top: 2px;
+                        .report-title {
+                            font-size: 10.5pt;
+                            font-weight: bold;
+                            color: #333333;
+                            margin: 0;
                         }
-                        .info-table {
+                        table {
                             width: 100%;
                             border-collapse: collapse;
-                            margin-bottom: 14px;
-                            background-color: #fafafa;
-                            border: 1px solid #ccc;
+                            margin-bottom: 8px;
                         }
-                        .info-table td {
-                            padding: 5px 8px;
-                            font-size: 11px;
+                        .meta-table td {
+                            padding: 3px 6px;
+                            font-size: 8pt;
+                            border: 1px solid #d1d5db;
+                            background-color: #f9fafb;
                         }
-                        .data-table {
-                            width: 100%;
-                            border-collapse: collapse;
-                            margin-bottom: 14px;
-                        }
-                        .data-table th, .data-table td {
-                            border: 1px solid #777;
-                            padding: 4px 6px;
-                            font-size: 10.5px;
+                        .section-heading {
+                            font-size: 8.5pt;
+                            font-weight: bold;
+                            color: #065f46;
+                            background-color: #ecfdf5;
+                            border: 1px solid #a7f3d0;
+                            padding: 3px 6px;
+                            margin-top: 8px;
+                            margin-bottom: 3px;
+                            page-break-after: avoid;
                         }
                         .data-table th {
-                            background-color: #e8f5e9;
-                            color: #1b5e20;
+                            background-color: #f1f5f9;
+                            color: #1e293b;
                             font-weight: bold;
-                            text-align: center;
+                            font-size: 7.5pt;
+                            border: 1px solid #94a3b8;
+                            padding: 3px 4px;
+                            text-align: left;
                         }
-                        .section-title {
-                            font-size: 12px;
-                            font-weight: bold;
-                            color: #107c41;
-                            margin: 10px 0 4px;
-                            border-bottom: 1px solid #e0e0e0;
-                            padding-bottom: 2px;
+                        .data-table td {
+                            font-size: 7.5pt;
+                            border: 1px solid #cbd5e1;
+                            padding: 3px 4px;
+                            vertical-align: top;
                         }
                         .total-row td {
+                            background-color: #f8fafc;
                             font-weight: bold;
-                            background-color: #f5f5f5;
+                            border-top: 1.5px solid #64748b;
                         }
-                        .sign-box {
-                            margin-top: 35px;
+                        .kpi-box {
+                            background-color: #f0fdf4;
+                            border: 1.5px solid #86efac;
+                            padding: 5px 8px;
+                            margin-top: 6px;
+                            margin-bottom: 8px;
+                            page-break-inside: avoid;
+                        }
+                        .kpi-table td {
+                            font-size: 8pt;
+                            border: none;
+                            padding: 2px 4px;
+                        }
+                        .sign-table {
+                            margin-top: 22px;
                             width: 100%;
+                            page-break-inside: avoid;
                         }
-                        .sign-box td {
-                            width: 33.33%;
+                        .sign-table td {
                             text-align: center;
-                            font-size: 11px;
+                            font-size: 8pt;
                             vertical-align: bottom;
                             padding-top: 25px;
+                            border: none;
                         }
                         .sign-line {
-                            border-top: 1px dashed #444;
+                            border-top: 1px dashed #555555;
                             display: inline-block;
-                            width: 80%;
+                            width: 82%;
                             padding-top: 4px;
+                        }
+                        tr {
+                            page-break-inside: avoid;
                         }
                     </style>
 
+                    <!-- Precomputed live totals for data consistency -->
+                    <t t-set="live_chem" t-value="doc.get_live_chemist_totals()"/>
+                    <t t-set="live_journey" t-value="doc.get_live_journey_totals()"/>
+                    <t t-set="live_expense" t-value="doc.get_live_expense_total()"/>
+                    <t t-set="day_att" t-value="doc.attendance_record"/>
+
                     <!-- Header -->
                     <div class="report-header">
-                        <div class="report-title">Newtec Pharmaceuticals Limited</div>
-                        <div class="report-subtitle">Daily Field Activity &amp; Expense Report</div>
+                        <div class="company-name">Newtec Pharmaceuticals Limited</div>
+                        <div class="report-title">
+                            Daily Field Activity &amp; Market Travel Report
+                            <t t-if="doc.state != 'approved'">
+                                <span style="display: inline-block; background-color: #fef3c7; color: #92400e; border: 1.5px solid #f59e0b; padding: 2px 8px; border-radius: 4px; font-size: 8pt; margin-left: 8px; font-weight: bold; vertical-align: middle;">
+                                    PENDING
+                                </span>
+                            </t>
+                            <t t-else="">
+                                <span style="display: inline-block; background-color: #d1fae5; color: #065f46; border: 1.5px solid #10b981; padding: 2px 8px; border-radius: 4px; font-size: 8pt; margin-left: 8px; font-weight: bold; vertical-align: middle;">
+                                    APPROVED
+                                </span>
+                            </t>
+                        </div>
                     </div>
 
                     <!-- Employee & Date Metadata -->
-                    <table class="info-table">
+                    <table class="meta-table">
                         <tr>
                             <td style="width: 18%;"><strong>Employee Name:</strong></td>
                             <td style="width: 32%;"><span t-esc="doc.employee_id.name"/></td>
-                            <td style="width: 18%;"><strong>Date:</strong></td>
+                            <td style="width: 18%;"><strong>Report Date:</strong></td>
                             <td style="width: 32%;"><span t-esc="doc.date"/></td>
                         </tr>
                         <tr>
@@ -127,18 +165,41 @@
                             <td><strong>Territory:</strong></td>
                             <td><span t-esc="doc.territory_id.name or 'N/A'"/></td>
                             <td><strong>Report Status:</strong></td>
-                            <td><strong><span t-esc="doc.state.upper()"/></strong></td>
+                            <td>
+                                <t t-if="doc.state == 'approved'">
+                                    <strong style="color: #15803d; font-size: 8.5pt;">APPROVED</strong>
+                                </t>
+                                <t t-else="">
+                                    <strong style="color: #b45309; font-size: 8.5pt;">
+                                        <t t-esc="doc.state.upper() if doc.state else 'DRAFT'"/> (PENDING)
+                                    </strong>
+                                </t>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Attendance Status:</strong></td>
+                            <td>
+                                <t t-if="day_att">
+                                    <span t-esc="day_att.reporting_time.strftime('%I:%M %p') if day_att.reporting_time else 'Marked'"/>
+                                    (<span t-esc="day_att.place_name or 'Field Base'"/>)
+                                </t>
+                                <t t-else="">
+                                    <span style="color: #94a3b8; font-style: italic;">Not Recorded</span>
+                                </t>
+                            </td>
+                            <td><strong>Base Travel Mode:</strong></td>
+                            <td><span t-esc="day_att.mode_of_journey if (day_att and day_att.mode_of_journey) else 'Field Tour'"/></td>
                         </tr>
                     </table>
 
-                    <!-- 1. Chemist Visits Table -->
-                    <div class="section-title">1. Chemist Shop Visits</div>
+                    <!-- 1. Chemist Visits Table (What He Did) -->
+                    <div class="section-heading">1. Chemist Shop Visits &amp; Commercial Bookings</div>
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th style="width: 5%;">SL</th>
-                                <th style="width: 35%;">Chemist / Pharmacy Name</th>
-                                <th style="width: 24%;">Address / Location</th>
+                                <th style="width: 5%; text-align: center;">SL</th>
+                                <th style="width: 33%;">Chemist / Pharmacy Name</th>
+                                <th style="width: 26%;">Address / Location</th>
                                 <th style="width: 12%; text-align: right;">Order (Tk)</th>
                                 <th style="width: 12%; text-align: right;">Sale (Tk)</th>
                                 <th style="width: 12%; text-align: right;">Collection (Tk)</th>
@@ -150,40 +211,45 @@
                                 <t t-foreach="doc.chemist_visit_ids" t-as="c">
                                     <tr>
                                         <td style="text-align: center;"><t t-esc="sl"/></td>
-                                        <td><t t-esc="c.chemist_id.name or c.chemist_name_manual"/></td>
-                                        <td><t t-esc="c.address or ''"/></td>
-                                        <td style="text-align: right;">৳<t t-esc="'%.0f' % c.order_tk"/></td>
-                                        <td style="text-align: right;">৳<t t-esc="'%.0f' % c.sale_tk"/></td>
-                                        <td style="text-align: right;">৳<t t-esc="'%.0f' % c.coll_tk"/></td>
+                                        <td>
+                                            <strong><t t-esc="c.chemist_id.name or c.chemist_name_manual"/></strong>
+                                            <t t-if="c.note">
+                                                <div style="font-size: 7pt; color: #555555; font-style: italic; margin-top: 1px;"><t t-esc="c.note"/></div>
+                                            </t>
+                                        </td>
+                                        <td><t t-esc="c.address or c.chemist_id.address or '-'"/></td>
+                                        <td style="text-align: right;">Tk. <t t-esc="'%.0f' % c.order_tk"/></td>
+                                        <td style="text-align: right;">Tk. <t t-esc="'%.0f' % c.sale_tk"/></td>
+                                        <td style="text-align: right;">Tk. <t t-esc="'%.0f' % c.coll_tk"/></td>
                                     </tr>
                                     <t t-set="sl" t-value="sl + 1"/>
                                 </t>
                                 <tr class="total-row">
-                                    <td colspan="3" style="text-align: right;">Total Chemist (<t t-esc="len(doc.chemist_visit_ids)"/> shops):</td>
-                                    <td style="text-align: right;">৳<t t-esc="'%.0f' % doc.total_order_tk"/></td>
-                                    <td style="text-align: right;">৳<t t-esc="'%.0f' % doc.total_sale_tk"/></td>
-                                    <td style="text-align: right;">৳<t t-esc="'%.0f' % doc.total_coll_tk"/></td>
+                                    <td colspan="3" style="text-align: right;">Total Chemist (<t t-esc="live_chem['count']"/> shops):</td>
+                                    <td style="text-align: right; color: #047857;">Tk. <t t-esc="'%.0f' % live_chem['order']"/></td>
+                                    <td style="text-align: right; color: #1d4ed8;">Tk. <t t-esc="'%.0f' % live_chem['sale']"/></td>
+                                    <td style="text-align: right; color: #b45309;">Tk. <t t-esc="'%.0f' % live_chem['coll']"/></td>
                                 </tr>
                             </t>
                             <t t-else="">
                                 <tr>
-                                    <td colspan="6" style="text-align: center; color: #777;">No chemist visits recorded.</td>
+                                    <td colspan="6" style="text-align: center; color: #888888; font-style: italic;">No chemist visits recorded today.</td>
                                 </tr>
                             </t>
                         </tbody>
                     </table>
 
-                    <!-- 2. Doctor / Prescriber Visits Table -->
-                    <div class="section-title">2. Doctor / Prescriber Visits</div>
+                    <!-- 2. Doctor / Prescriber Visits Table (What He Did) -->
+                    <div class="section-heading">2. Doctor / Prescriber Consultations &amp; Sampling</div>
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th style="width: 5%;">SL</th>
-                                <th style="width: 25%;">Doctor / Prescriber Name</th>
-                                <th style="width: 25%;">Mailing Address / Chamber</th>
-                                <th style="width: 25%;">Product Discussion</th>
-                                <th style="width: 12%;">Sample / Gift</th>
-                                <th style="width: 8%; text-align: center;">Grade</th>
+                                <th style="width: 5%; text-align: center;">SL</th>
+                                <th style="width: 27%;">Doctor / Prescriber Name</th>
+                                <th style="width: 24%;">Chamber / Hospital Address</th>
+                                <th style="width: 25%;">Product Discussion Highlights</th>
+                                <th style="width: 13%;">Sample / Gift</th>
+                                <th style="width: 6%; text-align: center;">Grade</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -192,109 +258,125 @@
                                 <t t-foreach="doc.prescriber_visit_ids" t-as="d">
                                     <tr>
                                         <td style="text-align: center;"><t t-esc="dsl"/></td>
-                                        <td><t t-esc="d.prescriber_id.name or d.prescriber_name_manual"/></td>
-                                        <td><t t-esc="d.mailing_address or ''"/></td>
-                                        <td><t t-esc="d.product_discussion or ''"/></td>
-                                        <td><t t-esc="d.sample or ''"/></td>
-                                        <td style="text-align: center; font-weight: bold;"><t t-esc="d.grade.upper() if d.grade else ''"/></td>
+                                        <td>
+                                            <strong><t t-esc="d.prescriber_id.name or d.prescriber_name_manual"/></strong>
+                                            <t t-if="d.mobile">
+                                                <div style="font-size: 7pt; color: #64748b;">Phone: <t t-esc="d.mobile"/></div>
+                                            </t>
+                                        </td>
+                                        <td><t t-esc="d.mailing_address or '-'"/></td>
+                                        <td><t t-esc="d.product_discussion or '-'"/></td>
+                                        <td><t t-esc="d.sample or '-'"/></td>
+                                        <td style="text-align: center; font-weight: bold; color: #1e40af;"><t t-esc="d.grade.upper() if d.grade else '-'"/></td>
                                     </tr>
                                     <t t-set="dsl" t-value="dsl + 1"/>
                                 </t>
                             </t>
                             <t t-else="">
                                 <tr>
-                                    <td colspan="6" style="text-align: center; color: #777;">No doctor visits recorded.</td>
+                                    <td colspan="6" style="text-align: center; color: #888888; font-style: italic;">No doctor visits recorded today.</td>
                                 </tr>
                             </t>
                         </tbody>
                     </table>
 
-                    <!-- 3. Farm & Others Visits Table (if any) -->
-                    <t t-if="doc.farm_visit_ids">
-                        <div class="section-title">3. Farm &amp; Others Visits</div>
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th style="width: 5%;">SL</th>
-                                    <th style="width: 35%;">Farm / Client Name</th>
-                                    <th style="width: 30%;">Address</th>
-                                    <th style="width: 15%; text-align: center;">Bird / Animal Count</th>
-                                    <th style="width: 15%;">Remarks</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+                    <!-- 3. Farm & Others Visits Table (What He Did) -->
+                    <div class="section-heading">3. Farm &amp; Institutional Visits</div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 5%; text-align: center;">SL</th>
+                                <th style="width: 28%;">Farm / Client Name</th>
+                                <th style="width: 24%;">Location / Address</th>
+                                <th style="width: 20%;">Livestock / Bird Capacity</th>
+                                <th style="width: 23%;">Discussion &amp; Farmer Feedback</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-if="doc.farm_visit_ids">
                                 <t t-set="fsl" t-value="1"/>
                                 <t t-foreach="doc.farm_visit_ids" t-as="f">
                                     <tr>
                                         <td style="text-align: center;"><t t-esc="fsl"/></td>
-                                        <td><t t-esc="f.farm_name"/></td>
-                                        <td><t t-esc="f.address or ''"/></td>
-                                        <td style="text-align: center;"><t t-esc="f.bird_count or 0"/></td>
-                                        <td><t t-esc="f.note or ''"/></td>
+                                        <td><strong><t t-esc="f.farm_name"/></strong></td>
+                                        <td><t t-esc="f.address or '-'"/></td>
+                                        <td>
+                                            <t t-if="f.bird_count"><t t-esc="f.bird_count"/> Animals/Birds</t>
+                                            <t t-if="f.broiler"> | Broiler: <t t-esc="f.broiler"/></t>
+                                            <t t-if="f.layer"> | Layer: <t t-esc="f.layer"/></t>
+                                            <t t-if="f.cattle"> | Cattle: <t t-esc="f.cattle"/></t>
+                                        </td>
+                                        <td><t t-esc="f.note or '-'"/></td>
                                     </tr>
                                     <t t-set="fsl" t-value="fsl + 1"/>
                                 </t>
-                            </tbody>
-                        </table>
-                    </t>
-
-                    <!-- 4. Visited Market & Travel Log Table -->
-                    <div class="section-title">4. Market Travel &amp; Journey Log</div>
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 5%;">SL</th>
-                                <th style="width: 30%;">From Place</th>
-                                <th style="width: 30%;">To Place</th>
-                                <th style="width: 15%; text-align: center;">Mode</th>
-                                <th style="width: 10%; text-align: right;">Distance (km)</th>
-                                <th style="width: 10%; text-align: right;">Fare (Tk)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <t t-set="travel_log" t-value="doc.travel_log_ids[:1]"/>
-                            <t t-if="travel_log and travel_log.journey_ids">
-                                <t t-set="jsl" t-value="1"/>
-                                <t t-foreach="travel_log.journey_ids" t-as="j">
-                                    <tr>
-                                        <td style="text-align: center;"><t t-esc="jsl"/></td>
-                                        <td><t t-esc="j.place_from_id.name"/></td>
-                                        <td><t t-esc="j.place_to_id.name"/></td>
-                                        <td style="text-align: center;"><t t-esc="j.mode.title()"/></td>
-                                        <td style="text-align: right;"><t t-esc="'%.1f' % j.distance_km"/></td>
-                                        <td style="text-align: right;">৳<t t-esc="'%.0f' % j.fare_tk"/></td>
-                                    </tr>
-                                    <t t-set="jsl" t-value="jsl + 1"/>
-                                </t>
-                                <tr class="total-row">
-                                    <td colspan="4" style="text-align: right;">Total Journey (<t t-esc="len(travel_log.journey_ids)"/> legs):</td>
-                                    <td style="text-align: right;"><t t-esc="'%.1f' % travel_log.total_distance_km"/> km</td>
-                                    <td style="text-align: right;">৳<t t-esc="'%.0f' % travel_log.total_fare_tk"/></td>
-                                </tr>
                             </t>
                             <t t-else="">
                                 <tr>
-                                    <td colspan="6" style="text-align: center; color: #777;">No journey legs recorded.</td>
+                                    <td colspan="5" style="text-align: center; color: #888888; font-style: italic;">No farm or institutional visits recorded today.</td>
                                 </tr>
                             </t>
                         </tbody>
                     </table>
 
-                    <!-- 5. Daily Expenses Summary -->
+                    <!-- 4. Visited Market & Travel Log Table (Where He Went / Kothay Gese) -->
+                    <div class="section-heading">4. Market Travel &amp; Journey Log (Where Visited)</div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 5%; text-align: center;">SL</th>
+                                <th style="width: 32%;">From Starting Place</th>
+                                <th style="width: 32%;">To Destination Place</th>
+                                <th style="width: 13%; text-align: center;">Transport Mode</th>
+                                <th style="width: 9%; text-align: right;">Distance</th>
+                                <th style="width: 9%; text-align: right;">TA Fare (Tk)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-set="all_legs" t-value="doc.travel_log_ids.mapped('journey_ids')"/>
+                            <t t-if="all_legs">
+                                <t t-set="jsl" t-value="1"/>
+                                <t t-foreach="all_legs" t-as="j">
+                                    <tr>
+                                        <td style="text-align: center;"><t t-esc="jsl"/></td>
+                                        <td><strong><t t-esc="j.place_from_id.name"/></strong></td>
+                                        <td><strong><t t-esc="j.place_to_id.name"/></strong></td>
+                                        <td style="text-align: center;"><t t-esc="j.mode.title()"/></td>
+                                        <td style="text-align: right;"><t t-esc="'%.1f' % j.distance_km"/> km</td>
+                                        <td style="text-align: right;">Tk. <t t-esc="'%.0f' % j.fare_tk"/></td>
+                                    </tr>
+                                    <t t-set="jsl" t-value="jsl + 1"/>
+                                </t>
+                                <tr class="total-row">
+                                    <td colspan="4" style="text-align: right;">Total Journey (<t t-esc="live_journey['legs_count']"/> legs):</td>
+                                    <td style="text-align: right;"><t t-esc="'%.1f' % live_journey['distance']"/> km</td>
+                                    <td style="text-align: right; color: #b45309;">Tk. <t t-esc="'%.0f' % live_journey['fare']"/></td>
+                                </tr>
+                            </t>
+                            <t t-else="">
+                                <tr>
+                                    <td colspan="6" style="text-align: center; color: #888888; font-style: italic;">No journey legs recorded today.</td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+
+                    <!-- 5. Daily Expenses Summary (What He Spent) -->
                     <t t-if="doc.expense_ids">
-                        <div class="section-title">5. Daily Expenses Summary</div>
+                        <div class="section-heading">5. Daily Field Expenses &amp; Voucher Summary</div>
                         <table class="data-table">
                             <thead>
                                 <tr>
-                                    <th style="width: 10%;">Entry #</th>
-                                    <th style="width: 10%; text-align: right;">Entert.</th>
-                                    <th style="width: 10%; text-align: right;">Courier</th>
-                                    <th style="width: 10%; text-align: right;">Photo.</th>
-                                    <th style="width: 10%; text-align: right;">Hotel</th>
-                                    <th style="width: 10%; text-align: right;">Promo.</th>
-                                    <th style="width: 10%; text-align: right;">Stationery</th>
-                                    <th style="width: 10%; text-align: right;">Carrying</th>
-                                    <th style="width: 10%; text-align: right;">Bike</th>
+                                    <th style="width: 10%; text-align: center;">Entry #</th>
+                                    <th style="width: 9%; text-align: right;">Entert.</th>
+                                    <th style="width: 9%; text-align: right;">Courier</th>
+                                    <th style="width: 9%; text-align: right;">Photo.</th>
+                                    <th style="width: 9%; text-align: right;">Hotel</th>
+                                    <th style="width: 9%; text-align: right;">Promo.</th>
+                                    <th style="width: 9%; text-align: right;">Stationery</th>
+                                    <th style="width: 9%; text-align: right;">Carrying</th>
+                                    <th style="width: 9%; text-align: right;">Bike</th>
+                                    <th style="width: 8%; text-align: right;">Bank</th>
                                     <th style="width: 10%; text-align: right;">Total (Tk)</th>
                                 </tr>
                             </thead>
@@ -302,60 +384,69 @@
                                 <t t-foreach="doc.expense_ids" t-as="exp">
                                     <tr>
                                         <td style="text-align: center;">#<t t-esc="exp.id"/></td>
-                                        <td style="text-align: right;">৳<t t-esc="'%.0f' % exp.entertainment"/></td>
-                                        <td style="text-align: right;">৳<t t-esc="'%.0f' % exp.courier"/></td>
-                                        <td style="text-align: right;">৳<t t-esc="'%.0f' % exp.photocopy"/></td>
-                                        <td style="text-align: right;">৳<t t-esc="'%.0f' % exp.hotel_rent"/></td>
-                                        <td style="text-align: right;">৳<t t-esc="'%.0f' % exp.promotion"/></td>
-                                        <td style="text-align: right;">৳<t t-esc="'%.0f' % exp.stationery"/></td>
-                                        <td style="text-align: right;">৳<t t-esc="'%.0f' % exp.carrying"/></td>
-                                        <td style="text-align: right;">৳<t t-esc="'%.0f' % exp.bike"/></td>
-                                        <td style="text-align: right; font-weight: bold;">৳<t t-esc="'%.0f' % exp.total_amount"/></td>
+                                        <td style="text-align: right;">Tk. <t t-esc="'%.0f' % exp.entertainment"/></td>
+                                        <td style="text-align: right;">Tk. <t t-esc="'%.0f' % exp.courier"/></td>
+                                        <td style="text-align: right;">Tk. <t t-esc="'%.0f' % exp.photocopy"/></td>
+                                        <td style="text-align: right;">Tk. <t t-esc="'%.0f' % exp.hotel_rent"/></td>
+                                        <td style="text-align: right;">Tk. <t t-esc="'%.0f' % exp.promotion"/></td>
+                                        <td style="text-align: right;">Tk. <t t-esc="'%.0f' % exp.stationery"/></td>
+                                        <td style="text-align: right;">Tk. <t t-esc="'%.0f' % exp.carrying"/></td>
+                                        <td style="text-align: right;">Tk. <t t-esc="'%.0f' % exp.bike"/></td>
+                                        <td style="text-align: right;">Tk. <t t-esc="'%.0f' % exp.banking"/></td>
+                                        <td style="text-align: right; font-weight: bold; color: #047857;">Tk. <t t-esc="'%.0f' % exp.total_amount"/></td>
                                     </tr>
+                                    <t t-if="exp.note">
+                                        <tr>
+                                            <td colspan="11" style="font-size: 7pt; color: #555555; font-style: italic; padding: 2px 5px; background: #fafafa;">
+                                                Note: <t t-esc="exp.note"/>
+                                            </td>
+                                        </tr>
+                                    </t>
                                 </t>
                                 <tr class="total-row">
-                                    <td colspan="9" style="text-align: right;">Total Daily Expense:</td>
-                                    <td style="text-align: right; color: #107c41;">৳<t t-esc="'%.0f' % doc.total_expense_tk"/></td>
+                                    <td colspan="10" style="text-align: right;">Total Daily Expense:</td>
+                                    <td style="text-align: right; color: #107c41;">Tk. <t t-esc="'%.0f' % live_expense"/></td>
                                 </tr>
                             </tbody>
                         </table>
                     </t>
 
                     <!-- Financial Summary Box -->
-                    <div style="background-color: #f0fdf4; border: 1.5px solid #86efac; border-radius: 4px; padding: 8px 12px; margin-top: 12px;">
-                        <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+                    <div class="kpi-box">
+                        <table class="kpi-table" style="margin-bottom: 0;">
                             <tr>
-                                <td style="width: 20%;">Total Order: <strong>৳<t t-esc="'%.0f' % doc.total_order_tk"/></strong></td>
-                                <td style="width: 20%;">Total Sale: <strong>৳<t t-esc="'%.0f' % doc.total_sale_tk"/></strong></td>
-                                <td style="width: 20%;">Collection: <strong>৳<t t-esc="'%.0f' % doc.total_coll_tk"/></strong></td>
-                                <td style="width: 20%;">TA Fare Bill: <strong>৳<t t-esc="'%.0f' % (travel_log.total_fare_tk if travel_log else 0)"/></strong></td>
-                                <td style="width: 20%; text-align: right;">Total Expense: <strong>৳<t t-esc="'%.0f' % doc.total_expense_tk"/></strong></td>
+                                <td style="width: 20%;">Total Order: <strong style="color: #047857;">Tk. <t t-esc="'%.0f' % live_chem['order']"/></strong></td>
+                                <td style="width: 20%;">Total Sale: <strong style="color: #1d4ed8;">Tk. <t t-esc="'%.0f' % live_chem['sale']"/></strong></td>
+                                <td style="width: 20%;">Collection: <strong style="color: #b45309;">Tk. <t t-esc="'%.0f' % live_chem['coll']"/></strong></td>
+                                <td style="width: 20%;">TA Fare Bill: <strong style="color: #374151;">Tk. <t t-esc="'%.0f' % live_journey['fare']"/></strong></td>
+                                <td style="width: 20%; text-align: right;">Total Expense: <strong style="color: #047857;">Tk. <t t-esc="'%.0f' % live_expense"/></strong></td>
                             </tr>
                         </table>
                     </div>
 
                     <!-- Signatures -->
-                    <table class="sign-box">
+                    <table class="sign-table">
                         <tr>
-                            <td>
+                            <td style="width: 33.3%;">
                                 <div class="sign-line">
                                     <strong><span t-esc="doc.employee_id.name"/></strong><br/>
                                     Prepared By (Field Person)
                                 </div>
                             </td>
-                            <td>
+                            <td style="width: 33.3%;">
                                 <div class="sign-line">
+                                    <strong><span t-esc="doc.employee_id.parent_id.name if doc.employee_id.parent_id else 'Area Sales Manager'"/></strong><br/>
                                     Checked By (ASM)
                                 </div>
                             </td>
-                            <td>
+                            <td style="width: 33.3%;">
                                 <div class="sign-line">
-                                    Approved By (RSM / DSM / NSM)
+                                    <strong>Regional Sales Manager / NSM</strong><br/>
+                                    Approved By (Management)
                                 </div>
                             </td>
                         </tr>
                     </table>
-
                 </div>
             </t>
         </t>
