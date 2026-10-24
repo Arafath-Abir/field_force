@@ -871,41 +871,45 @@ class FFMController(http.Controller):
 
         # 1. Mode determination
         if is_fp:
-            # Field Person is strictly daily reports for any calendar date
+            # Field Person is strictly daily report for current calendar date (no past/future reports)
             mode = 'daily'
+            query_date = today_date
+            date_start = today_date
+            date_end = today_date
+            period_label = today_date.strftime('%d %B, %Y')
         else:
             mode = kw.get('mode') or 'daily'  # 'daily' or 'monthly'
 
-        # 2. Date / Period calculations
-        if mode == 'daily':
-            date_str = kw.get('date')
-            if date_str:
-                try:
-                    query_date = datetime.strptime(date_str, '%Y-%m-%d').date()
-                except ValueError:
+            # 2. Date / Period calculations
+            if mode == 'daily':
+                date_str = kw.get('date')
+                if date_str:
+                    try:
+                        query_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+                    except ValueError:
+                        query_date = today_date
+                else:
                     query_date = today_date
+                date_start = query_date
+                date_end = query_date
+                period_label = query_date.strftime('%d %B, %Y')
             else:
-                query_date = today_date
-            date_start = query_date
-            date_end = query_date
-            period_label = query_date.strftime('%d %B, %Y')
-        else:
-            # Monthly mode
-            period = kw.get('period') or 'current'  # 'current', 'last_30_days', 'prev'
-            if period == 'last_30_days':
-                date_start = today_date - timedelta(days=30)
-                date_end = today_date
-                period_label = f"Last 30 Days ({date_start.strftime('%d %b')} - {date_end.strftime('%d %b, %Y')})"
-            elif period == 'prev':
-                first_this_month = today_date.replace(day=1)
-                last_prev_month = first_this_month - timedelta(days=1)
-                date_start = last_prev_month.replace(day=1)
-                date_end = last_prev_month
-                period_label = date_start.strftime('%B, %Y')
-            else:
-                date_start = today_date.replace(day=1)
-                date_end = today_date
-                period_label = date_start.strftime('%B, %Y')
+                # Monthly mode
+                period = kw.get('period') or 'current'  # 'current', 'last_30_days', 'prev'
+                if period == 'last_30_days':
+                    date_start = today_date - timedelta(days=30)
+                    date_end = today_date
+                    period_label = f"Last 30 Days ({date_start.strftime('%d %b')} - {date_end.strftime('%d %b, %Y')})"
+                elif period == 'prev':
+                    first_this_month = today_date.replace(day=1)
+                    last_prev_month = first_this_month - timedelta(days=1)
+                    date_start = last_prev_month.replace(day=1)
+                    date_end = last_prev_month
+                    period_label = date_start.strftime('%B, %Y')
+                else:
+                    date_start = today_date.replace(day=1)
+                    date_end = today_date
+                    period_label = date_start.strftime('%B, %Y')
 
         # 3. Subordinates strictly by hierarchy
         if is_super_admin or is_manager:
@@ -1177,6 +1181,19 @@ class FFMController(http.Controller):
             if d.grade in grade_counts:
                 grade_counts[d.grade] += 1
 
+        target_territory_name = False
+        if target_employee:
+            if hasattr(target_employee, 'user_id') and target_employee.user_id and hasattr(target_employee.user_id, 'territory_id') and target_employee.user_id.territory_id:
+                target_territory_name = target_employee.user_id.territory_id.name
+            if not target_territory_name:
+                terr_rec = request.env['territory.territory'].sudo().search([('field_person_id', '=', target_employee.id)], limit=1)
+                if terr_rec:
+                    target_territory_name = terr_rec.name
+            if not target_territory_name and target_report and target_report.territory_id:
+                target_territory_name = target_report.territory_id.name
+            if not target_territory_name and target_employee.hq:
+                target_territory_name = target_employee.hq
+
         ctx.update({
             'mode': mode,
             'report_type': report_type,
@@ -1186,6 +1203,7 @@ class FFMController(http.Controller):
             'filtered_subordinates': filtered_subordinates,
             'search_query': search_query,
             'target_employee': target_employee,
+            'target_territory_name': target_territory_name,
             'target_report': target_report,
             'report_state': report_state,
             'single_day_attendance': single_day_attendance,
@@ -1231,27 +1249,35 @@ class FFMController(http.Controller):
         if kw.get('report_id'):
             try:
                 report = request.env['ffm.daily.report'].sudo().browse(int(kw['report_id']))
+                if is_fp and report:
+                    if report.date != today_date or report.employee_id.id != (employee.id if employee else False):
+                        return request.not_found()
             except (ValueError, TypeError):
                 report = False
         else:
-            if kw.get('employee_id'):
-                try:
-                    target_emp_id = int(kw['employee_id'])
-                except (ValueError, TypeError):
-                    target_emp_id = employee.id if employee else False
-            elif employee:
-                target_emp_id = employee.id
-            else:
-                target_emp_id = False
-
-            query_date_str = kw.get('date')
-            if query_date_str:
-                try:
-                    q_date = datetime.strptime(query_date_str, '%Y-%m-%d').date()
-                except ValueError:
-                    q_date = today_date
-            else:
+            if is_fp:
+                # Field Person can only download own report for current calendar date
+                target_emp_id = employee.id if employee else False
                 q_date = today_date
+            else:
+                if kw.get('employee_id'):
+                    try:
+                        target_emp_id = int(kw['employee_id'])
+                    except (ValueError, TypeError):
+                        target_emp_id = employee.id if employee else False
+                elif employee:
+                    target_emp_id = employee.id
+                else:
+                    target_emp_id = False
+
+                query_date_str = kw.get('date')
+                if query_date_str:
+                    try:
+                        q_date = datetime.strptime(query_date_str, '%Y-%m-%d').date()
+                    except ValueError:
+                        q_date = today_date
+                else:
+                    q_date = today_date
 
             if target_emp_id:
                 report = request.env['ffm.daily.report'].sudo().search([

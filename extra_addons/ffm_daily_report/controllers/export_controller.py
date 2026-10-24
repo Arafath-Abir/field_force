@@ -139,7 +139,7 @@ class FFMExportController(http.Controller):
                 worksheet.write(curr_row, 2, rec.asm_id.name or '')
                 worksheet.write(curr_row, 3, rec.territory_id.name or '')
                 worksheet.write(curr_row, 4, 'Present' if rec.status == 'present' else 'Absent', header_fmt if rec.status == 'present' else warn_fmt)
-                worksheet.write(curr_row, 5, str(rec.reporting_time or ''))
+                worksheet.write(curr_row, 5, rec.get_reporting_time_bd() if (hasattr(rec, 'get_reporting_time_bd') and rec.reporting_time) else (str(rec.reporting_time) if rec.reporting_time else ''))
                 worksheet.write(curr_row, 6, rec.place_name or '')
                 worksheet.write(curr_row, 7, rec.accuracy, num_fmt)
 

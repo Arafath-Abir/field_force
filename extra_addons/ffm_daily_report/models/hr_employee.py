@@ -50,6 +50,7 @@ class HrEmployee(models.Model):
                     'name': self.name,
                     'login': login,
                     'email': self.work_email or login,
+                    'tz': 'Asia/Dhaka',
                     'groups_id': [(6, 0, [
                         self.env.ref('base.group_user').id,
                         target_group.id,

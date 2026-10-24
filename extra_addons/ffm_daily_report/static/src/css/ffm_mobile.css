@@ -601,79 +601,364 @@ body {
     background: #ffffff;
     border: 1px solid #e2e8f0;
     border-radius: 12px;
-    padding: 20px 22px;
-    box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
-    margin-bottom: 18px;
+    padding: 24px 28px;
+    max-width: 780px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.05), 0 1px 2px -1px rgba(15, 23, 42, 0.03);
+}
+
+@media (max-width: 640px) {
+    .ffm-form-card {
+        padding: 16px 14px;
+        border-radius: 10px;
+        margin-bottom: 16px;
+    }
 }
 
 .ffm-form-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    padding-bottom: 12px;
-    margin-bottom: 16px;
+    gap: 12px;
+    padding-bottom: 14px;
+    margin-bottom: 18px;
     border-bottom: 1px solid #f1f5f9;
 }
 
 .ffm-form-title {
-    font-size: 1.05rem;
+    font-size: 1.12rem;
     font-weight: 700;
     color: #0f172a;
-    margin: 0 0 4px 0;
-    letter-spacing: -0.01em;
+    margin: 0 0 3px 0;
+    letter-spacing: -0.015em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .ffm-form-subtitle {
     font-size: 0.82rem;
     color: #64748b;
     margin: 0;
+    line-height: 1.35;
 }
 
 .ffm-form-group {
-    margin-bottom: 15px;
+    margin-bottom: 16px;
 }
 
 .ffm-form-label {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 0.82rem;
+    font-size: 0.8125rem;
     font-weight: 600;
     margin-bottom: 6px;
-    color: #1e293b;
+    color: #334155;
     letter-spacing: -0.01em;
+}
+
+.ffm-req {
+    color: #dc2626;
+    font-weight: 700;
+    margin-left: 2px;
+}
+
+.ffm-hint {
+    font-size: 0.72rem;
+    color: #64748b;
+    font-weight: 400;
 }
 
 .ffm-form-control {
     width: 100%;
     min-height: 42px;
     padding: 9px 13px;
-    font-size: 15px; /* iOS zoom prevention */
+    font-size: 14.5px;
     font-family: inherit;
     border: 1.5px solid #cbd5e1;
     border-radius: 8px;
     outline: none;
-    transition: all 0.15s ease;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
     background-color: #ffffff;
     color: #0f172a;
     box-sizing: border-box;
 }
 
+.ffm-form-control:hover {
+    border-color: #94a3b8;
+}
+
 .ffm-form-control:focus {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    border-color: #107c41;
+    box-shadow: 0 0 0 3px rgba(16, 124, 65, 0.12);
     background-color: #ffffff;
 }
 
-/* Financial inputs with currency accent */
-.ffm-amount-group {
-    position: relative;
+textarea.ffm-form-control {
+    min-height: 76px;
+    line-height: 1.45;
+    resize: vertical;
 }
 
-.ffm-amount-control {
-    font-weight: 600;
+/* ── 2-Column Responsive Form Row ────────────────────────────────────────── */
+.ffm-row-2 {
+    margin-bottom: 14px;
+}
+.ffm-row-2:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+.ffm-row-2 > * {
+    float: left;
+    width: 48.6%;
+    margin: 0 0.7% 0 0.7%;
+    box-sizing: border-box;
+}
+
+@media (max-width: 540px) {
+    .ffm-row-2 > * {
+        float: none;
+        width: 100%;
+        margin: 0 0 10px 0;
+    }
+}
+
+/* ── Financial Input With Currency Symbol ───────────────────────────────── */
+.ffm-currency-wrap {
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.ffm-currency-prefix {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    margin-top: -10px;
+    line-height: 20px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #64748b;
+    pointer-events: none;
+    user-select: none;
+    z-index: 2;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+.ffm-currency-wrap .ffm-form-control {
+    padding-left: 36px !important;
+    font-weight: 700;
     font-size: 1.02rem;
-    letter-spacing: -0.01em;
+    color: #0f172a;
+}
+
+/* ── KPI Visit Counters Grid (3-Col) ─────────────────────────────────────── */
+.ffm-kpi-grid {
+    margin-bottom: 14px;
+    text-align: center;
+}
+.ffm-kpi-grid:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+.ffm-kpi-card {
+    float: left;
+    width: 32%;
+    margin: 0 0.6% 10px 0.6%;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 12px 6px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+    box-sizing: border-box;
+}
+
+/* ── Financial Transaction Cards (Chemist / Order / Sale / Coll) ────────── */
+.ffm-fin-grid {
+    margin-bottom: 18px;
+}
+.ffm-fin-grid:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+.ffm-fin-card {
+    float: left;
+    width: 32%;
+    margin: 0 0.6% 10px 0.6%;
+    border-radius: 10px;
+    padding: 12px 14px;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    box-sizing: border-box;
+    transition: all 0.15s ease;
+}
+
+@media (max-width: 600px) {
+    .ffm-fin-card {
+        float: none;
+        width: 100%;
+        margin: 0 0 10px 0;
+    }
+}
+
+.ffm-fin-card:focus-within {
+    border-color: #cbd5e1;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.ffm-fin-card--order {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+}
+.ffm-fin-card--order .ffm-fin-label {
+    color: #166534;
+}
+
+.ffm-fin-card--sale {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+}
+.ffm-fin-card--sale .ffm-fin-label {
+    color: #1e40af;
+}
+
+.ffm-fin-card--coll {
+    background: #fffbeb;
+    border-color: #fde68a;
+}
+.ffm-fin-card--coll .ffm-fin-label {
+    color: #854d0e;
+}
+
+.ffm-fin-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 6px;
+    display: block;
+}
+
+/* ── Daily Report Action Tiles Grid (2x2 Desktop) ────────────────────────── */
+.ffm-action-grid {
+    margin-bottom: 22px;
+}
+.ffm-action-grid:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.ffm-action-tile {
+    float: left;
+    width: 48.6%;
+    margin: 0 0.7% 12px 0.7%;
+    padding: 14px 16px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    text-decoration: none;
+    color: #0f172a;
+    box-sizing: border-box;
+    display: block;
+    position: relative;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+@media (max-width: 640px) {
+    .ffm-action-tile {
+        float: none;
+        width: 100%;
+        margin: 0 0 10px 0;
+    }
+}
+
+.ffm-action-tile:hover {
+    transform: translateY(-2px);
+    border-color: #cbd5e1;
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+    text-decoration: none;
+    color: #0f172a;
+}
+
+.ffm-action-tile:active {
+    transform: scale(0.99);
+}
+
+.ffm-action-tile-icon {
+    float: left;
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    display: flex;
+    display: -webkit-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+}
+
+.ffm-action-tile-content {
+    float: left;
+    width: calc(100% - 75px);
+}
+
+.ffm-action-tile-arrow {
+    float: right;
+    width: 20px;
+    color: #94a3b8;
+    margin-top: 10px;
+    text-align: right;
+}
+
+.ffm-action-tile:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+    height: 38px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.ffm-action-tile-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.ffm-action-tile-title {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.25;
+}
+
+.ffm-action-tile-sub {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-top: 2px;
+    line-height: 1.25;
+}
+
+.ffm-action-tile-arrow {
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.ffm-action-tile:hover .ffm-action-tile-arrow {
+    color: #0f172a;
+    transform: translateX(3px);
 }
 
 /* ── Buttons (Proportional & Polished) ─────────────────────────────────── */
@@ -701,15 +986,20 @@ body {
 }
 
 .ffm-btn-primary {
-    background: linear-gradient(135deg, #107c41 0%, #0d6334 100%);
-    color: #ffffff;
-    border-color: #0d6334;
+    background-color: #107c41 !important;
+    background: #107c41 -webkit-linear-gradient(135deg, #107c41 0%, #0d6334 100%);
+    background: #107c41 linear-gradient(135deg, #107c41 0%, #0d6334 100%);
+    color: #ffffff !important;
+    border: 1px solid #0d6334;
 }
 
 .ffm-btn-primary:hover {
-    background: linear-gradient(135deg, #0d6334 0%, #094725 100%);
+    background-color: #0d6334 !important;
+    background: #0d6334 -webkit-linear-gradient(135deg, #0d6334 0%, #094725 100%);
+    background: #0d6334 linear-gradient(135deg, #0d6334 0%, #094725 100%);
     box-shadow: 0 4px 12px rgba(16, 124, 65, 0.25);
-    color: #ffffff;
+    color: #ffffff !important;
+    text-decoration: none;
 }
 
 .ffm-btn-secondary {
@@ -722,6 +1012,7 @@ body {
     background-color: #f8fafc;
     border-color: #94a3b8;
     color: #0f172a;
+    text-decoration: none;
 }
 
 .ffm-btn-danger {
@@ -738,54 +1029,179 @@ body {
 
 /* ── Journey Card Widget ────────────────────────────────────────────────── */
 .ffm-journey-card {
-    background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
-    border: 1.5px solid #cbd5e1;
-    border-radius: 10px;
-    padding: 16px;
-    margin: 18px 0;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin: 20px 0;
+}
+
+@media (max-width: 640px) {
+    .ffm-journey-card {
+        padding: 14px 12px;
+    }
 }
 
 .ffm-journey-header {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 8px;
-    font-size: 0.95rem;
+    padding-bottom: 10px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.ffm-journey-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.92rem;
     font-weight: 700;
     color: #1e293b;
+}
+
+.ffm-journey-calc-btn {
+    width: 100%;
+    margin: 8px 0 14px 0;
+    min-height: 38px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #1d4ed8;
+    font-weight: 600;
+    font-size: 0.85rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.ffm-journey-calc-btn:hover {
+    background: #eff6ff;
+    border-color: #93c5fd;
+    color: #1e40af;
+}
+
+/* ── Farm Capacity Grid ─────────────────────────────────────────────────── */
+.ffm-capacity-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 18px;
+}
+
+.ffm-capacity-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
     margin-bottom: 12px;
 }
 
-/* ── Expense Card Widget ────────────────────────────────────────────────── */
+.ffm-capacity-grid {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-wrap: wrap;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.ffm-capacity-grid > div {
+    -webkit-box-flex: 1;
+    -webkit-flex: 1 1 calc(33.333% - 10px);
+    flex: 1 1 calc(33.333% - 10px);
+    min-width: 140px;
+    box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+    .ffm-capacity-grid > div {
+        -webkit-flex: 1 1 calc(50% - 10px);
+        flex: 1 1 calc(50% - 10px);
+    }
+}
+
+/* ── Expense Card Widget & Upload ───────────────────────────────────────── */
+.ffm-expense-grid {
+    margin-bottom: 18px;
+}
+.ffm-expense-grid:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
 .ffm-expense-card {
+    float: left;
+    width: 48.6%;
+    margin: 0 0.7% 14px 0.7%;
     background: #ffffff;
-    border: 1.5px solid #e2e8f0;
-    border-left: 4px solid #3b82f6;
+    border: 1px solid #e2e8f0;
+    border-top: 3px solid #0284c7;
     border-radius: 10px;
     padding: 16px;
-    margin-bottom: 16px;
+    box-sizing: border-box;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+@media (max-width: 640px) {
+    .ffm-expense-card {
+        float: none;
+        width: 100%;
+        margin: 0 0 12px 0;
+    }
+}
+
 .ffm-expense-card:focus-within {
     border-color: #cbd5e1;
-    border-left-color: #2563eb;
-    box-shadow: 0 3px 8px rgba(37, 99, 235, 0.08);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+.ffm-general-grid {
+    margin-bottom: 12px;
+}
+.ffm-general-grid:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+.ffm-general-grid > .ffm-form-group {
+    float: left;
+    width: 32%;
+    margin: 0 0.6% 12px 0.6%;
+    box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+    .ffm-general-grid > .ffm-form-group {
+        float: none;
+        width: 100%;
+        margin: 0 0 10px 0;
+    }
 }
 
 .ffm-upload-box {
     background: #f8fafc;
     border: 1.5px dashed #cbd5e1;
     border-radius: 8px;
-    padding: 12px;
+    padding: 10px 12px;
     margin-top: 10px;
     transition: all 0.2s ease;
 }
 
 .ffm-upload-box:hover {
-    background: #eff6ff;
-    border-color: #93c5fd;
+    background: #f1f5f9;
+    border-color: #94a3b8;
 }
 
 /* ── GPS Location Widget ────────────────────────────────────────────────── */

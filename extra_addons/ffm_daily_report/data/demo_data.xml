@@ -57,6 +57,7 @@
             <field name="name">Habibur Rahman (FP-1)</field>
             <field name="login">ffm_fp_demo</field>
             <field name="password">Demo12345!</field>
+            <field name="tz">Asia/Dhaka</field>
             <field name="groups_id" eval="[(6, 0, [
                 ref('base.group_user'),
                 ref('field_force_management.group_ffm_field_person')
@@ -68,6 +69,7 @@
             <field name="name">Kamrul Islam (FP-2)</field>
             <field name="login">ffm_fp_demo2</field>
             <field name="password">Demo12345!</field>
+            <field name="tz">Asia/Dhaka</field>
             <field name="groups_id" eval="[(6, 0, [
                 ref('base.group_user'),
                 ref('field_force_management.group_ffm_field_person')
@@ -79,6 +81,7 @@
             <field name="name">Tariqul Anam (ASM)</field>
             <field name="login">ffm_asm_demo</field>
             <field name="password">Demo12345!</field>
+            <field name="tz">Asia/Dhaka</field>
             <field name="groups_id" eval="[(6, 0, [
                 ref('base.group_user'),
                 ref('field_force_management.group_ffm_asm')
@@ -90,6 +93,7 @@
             <field name="name">Mahmudul Hasan (RSM)</field>
             <field name="login">ffm_rsm_demo</field>
             <field name="password">Demo12345!</field>
+            <field name="tz">Asia/Dhaka</field>
             <field name="groups_id" eval="[(6, 0, [
                 ref('base.group_user'),
                 ref('field_force_management.group_ffm_rsm')
@@ -101,6 +105,7 @@
             <field name="name">Anisur Rahman (DSM)</field>
             <field name="login">ffm_dsm_demo</field>
             <field name="password">Demo12345!</field>
+            <field name="tz">Asia/Dhaka</field>
             <field name="groups_id" eval="[(6, 0, [
                 ref('base.group_user'),
                 ref('field_force_management.group_ffm_dsm')
@@ -112,6 +117,7 @@
             <field name="name">Jahangir Alam (NSM)</field>
             <field name="login">ffm_nsm_demo</field>
             <field name="password">Demo12345!</field>
+            <field name="tz">Asia/Dhaka</field>
             <field name="groups_id" eval="[(6, 0, [
                 ref('base.group_user'),
                 ref('field_force_management.group_ffm_nsm')
@@ -123,6 +129,7 @@
             <field name="name">Dr. Zahid Hossain (Director)</field>
             <field name="login">ffm_director_demo</field>
             <field name="password">Demo12345!</field>
+            <field name="tz">Asia/Dhaka</field>
             <field name="groups_id" eval="[(6, 0, [
                 ref('base.group_user'),
                 ref('field_force_management.group_ffm_director')
@@ -134,6 +141,7 @@
             <field name="name">Shafiqul Islam (Accounts)</field>
             <field name="login">ffm_accounts_demo</field>
             <field name="password">Demo12345!</field>
+            <field name="tz">Asia/Dhaka</field>
             <field name="groups_id" eval="[(6, 0, [
                 ref('base.group_user'),
                 ref('field_force_management.group_ffm_accounts')
@@ -145,6 +153,7 @@
             <field name="name">System Admin (FFM Admin)</field>
             <field name="login">ffm_admin_demo</field>
             <field name="password">Demo12345!</field>
+            <field name="tz">Asia/Dhaka</field>
             <field name="groups_id" eval="[(6, 0, [
                 ref('base.group_user'),
                 ref('base.group_system'),

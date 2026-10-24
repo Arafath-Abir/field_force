@@ -67,11 +67,13 @@ class FFMSeedDemoWizard(models.TransientModel):
                     'login': login,
                     'password': 'Demo12345!',
                     'email': f'{login}@newtec.com',
+                    'tz': 'Asia/Dhaka',
                     'groups_id': [(6, 0, [grp_internal.id] + [g.id for g in groups if g])],
                     'branch_id': branch.id if branch else False,
                 })
             else:
                 user.write({
+                    'tz': 'Asia/Dhaka',
                     'groups_id': [(4, g.id) for g in groups if g],
                     'branch_id': branch.id if branch else False,
                 })

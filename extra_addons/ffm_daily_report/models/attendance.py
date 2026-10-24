@@ -17,6 +17,7 @@ class FFMAttendance(models.Model):
     employee_id = fields.Many2one('hr.employee', string='Employee', required=True, index=True, readonly=True)
     date = fields.Date(string='Date', required=True, index=True, readonly=True)
     reporting_time = fields.Datetime(string='Reporting Time (Server)', required=True, readonly=True)
+    reporting_time_bd = fields.Char(string='Reporting Time (BD)', compute='_compute_reporting_time_bd', store=True)
     name = fields.Char(string='Employee Name', readonly=True)
     designation = fields.Char(string='Designation', readonly=True)
     territory_id = fields.Many2one('territory.territory', string='Territory', index=True, readonly=True)
@@ -46,6 +47,24 @@ class FFMAttendance(models.Model):
     def _compute_place_name(self):
         for rec in self:
             rec.place_name = rec.territory_id.name or rec.employee_id.hq or 'Bangladesh'
+
+    @api.depends('reporting_time')
+    def _compute_reporting_time_bd(self):
+        dhaka_tz = pytz.timezone('Asia/Dhaka')
+        for rec in self:
+            if rec.reporting_time:
+                utc_dt = pytz.utc.localize(rec.reporting_time)
+                rec.reporting_time_bd = utc_dt.astimezone(dhaka_tz).strftime('%I:%M %p')
+            else:
+                rec.reporting_time_bd = ''
+
+    def get_reporting_time_bd(self, fmt='%I:%M %p'):
+        self.ensure_one()
+        if not self.reporting_time:
+            return ''
+        dhaka_tz = pytz.timezone('Asia/Dhaka')
+        utc_dt = pytz.utc.localize(self.reporting_time)
+        return utc_dt.astimezone(dhaka_tz).strftime(fmt)
 
     @api.constrains('latitude', 'longitude', 'accuracy')
     def _check_coordinates(self):

@@ -246,12 +246,14 @@
                         <div class="ffm-tile-subtitle">Self report &amp; PDF</div>
                     </a>
 
-                    <!-- 8. Monthly Statement -->
-                    <a href="/ff/statement" class="ffm-tile">
-                        <div class="ffm-icon-box ffm-icon-box--purple"><svg class="ffm-icon ffm-icon-lg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="8" y1="13" x2="16" y2="13"></line><line x1="8" y1="17" x2="16" y2="17"></line></svg></div>
-                        <div class="ffm-tile-title">Monthly Statement</div>
-                        <div class="ffm-tile-subtitle">Monthly bill &amp; claims</div>
-                    </a>
+                    <!-- 8. Monthly Statement (Supervisors and Managers Only) -->
+                    <t t-if="not is_fp">
+                        <a href="/ff/statement" class="ffm-tile">
+                            <div class="ffm-icon-box ffm-icon-box--purple"><svg class="ffm-icon ffm-icon-lg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="8" y1="13" x2="16" y2="13"></line><line x1="8" y1="17" x2="16" y2="17"></line></svg></div>
+                            <div class="ffm-tile-title">Monthly Statement</div>
+                            <div class="ffm-tile-subtitle">Monthly bill &amp; claims</div>
+                        </a>
+                    </t>
 
                     <!-- 9. Team Approvals (Dedicated Menu/Option for Supervisors) -->
                     <t t-if="is_supervisor">
@@ -275,7 +277,9 @@
     <!-- Attendance Screen -->
     <template id="ff_attendance" name="FFM Marketer Attendance">
         <t t-call="ffm_daily_report.ff_layout">
-            <a href="/ff" class="ffm-back-link">← Back to Dashboard</a>
+            <a href="/ff" class="ffm-back-link">
+                <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Back to Dashboard
+            </a>
 
             <div class="ffm-form-card">
                 <div class="ffm-form-header">
@@ -460,104 +464,151 @@
     <!-- Daily Report Header Screen (Today's Date Only) -->
     <template id="ff_daily_report" name="FFM Daily Report Header">
         <t t-call="ffm_daily_report.ff_layout">
-            <a href="/ff" class="ffm-back-link">← Back to Dashboard</a>
+            <a href="/ff" class="ffm-back-link">
+                <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Back to Dashboard
+            </a>
 
             <div class="ffm-form-card">
                 <div class="ffm-form-header">
                     <div>
                         <h2 class="ffm-form-title">
-                            <svg class="ffm-icon ffm-icon-sm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 6px; color: #2563eb;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg> Today's Daily Report
+                            <span class="ffm-icon-box ffm-icon-box-sm ffm-icon-box--blue" style="margin-bottom: 0;">
+                                <svg class="ffm-icon ffm-icon-sm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                            </span>
+                            Today's Daily Report
                         </h2>
-                        <p class="ffm-form-subtitle">Daily activity status, visit counts, and official PDF download.</p>
+                        <p class="ffm-form-subtitle">Daily field performance status, visit counts, and official statement export.</p>
                     </div>
-                    <span class="ffm-badge ffm-badge-info" style="font-size: 0.78rem; padding: 4px 10px;">
+                    <span class="ffm-badge ffm-badge-info" style="font-size: 0.80rem; padding: 5px 12px; font-weight: 600;">
                         <t t-esc="today_str"/>
                     </span>
                 </div>
 
                 <!-- Case A: Report Already Initialized -->
                 <t t-if="report">
-                    <div style="background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%); border: 1.5px solid #cbd5e1; border-radius: 10px; padding: 16px; margin-bottom: 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #f1f5f9;">
-                            <span style="font-size: 0.88rem; font-weight: 700; color: #1e293b;">Daily Report Summary</span>
-                            <span t-attf-class="ffm-badge #{'ffm-badge-success' if report.state == 'approved' else ('ffm-badge-warning' if report.state == 'submitted' else '')}" style="background: #e0f2fe; color: #0369a1; font-size: 0.76rem; font-weight: 700; text-transform: uppercase;">
+                    <!-- Report Status Overview Card -->
+                    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px 18px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #f1f5f9;">
+                            <span style="font-size: 0.88rem; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 6px;">
+                                <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #64748b;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> Field Marketer Info
+                            </span>
+                            <span t-attf-class="ffm-badge #{'ffm-badge-success' if report.state == 'approved' else ('ffm-badge-warning' if report.state == 'submitted' else 'ffm-badge-info')}" style="font-size: 0.74rem; font-weight: 700; text-transform: uppercase; padding: 3px 9px;">
                                 <t t-esc="report.state"/>
                             </span>
                         </div>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; font-size: 0.85rem;">
-                            <div><span style="color: #64748b;">Marketer:</span> <strong t-esc="report.employee_id.name"/></div>
-                            <div><span style="color: #64748b;">Working Place:</span> <strong t-esc="report.working_place_id.name or report.working_place or 'Not Set'"/></div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; font-size: 0.85rem;">
+                            <div><span style="color: #64748b;">Marketer:</span> <strong style="color: #0f172a;" t-esc="report.employee_id.name"/></div>
+                            <div><span style="color: #64748b;">Working Place:</span> <strong style="color: #0f172a;" t-esc="report.working_place_id.name or report.working_place or (report.territory_id.name if report.territory_id else 'HQ / Assigned Area')"/></div>
                             <t t-if="report.territory_id">
-                                <div><span style="color: #64748b;">Territory:</span> <strong t-esc="report.territory_id.name"/></div>
+                                <div><span style="color: #64748b;">Territory:</span> <strong style="color: #0f172a;" t-esc="report.territory_id.name"/></div>
                             </t>
                         </div>
                     </div>
 
-                    <!-- Summary KPI Counters -->
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; text-align: center;">
-                        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
-                            <div style="font-size: 0.72rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Chemists</div>
-                            <div style="font-size: 1.15rem; font-weight: 800; color: #107c41; margin-top: 2px;"><t t-esc="report.total_chemist_visited"/></div>
+                    <!-- Summary KPI Visit Counters -->
+                    <div class="ffm-kpi-grid">
+                        <div class="ffm-kpi-card">
+                            <div style="font-size: 0.72rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;">Chemists</div>
+                            <div style="font-size: 1.35rem; font-weight: 800; color: #107c41; margin-top: 3px; line-height: 1.2;"><t t-esc="report.total_chemist_visited"/></div>
                         </div>
-                        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
-                            <div style="font-size: 0.72rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Doctors</div>
-                            <div style="font-size: 1.15rem; font-weight: 800; color: #0284c7; margin-top: 2px;"><t t-esc="report.total_prescriber_visited"/></div>
+                        <div class="ffm-kpi-card">
+                            <div style="font-size: 0.72rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;">Doctors</div>
+                            <div style="font-size: 1.35rem; font-weight: 800; color: #0284c7; margin-top: 3px; line-height: 1.2;"><t t-esc="report.total_prescriber_visited"/></div>
                         </div>
-                        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
-                            <div style="font-size: 0.72rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Farms</div>
-                            <div style="font-size: 1.15rem; font-weight: 800; color: #d97706; margin-top: 2px;"><t t-esc="report.total_farm_visited"/></div>
-                        </div>
-                    </div>
-
-                    <!-- Financial Counters -->
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; text-align: center;">
-                        <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; padding: 10px;">
-                            <div style="font-size: 0.72rem; color: #047857; font-weight: 600; text-transform: uppercase;">Order (Tk)</div>
-                            <div style="font-size: 1.05rem; font-weight: 800; color: #065f46; margin-top: 2px;">৳<t t-esc="'%.0f' % report.total_order_tk"/></div>
-                        </div>
-                        <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 10px;">
-                            <div style="font-size: 0.72rem; color: #1d4ed8; font-weight: 600; text-transform: uppercase;">Sale (Tk)</div>
-                            <div style="font-size: 1.05rem; font-weight: 800; color: #1e40af; margin-top: 2px;">৳<t t-esc="'%.0f' % report.total_sale_tk"/></div>
-                        </div>
-                        <div style="background: #fefce8; border: 1px solid #fef08a; border-radius: 8px; padding: 10px;">
-                            <div style="font-size: 0.72rem; color: #a16207; font-weight: 600; text-transform: uppercase;">Collection (Tk)</div>
-                            <div style="font-size: 1.05rem; font-weight: 800; color: #854d0e; margin-top: 2px;">৳<t t-esc="'%.0f' % report.total_coll_tk"/></div>
+                        <div class="ffm-kpi-card">
+                            <div style="font-size: 0.72rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;">Farms</div>
+                            <div style="font-size: 1.35rem; font-weight: 800; color: #d97706; margin-top: 3px; line-height: 1.2;"><t t-esc="report.total_farm_visited"/></div>
                         </div>
                     </div>
 
-                    <!-- Quick Visit Entry Buttons -->
-                    <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 22px;">
-                        <a href="/ff/visit/chemist" class="ffm-btn ffm-btn-secondary" style="justify-content: flex-start; padding: 12px 16px; border-left: 4px solid #107c41;">
-                            <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #107c41; margin-right: 4px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> + Add Chemist Visit
+                    <!-- Financial Performance Summary -->
+                    <div class="ffm-fin-grid">
+                        <div class="ffm-fin-card ffm-fin-card--order" style="text-align: center;">
+                            <div style="font-size: 0.72rem; color: #166534; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;">Order Total</div>
+                            <div style="font-size: 1.15rem; font-weight: 800; color: #14532d; margin-top: 3px; line-height: 1.2;">Tk <t t-esc="'%.0f' % report.total_order_tk"/></div>
+                        </div>
+                        <div class="ffm-fin-card ffm-fin-card--sale" style="text-align: center;">
+                            <div style="font-size: 0.72rem; color: #1e40af; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;">Sale Total</div>
+                            <div style="font-size: 1.15rem; font-weight: 800; color: #1e3a8a; margin-top: 3px; line-height: 1.2;">Tk <t t-esc="'%.0f' % report.total_sale_tk"/></div>
+                        </div>
+                        <div class="ffm-fin-card ffm-fin-card--coll" style="text-align: center;">
+                            <div style="font-size: 0.72rem; color: #854d0e; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;">Collection</div>
+                            <div style="font-size: 1.15rem; font-weight: 800; color: #713f12; margin-top: 3px; line-height: 1.2;">Tk <t t-esc="'%.0f' % report.total_coll_tk"/></div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Visit Entry Action Tiles (2-Col Desktop Grid) -->
+                    <div class="ffm-action-grid">
+                        <a href="/ff/visit/chemist" class="ffm-action-tile" style="border-left: 3.5px solid #107c41;">
+                            <div class="ffm-action-tile-icon" style="background: #ecfdf5; color: #059669;">
+                                <svg class="ffm-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"></path><path d="m8.5 8.5 7 7"></path></svg>
+                            </div>
+                            <div class="ffm-action-tile-content">
+                                <div class="ffm-action-tile-title">Chemist Visit</div>
+                                <div class="ffm-action-tile-sub">Record orders, sales &amp; cash collections</div>
+                            </div>
+                            <div class="ffm-action-tile-arrow">
+                                <svg class="ffm-icon ffm-icon-xs" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                            </div>
                         </a>
-                        <a href="/ff/visit/doctor" class="ffm-btn ffm-btn-secondary" style="justify-content: flex-start; padding: 12px 16px; border-left: 4px solid #0284c7;">
-                            <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #0284c7; margin-right: 4px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> + Add Doctor Visit
+
+                        <a href="/ff/visit/doctor" class="ffm-action-tile" style="border-left: 3.5px solid #0284c7;">
+                            <div class="ffm-action-tile-icon" style="background: #eff6ff; color: #0284c7;">
+                                <svg class="ffm-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 3v5a4.5 4.5 0 0 0 9 0V3"></path><path d="M9 12.5V17a4 4 0 0 0 4 4h1a4 4 0 0 0 4-4v-3.5"></path><circle cx="18" cy="11.5" r="2"></circle><circle cx="4.5" cy="3" r="1.5"></circle><circle cx="13.5" cy="3" r="1.5"></circle></svg>
+                            </div>
+                            <div class="ffm-action-tile-content">
+                                <div class="ffm-action-tile-title">Doctor Visit</div>
+                                <div class="ffm-action-tile-sub">Record consultation &amp; sample feedback</div>
+                            </div>
+                            <div class="ffm-action-tile-arrow">
+                                <svg class="ffm-icon ffm-icon-xs" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                            </div>
                         </a>
-                        <a href="/ff/visit/farm" class="ffm-btn ffm-btn-secondary" style="justify-content: flex-start; padding: 12px 16px; border-left: 4px solid #d97706;">
-                            <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d97706; margin-right: 4px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> + Add Farm Visit
+
+                        <a href="/ff/visit/farm" class="ffm-action-tile" style="border-left: 3.5px solid #d97706;">
+                            <div class="ffm-action-tile-icon" style="background: #fffbeb; color: #d97706;">
+                                <svg class="ffm-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                            </div>
+                            <div class="ffm-action-tile-content">
+                                <div class="ffm-action-tile-title">Farm &amp; Institution</div>
+                                <div class="ffm-action-tile-sub">Record poultry, dairy or aqua visit</div>
+                            </div>
+                            <div class="ffm-action-tile-arrow">
+                                <svg class="ffm-icon ffm-icon-xs" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                            </div>
                         </a>
-                        <a href="/ff/report/cards" class="ffm-btn ffm-btn-secondary" style="justify-content: flex-start; padding: 12px 16px; border-left: 4px solid #4f46e5;">
-                            <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #4f46e5; margin-right: 4px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> View Daily Report Card
+
+                        <a href="/ff/report/cards" class="ffm-action-tile" style="border-left: 3.5px solid #4f46e5;">
+                            <div class="ffm-action-tile-icon" style="background: #eef2ff; color: #4f46e5;">
+                                <svg class="ffm-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            </div>
+                            <div class="ffm-action-tile-content">
+                                <div class="ffm-action-tile-title">Daily Report Card</div>
+                                <div class="ffm-action-tile-sub">Review today's recorded entries</div>
+                            </div>
+                            <div class="ffm-action-tile-arrow">
+                                <svg class="ffm-icon ffm-icon-xs" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                            </div>
                         </a>
                     </div>
 
                     <!-- Action Toolbar -->
                     <t t-if="report.state == 'draft'">
-                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                            <button type="button" id="btnSubmitReport" class="ffm-btn ffm-btn-primary" onclick="submitDailyReport()" style="flex: 2; min-width: 170px;">
+                        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                            <button type="button" id="btnSubmitReport" class="ffm-btn ffm-btn-primary" onclick="submitDailyReport()" style="flex: 2; min-width: 180px;">
                                 <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Finalize &amp; Submit Report
                             </button>
-                            <a t-attf-href="/ff/report/daily/pdf?report_id=#{report.id}" target="_blank" class="ffm-btn ffm-btn-secondary" style="flex: 1; min-width: 140px; text-decoration: none; background: #e0e7ff; color: #3730a3; border-color: #c7d2fe;">
+                            <a t-attf-href="/ff/report/daily/pdf?report_id=#{report.id}" target="_blank" class="ffm-btn ffm-btn-secondary" style="flex: 1; min-width: 140px; text-decoration: none; background: #eef2ff; color: #3730a3; border-color: #c7d2fe;">
                                 <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Download PDF
                             </a>
                         </div>
                     </t>
                     <t t-else="">
-                        <div style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 12px; text-align: center; margin-bottom: 12px; color: #15803d; font-weight: 600; font-size: 0.90rem;">
+                        <div style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 12px 14px; text-align: center; margin-bottom: 14px; color: #15803d; font-weight: 600; font-size: 0.90rem;">
                             <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 4px;"><polyline points="20 6 9 17 4 12"></polyline></svg> Today's report has already been submitted for management review.
                         </div>
                         <div style="text-align: center;">
-                            <a t-attf-href="/ff/report/daily/pdf?report_id=#{report.id}" target="_blank" class="ffm-btn ffm-btn-secondary" style="text-decoration: none; background: #e0e7ff; color: #3730a3; border-color: #c7d2fe; padding: 10px 18px; font-size: 0.90rem; max-width: 320px; margin: 0 auto;">
+                            <a t-attf-href="/ff/report/daily/pdf?report_id=#{report.id}" target="_blank" class="ffm-btn ffm-btn-secondary" style="text-decoration: none; background: #eef2ff; color: #3730a3; border-color: #c7d2fe; padding: 10px 18px; font-size: 0.90rem; max-width: 320px; margin: 0 auto;">
                                 <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Download Today's Report PDF
                             </a>
                         </div>
@@ -597,14 +648,14 @@
 
                 <!-- Case B: Report Not Initialized Yet -->
                 <t t-else="">
-                    <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 16px; margin-bottom: 18px;">
-                        <p style="font-size: 0.88rem; color: #475569; margin: 0 0 14px 0;">
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; margin-bottom: 18px;">
+                        <p style="font-size: 0.88rem; color: #475569; margin: 0 0 16px 0; line-height: 1.4;">
                             Please select your primary working place (Thana or Market area) to initialize today's daily activity sheet.
                         </p>
                         <form id="initReportForm" onsubmit="return handleInitReport(event)">
                             <div class="ffm-form-group">
                                 <label class="ffm-form-label" for="working_place_id">
-                                    <span>Primary Working Place / Thana *</span>
+                                    <span>Primary Working Place / Thana <span class="ffm-req">*</span></span>
                                 </label>
                                 <select id="working_place_id" name="working_place_id" class="ffm-form-control" required="required">
                                     <option value="">-- Select Thana or Area --</option>
@@ -662,71 +713,86 @@
     <!-- Chemist Visit Form -->
     <template id="ff_visit_chemist" name="FFM Chemist Visit Form">
         <t t-call="ffm_daily_report.ff_layout">
-            <a href="/ff/report/daily" class="ffm-back-link">← Back to Daily Report</a>
+            <a href="/ff/report/daily" class="ffm-back-link">
+                <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Back to Daily Report
+            </a>
 
             <div class="ffm-form-card">
                 <div class="ffm-form-header">
                     <div>
                         <h2 class="ffm-form-title">
-                            <svg class="ffm-icon ffm-icon-sm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 6px; color: #107c41;"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"></path><path d="m8.5 8.5 7 7"></path></svg> Chemist Shop Visit
+                            <span class="ffm-icon-box ffm-icon-box-sm ffm-icon-box--green" style="margin-bottom: 0;">
+                                <svg class="ffm-icon ffm-icon-sm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"></path><path d="m8.5 8.5 7 7"></path></svg>
+                            </span>
+                            Chemist Shop Visit
                         </h2>
-                        <p class="ffm-form-subtitle">Record chemist visits, order bookings, sales, and cash collections.</p>
+                        <p class="ffm-form-subtitle">Record pharmacy visits, product bookings, sales delivery, and cash collection.</p>
                     </div>
                 </div>
 
                 <form id="chemistVisitForm" onsubmit="return handleChemistSubmit(event)">
-                    <!-- Chemist Search & Selection -->
+                    <!-- Chemist / Pharmacy Name -->
                     <div class="ffm-form-group">
-                        <label class="ffm-form-label">
-                            <span>Search Pharmacy / Chemist</span>
-                            <span style="font-size: 0.72rem; color: #64748b; font-weight: normal;">Type 2+ letters</span>
+                        <label class="ffm-form-label" for="chemist_name_manual">
+                            <span>Chemist / Pharmacy Name <span class="ffm-req">*</span></span>
                         </label>
-                        <input type="text" id="chemistSearchInput" class="ffm-form-control" placeholder="Search by chemist or pharmacy name..." oninput="searchChemists(this.value)"/>
-                        <select id="chemist_id" name="chemist_id" class="ffm-form-control" style="margin-top: 8px;">
-                            <option value="">-- Or select from verified list --</option>
-                        </select>
+                        <input type="text" id="chemist_name_manual" name="chemist_name_manual" class="ffm-form-control" required="required"/>
+                        <input type="hidden" id="chemist_id" name="chemist_id" value=""/>
                     </div>
 
-                    <!-- Manual Name Fallback -->
+                    <!-- Order, Sale, Collection amounts (Modern Financial Cards) -->
+                    <div class="ffm-fin-grid">
+                        <div class="ffm-fin-card ffm-fin-card--order">
+                            <label class="ffm-fin-label" for="order_tk">
+                                <span>Order (Tk) <span class="ffm-req">*</span></span>
+                            </label>
+                            <div class="ffm-currency-wrap">
+                                <span class="ffm-currency-prefix">Tk</span>
+                                <input type="number" id="order_tk" name="order_tk" class="ffm-form-control" min="0" step="1" value="0" required="required"/>
+                            </div>
+                        </div>
+
+                        <div class="ffm-fin-card ffm-fin-card--sale">
+                            <label class="ffm-fin-label" for="sale_tk">
+                                <span>Sale (Tk) <span class="ffm-req">*</span></span>
+                            </label>
+                            <div class="ffm-currency-wrap">
+                                <span class="ffm-currency-prefix">Tk</span>
+                                <input type="number" id="sale_tk" name="sale_tk" class="ffm-form-control" min="0" step="1" value="0" required="required"/>
+                            </div>
+                        </div>
+
+                        <div class="ffm-fin-card ffm-fin-card--coll">
+                            <label class="ffm-fin-label" for="coll_tk">
+                                <span>Collection (Tk) <span class="ffm-req">*</span></span>
+                            </label>
+                            <div class="ffm-currency-wrap">
+                                <span class="ffm-currency-prefix">Tk</span>
+                                <input type="number" id="coll_tk" name="coll_tk" class="ffm-form-control" min="0" step="1" value="0" required="required"/>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="ffm-form-group">
-                        <label class="ffm-form-label">
-                            <span>Manual Chemist Name</span>
-                            <span style="font-size: 0.72rem; color: #64748b; font-weight: normal;">If new shop</span>
-                        </label>
-                        <input type="text" id="chemist_name_manual" name="chemist_name_manual" class="ffm-form-control" placeholder="Enter shop name if not in database"/>
-                    </div>
-
-                    <!-- Order, Sale, Collection amounts -->
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 16px;">
-                        <div style="background: #ecfdf5; border: 1.5px solid #a7f3d0; border-radius: 8px; padding: 10px 12px;">
-                            <label class="ffm-form-label" style="color: #065f46; margin-bottom: 4px;">Order (Tk) *</label>
-                            <input type="number" id="order_tk" name="order_tk" class="ffm-form-control ffm-amount-control" min="0" step="1" value="0" required="required" style="background: #ffffff; border-color: #6ee7b7;"/>
-                        </div>
-                        <div style="background: #eff6ff; border: 1.5px solid #bfdbfe; border-radius: 8px; padding: 10px 12px;">
-                            <label class="ffm-form-label" style="color: #1e40af; margin-bottom: 4px;">Sale (Tk) *</label>
-                            <input type="number" id="sale_tk" name="sale_tk" class="ffm-form-control ffm-amount-control" min="0" step="1" value="0" required="required" style="background: #ffffff; border-color: #93c5fd;"/>
-                        </div>
-                        <div style="background: #fefce8; border: 1.5px solid #fef08a; border-radius: 8px; padding: 10px 12px;">
-                            <label class="ffm-form-label" style="color: #854d0e; margin-bottom: 4px;">Collection (Tk) *</label>
-                            <input type="number" id="coll_tk" name="coll_tk" class="ffm-form-control ffm-amount-control" min="0" step="1" value="0" required="required" style="background: #ffffff; border-color: #fde047;"/>
-                        </div>
-                    </div>
-
-                    <div class="ffm-form-group">
-                        <label class="ffm-form-label">Visit Notes / Remarks</label>
-                        <input type="text" id="note" name="note" class="ffm-form-control" placeholder="e.g. Products ordered, cheque payment promised next week..."/>
+                        <label class="ffm-form-label" for="note">Visit Notes / Remarks</label>
+                        <input type="text" id="note" name="note" class="ffm-form-control"/>
                     </div>
 
                     <!-- ── Journey Details Block ── -->
                     <div class="ffm-journey-card">
                         <div class="ffm-journey-header">
-                            <svg class="ffm-icon ffm-icon-xs" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #2563eb;"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
-                            <span>Travel &amp; Journey Calculation (T.A.)</span>
+                            <div class="ffm-journey-title">
+                                <span class="ffm-icon-box ffm-icon-box-sm ffm-icon-box--blue" style="margin-bottom: 0;">
+                                    <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                                </span>
+                                <span>Travel &amp; Journey Calculation (T.A.)</span>
+                            </div>
+                            <span class="ffm-badge ffm-badge-neutral" style="font-size: 0.72rem;">Optional</span>
                         </div>
 
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="ffm-row-2">
                             <div class="ffm-form-group">
-                                <label class="ffm-form-label">Starting Place</label>
+                                <label class="ffm-form-label" for="place_from_id">Starting Place</label>
                                 <select id="place_from_id" class="ffm-form-control">
                                     <option value="">-- From Place --</option>
                                     <t t-foreach="places" t-as="p">
@@ -735,7 +801,7 @@
                                 </select>
                             </div>
                             <div class="ffm-form-group">
-                                <label class="ffm-form-label">Destination Place</label>
+                                <label class="ffm-form-label" for="place_to_id">Destination Place</label>
                                 <select id="place_to_id" class="ffm-form-control">
                                     <option value="">-- To Place --</option>
                                     <t t-foreach="places" t-as="p">
@@ -746,7 +812,9 @@
                         </div>
 
                         <div class="ffm-form-group">
-                            <label class="ffm-form-label">Mode of Journey *</label>
+                            <label class="ffm-form-label" for="mode">
+                                <span>Mode of Journey <span class="ffm-req">*</span></span>
+                            </label>
                             <select id="mode" class="ffm-form-control" required="required" onchange="checkModeOther(this.value)">
                                 <t t-foreach="transport_modes" t-as="m">
                                     <option t-att-value="m[0]"><t t-esc="m[1]"/></option>
@@ -755,22 +823,27 @@
                         </div>
 
                         <div class="ffm-form-group" id="divOtherMode" style="display: none;">
-                            <label class="ffm-form-label">Other Transport Details</label>
-                            <input type="text" id="other_mode" class="ffm-form-control" placeholder="Enter transport name / details"/>
+                            <label class="ffm-form-label" for="other_mode">Other Transport Details</label>
+                            <input type="text" id="other_mode" class="ffm-form-control"/>
                         </div>
 
-                        <button type="button" class="ffm-btn ffm-btn-secondary" onclick="calculateJourney()" style="margin-bottom: 14px; font-size: 0.88rem; min-height: 42px;">
-                            <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #2563eb;"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line></svg> Auto-Calculate Distance &amp; Fare
+                        <button type="button" class="ffm-journey-calc-btn" onclick="calculateJourney()">
+                            <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line></svg> Auto-Calculate Distance &amp; Fare
                         </button>
 
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="ffm-row-2">
                             <div class="ffm-form-group" style="margin-bottom: 0;">
-                                <label class="ffm-form-label">Distance (km)</label>
+                                <label class="ffm-form-label" for="distance_km">Distance (km)</label>
                                 <input type="number" id="distance_km" class="ffm-form-control" step="0.1" value="0"/>
                             </div>
                             <div class="ffm-form-group" style="margin-bottom: 0;">
-                                <label class="ffm-form-label">Travel Fare (Tk) *</label>
-                                <input type="number" id="fare_tk" class="ffm-form-control" step="1" value="0" required="required" style="font-weight: 700; color: #1e40af;"/>
+                                <label class="ffm-form-label" for="fare_tk">
+                                    <span>Travel Fare (Tk) <span class="ffm-req">*</span></span>
+                                </label>
+                                <div class="ffm-currency-wrap">
+                                    <span class="ffm-currency-prefix">Tk</span>
+                                    <input type="number" id="fare_tk" class="ffm-form-control" step="1" value="0" required="required" style="color: #1e40af;"/>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -782,29 +855,6 @@
             </div>
 
             <script>
-                function searchChemists(term) {
-                    if (!term || term.length &lt; 2) return;
-                    fetch('/ff/api/customers/search', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({params: {type: 'chemist', term: term}})
-                    })
-                    .then(function(res) { return res.json(); })
-                    .then(function(data) {
-                        var res = data.result || data;
-                        var sel = document.getElementById('chemist_id');
-                        sel.innerHTML = '&lt;option value=""&gt;-- Select --&lt;/option&gt;';
-                        if (res.results) {
-                            res.results.forEach(function(c) {
-                                var opt = document.createElement('option');
-                                opt.value = c.id;
-                                opt.innerText = c.name + (c.address ? ' (' + c.address + ')' : '');
-                                sel.appendChild(opt);
-                            });
-                        }
-                    });
-                }
-
                 function checkModeOther(val) {
                     document.getElementById('divOtherMode').style.display = (val === 'others') ? 'block' : 'none';
                 }
@@ -837,11 +887,10 @@
 
                 function handleChemistSubmit(e) {
                     e.preventDefault();
-                    var chemId = document.getElementById('chemist_id').value;
                     var chemManual = document.getElementById('chemist_name_manual').value.trim();
 
-                    if (!chemId &amp;&amp; !chemManual) {
-                        FFM.showToast('Please select a chemist or enter a manual name.', 'error');
+                    if (!chemManual) {
+                        FFM.showToast('Please enter chemist / pharmacy name.', 'error');
                         return false;
                     }
 
@@ -904,47 +953,44 @@
     <!-- Doctor Visit Form -->
     <template id="ff_visit_doctor" name="FFM Doctor Visit Form">
         <t t-call="ffm_daily_report.ff_layout">
-            <a href="/ff/report/daily" class="ffm-back-link">← Back to Daily Report</a>
+            <a href="/ff/report/daily" class="ffm-back-link">
+                <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Back to Daily Report
+            </a>
 
             <div class="ffm-form-card">
                 <div class="ffm-form-header">
                     <div>
                         <h2 class="ffm-form-title">
-                            <svg class="ffm-icon ffm-icon-sm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 6px; color: #0284c7;"><path d="M4.5 3v5a4.5 4.5 0 0 0 9 0V3"></path><path d="M9 12.5V17a4 4 0 0 0 4 4h1a4 4 0 0 0 4-4v-3.5"></path><circle cx="18" cy="11.5" r="2"></circle><circle cx="4.5" cy="3" r="1.5"></circle><circle cx="13.5" cy="3" r="1.5"></circle></svg> Doctor / Prescriber Visit
+                            <span class="ffm-icon-box ffm-icon-box-sm ffm-icon-box--blue" style="margin-bottom: 0;">
+                                <svg class="ffm-icon ffm-icon-sm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 3v5a4.5 4.5 0 0 0 9 0V3"></path><path d="M9 12.5V17a4 4 0 0 0 4 4h1a4 4 0 0 0 4-4v-3.5"></path><circle cx="18" cy="11.5" r="2"></circle><circle cx="4.5" cy="3" r="1.5"></circle><circle cx="13.5" cy="3" r="1.5"></circle></svg>
+                            </span>
+                            Doctor / Prescriber Visit
                         </h2>
                         <p class="ffm-form-subtitle">Record doctor consultations, product discussion notes, and sampling details.</p>
                     </div>
                 </div>
 
                 <form id="doctorVisitForm" onsubmit="return handleDoctorSubmit(event)">
-                    <!-- Doctor Search & Selection -->
+                    <!-- Doctor Name Entry -->
                     <div class="ffm-form-group">
-                        <label class="ffm-form-label">
-                            <span>Search Doctor</span>
-                            <span style="font-size: 0.72rem; color: #64748b; font-weight: normal;">Type 2+ letters</span>
+                        <label class="ffm-form-label" for="prescriber_name_manual">
+                            <span>Doctor / Prescriber Name <span class="ffm-req">*</span></span>
                         </label>
-                        <input type="text" class="ffm-form-control" placeholder="Search doctor by name or degrees..." oninput="searchDoctors(this.value)"/>
-                        <select id="doctor_id" name="doctor_id" class="ffm-form-control" style="margin-top: 8px;">
-                            <option value="">-- Or select from verified doctor list --</option>
-                        </select>
+                        <input type="text" id="prescriber_name_manual" name="prescriber_name_manual" class="ffm-form-control" required="required"/>
+                        <input type="hidden" id="doctor_id" name="doctor_id" value=""/>
                     </div>
 
-                    <!-- Manual Name Fallback -->
-                    <div class="ffm-form-group">
-                        <label class="ffm-form-label">
-                            <span>Manual Doctor Name</span>
-                            <span style="font-size: 0.72rem; color: #64748b; font-weight: normal;">If new doctor</span>
-                        </label>
-                        <input type="text" id="prescriber_name_manual" name="prescriber_name_manual" class="ffm-form-control" placeholder="e.g. Dr. Mohammad Rafiq (MBBS)"/>
-                    </div>
-
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div class="ffm-row-2">
                         <div class="ffm-form-group">
-                            <label class="ffm-form-label">Doctor Phone / Contact *</label>
-                            <input type="text" id="mobile" name="mobile" class="ffm-form-control" required="required" placeholder="017xxxxxxxx"/>
+                            <label class="ffm-form-label" for="mobile">
+                                <span>Doctor Phone / Contact <span class="ffm-req">*</span></span>
+                            </label>
+                            <input type="text" id="mobile" name="mobile" class="ffm-form-control" required="required"/>
                         </div>
                         <div class="ffm-form-group">
-                            <label class="ffm-form-label">Doctor Grade *</label>
+                            <label class="ffm-form-label" for="grade">
+                                <span>Doctor Grade <span class="ffm-req">*</span></span>
+                            </label>
                             <select id="grade" name="grade" class="ffm-form-control" required="required">
                                 <t t-foreach="doctor_grades" t-as="g">
                                     <option t-att-value="g[0]"><t t-esc="g[1]"/></option>
@@ -954,30 +1000,41 @@
                     </div>
 
                     <div class="ffm-form-group">
-                        <label class="ffm-form-label">Chamber / Hospital Address *</label>
-                        <input type="text" id="mailing_address" name="mailing_address" class="ffm-form-control" required="required" placeholder="e.g. Popular Diagnostic Center, Room 204"/>
+                        <label class="ffm-form-label" for="mailing_address">
+                            <span>Chamber / Hospital Address <span class="ffm-req">*</span></span>
+                        </label>
+                        <input type="text" id="mailing_address" name="mailing_address" class="ffm-form-control" required="required"/>
                     </div>
 
                     <div class="ffm-form-group">
-                        <label class="ffm-form-label">Product Discussion Highlights *</label>
-                        <input type="text" id="product_discussion" name="product_discussion" class="ffm-form-control" required="required" placeholder="e.g. Promoted Amoxil DS &amp; Cal-D3; positive feedback received."/>
+                        <label class="ffm-form-label" for="product_discussion">
+                            <span>Product Discussion Highlights <span class="ffm-req">*</span></span>
+                        </label>
+                        <input type="text" id="product_discussion" name="product_discussion" class="ffm-form-control" required="required"/>
                     </div>
 
                     <div class="ffm-form-group">
-                        <label class="ffm-form-label">Sample / Literature Given *</label>
-                        <input type="text" id="sample" name="sample" class="ffm-form-control" required="required" placeholder="e.g. 2 Strips sample given with visual aid brochure"/>
+                        <label class="ffm-form-label" for="sample">
+                            <span>Sample / Literature Given <span class="ffm-req">*</span></span>
+                        </label>
+                        <input type="text" id="sample" name="sample" class="ffm-form-control" required="required"/>
                     </div>
 
                     <!-- ── Journey Details Block ── -->
                     <div class="ffm-journey-card">
                         <div class="ffm-journey-header">
-                            <svg class="ffm-icon ffm-icon-xs" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #2563eb;"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
-                            <span>Travel &amp; Journey Calculation (T.A.)</span>
+                            <div class="ffm-journey-title">
+                                <span class="ffm-icon-box ffm-icon-box-sm ffm-icon-box--blue" style="margin-bottom: 0;">
+                                    <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                                </span>
+                                <span>Travel &amp; Journey Calculation (T.A.)</span>
+                            </div>
+                            <span class="ffm-badge ffm-badge-neutral" style="font-size: 0.72rem;">Optional</span>
                         </div>
 
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="ffm-row-2">
                             <div class="ffm-form-group">
-                                <label class="ffm-form-label">Starting Place</label>
+                                <label class="ffm-form-label" for="doc_place_from_id">Starting Place</label>
                                 <select id="doc_place_from_id" class="ffm-form-control">
                                     <option value="">-- From Place --</option>
                                     <t t-foreach="places" t-as="p">
@@ -986,7 +1043,7 @@
                                 </select>
                             </div>
                             <div class="ffm-form-group">
-                                <label class="ffm-form-label">Destination Place</label>
+                                <label class="ffm-form-label" for="doc_place_to_id">Destination Place</label>
                                 <select id="doc_place_to_id" class="ffm-form-control">
                                     <option value="">-- To Place --</option>
                                     <t t-foreach="places" t-as="p">
@@ -997,7 +1054,9 @@
                         </div>
 
                         <div class="ffm-form-group">
-                            <label class="ffm-form-label">Mode of Journey *</label>
+                            <label class="ffm-form-label" for="doc_mode">
+                                <span>Mode of Journey <span class="ffm-req">*</span></span>
+                            </label>
                             <select id="doc_mode" class="ffm-form-control" required="required">
                                 <t t-foreach="transport_modes" t-as="m">
                                     <option t-att-value="m[0]"><t t-esc="m[1]"/></option>
@@ -1005,18 +1064,23 @@
                             </select>
                         </div>
 
-                        <button type="button" class="ffm-btn ffm-btn-secondary" onclick="calculateDoctorJourney()" style="margin-bottom: 14px; font-size: 0.88rem; min-height: 42px;">
-                            <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #2563eb;"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line></svg> Auto-Calculate Distance &amp; Fare
+                        <button type="button" class="ffm-journey-calc-btn" onclick="calculateDoctorJourney()">
+                            <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line></svg> Auto-Calculate Distance &amp; Fare
                         </button>
 
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="ffm-row-2">
                             <div class="ffm-form-group" style="margin-bottom: 0;">
-                                <label class="ffm-form-label">Distance (km)</label>
+                                <label class="ffm-form-label" for="doc_distance_km">Distance (km)</label>
                                 <input type="number" id="doc_distance_km" class="ffm-form-control" step="0.1" value="0"/>
                             </div>
                             <div class="ffm-form-group" style="margin-bottom: 0;">
-                                <label class="ffm-form-label">Travel Fare (Tk) *</label>
-                                <input type="number" id="doc_fare_tk" class="ffm-form-control" step="1" value="0" required="required" style="font-weight: 700; color: #1e40af;"/>
+                                <label class="ffm-form-label" for="doc_fare_tk">
+                                    <span>Travel Fare (Tk) <span class="ffm-req">*</span></span>
+                                </label>
+                                <div class="ffm-currency-wrap">
+                                    <span class="ffm-currency-prefix">Tk</span>
+                                    <input type="number" id="doc_fare_tk" class="ffm-form-control" step="1" value="0" required="required" style="color: #1e40af;"/>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1028,29 +1092,6 @@
             </div>
 
             <script>
-                function searchDoctors(term) {
-                    if (!term || term.length &lt; 2) return;
-                    fetch('/ff/api/customers/search', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({params: {type: 'doctor', term: term}})
-                    })
-                    .then(function(res) { return res.json(); })
-                    .then(function(data) {
-                        var res = data.result || data;
-                        var sel = document.getElementById('doctor_id');
-                        sel.innerHTML = '&lt;option value=""&gt;-- Select --&lt;/option&gt;';
-                        if (res.results) {
-                            res.results.forEach(function(c) {
-                                var opt = document.createElement('option');
-                                opt.value = c.id;
-                                opt.innerText = c.name + (c.address ? ' (' + c.address + ')' : '');
-                                sel.appendChild(opt);
-                            });
-                        }
-                    });
-                }
-
                 function calculateDoctorJourney() {
                     var pFrom = document.getElementById('doc_place_from_id').value;
                     var pTo = document.getElementById('doc_place_to_id').value;
@@ -1079,11 +1120,10 @@
 
                 function handleDoctorSubmit(e) {
                     e.preventDefault();
-                    var docId = document.getElementById('doctor_id').value;
                     var docManual = document.getElementById('prescriber_name_manual').value.trim();
 
-                    if (!docId &amp;&amp; !docManual) {
-                        FFM.showToast('Please select a doctor or enter a manual name.', 'error');
+                    if (!docManual) {
+                        FFM.showToast('Please enter doctor name.', 'error');
                         return false;
                     }
 
@@ -1091,8 +1131,8 @@
                     var release = FFM.doubleTapGuard(btn, 'Saving...');
 
                     var payload = {
-                        doctor_id: docId || false,
-                        prescriber_name_manual: docManual || false,
+                        doctor_id: false,
+                        prescriber_name_manual: docManual,
                         mobile: document.getElementById('mobile').value.trim(),
                         mailing_address: document.getElementById('mailing_address').value.trim(),
                         product_discussion: document.getElementById('product_discussion').value.trim(),
@@ -1137,13 +1177,18 @@
     <!-- Farm / Others Visit Form -->
     <template id="ff_visit_farm" name="FFM Farm Visit Form">
         <t t-call="ffm_daily_report.ff_layout">
-            <a href="/ff/report/daily" class="ffm-back-link">← Back to Daily Report</a>
+            <a href="/ff/report/daily" class="ffm-back-link">
+                <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Back to Daily Report
+            </a>
 
             <div class="ffm-form-card">
                 <div class="ffm-form-header">
                     <div>
                         <h2 class="ffm-form-title">
-                            <svg class="ffm-icon ffm-icon-sm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 6px; color: #d97706;"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> Farm &amp; Institution Visit
+                            <span class="ffm-icon-box ffm-icon-box-sm ffm-icon-box--amber" style="margin-bottom: 0;">
+                                <svg class="ffm-icon ffm-icon-sm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                            </span>
+                            Farm &amp; Institution Visit
                         </h2>
                         <p class="ffm-form-subtitle">Record visits to poultry, dairy, fishery farms or commercial institutions.</p>
                     </div>
@@ -1151,69 +1196,74 @@
 
                 <form id="farmVisitForm" onsubmit="return handleFarmSubmit(event)">
                     <div class="ffm-form-group">
-                        <label class="ffm-form-label">Farm or Institution Name *</label>
-                        <input type="text" id="farm_name" name="farm_name" class="ffm-form-control" required="required" placeholder="e.g. Green Valley Agro Complex"/>
+                        <label class="ffm-form-label" for="farm_name">
+                            <span>Farm or Institution Name <span class="ffm-req">*</span></span>
+                        </label>
+                        <input type="text" id="farm_name" name="farm_name" class="ffm-form-control" required="required"/>
                     </div>
 
                     <div class="ffm-form-group">
-                        <label class="ffm-form-label">Location / Address</label>
-                        <input type="text" id="farm_address" name="address" class="ffm-form-control" placeholder="Village, Union or Area details"/>
+                        <label class="ffm-form-label" for="farm_address">
+                            <span>Location / Address</span>
+                            <span class="ffm-hint">Village, Union or Area details</span>
+                        </label>
+                        <input type="text" id="farm_address" name="address" class="ffm-form-control"/>
                     </div>
 
                     <!-- Livestock & Animal Capacity Grid -->
-                    <div style="background: #fffbeb; border: 1.5px solid #fef3c7; border-radius: 8px; padding: 12px; margin-bottom: 16px;">
-                        <div style="font-size: 0.78rem; font-weight: 700; color: #92400e; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.03em;">
-                            Livestock / Bird Capacity Breakdown
+                    <div class="ffm-capacity-box">
+                        <div class="ffm-capacity-title">
+                            <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d97706;"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+                            <span>Livestock &amp; Capacity Breakdown</span>
                         </div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                            <div class="ffm-form-group" style="margin-bottom: 8px;">
-                                <label class="ffm-form-label" style="font-size: 0.76rem;">Broiler Shed / Cap</label>
-                                <input type="text" id="broiler" name="broiler" class="ffm-form-control" placeholder="e.g. 5,000 birds" style="background: #ffffff;"/>
-                            </div>
-                            <div class="ffm-form-group" style="margin-bottom: 8px;">
-                                <label class="ffm-form-label" style="font-size: 0.76rem;">Layer Shed / Cap</label>
-                                <input type="text" id="layer" name="layer" class="ffm-form-control" placeholder="e.g. 2,000 birds" style="background: #ffffff;"/>
-                            </div>
-                        </div>
-
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                            <div class="ffm-form-group" style="margin-bottom: 8px;">
-                                <label class="ffm-form-label" style="font-size: 0.76rem;">Sonali Shed / Cap</label>
-                                <input type="text" id="sonali" name="sonali" class="ffm-form-control" placeholder="e.g. 3,000 birds" style="background: #ffffff;"/>
-                            </div>
-                            <div class="ffm-form-group" style="margin-bottom: 8px;">
-                                <label class="ffm-form-label" style="font-size: 0.76rem;">Cattle Count</label>
-                                <input type="text" id="cattle" name="cattle" class="ffm-form-control" placeholder="e.g. 25 cows" style="background: #ffffff;"/>
-                            </div>
-                        </div>
-
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="ffm-capacity-grid">
                             <div class="ffm-form-group" style="margin-bottom: 0;">
-                                <label class="ffm-form-label" style="font-size: 0.76rem;">Fishery / Aqua Ponds</label>
-                                <input type="text" id="aqua" name="aqua" class="ffm-form-control" placeholder="e.g. 4 ponds" style="background: #ffffff;"/>
+                                <label class="ffm-form-label" for="broiler" style="font-size: 0.76rem;">Broiler Shed / Cap</label>
+                                <input type="text" id="broiler" name="broiler" class="ffm-form-control"/>
                             </div>
                             <div class="ffm-form-group" style="margin-bottom: 0;">
-                                <label class="ffm-form-label" style="font-size: 0.76rem;">Total Animals / Birds</label>
-                                <input type="number" id="bird_count" name="bird_count" class="ffm-form-control" min="0" value="0" style="background: #ffffff; font-weight: 700;"/>
+                                <label class="ffm-form-label" for="layer" style="font-size: 0.76rem;">Layer Shed / Cap</label>
+                                <input type="text" id="layer" name="layer" class="ffm-form-control"/>
+                            </div>
+                            <div class="ffm-form-group" style="margin-bottom: 0;">
+                                <label class="ffm-form-label" for="sonali" style="font-size: 0.76rem;">Sonali Shed / Cap</label>
+                                <input type="text" id="sonali" name="sonali" class="ffm-form-control"/>
+                            </div>
+                            <div class="ffm-form-group" style="margin-bottom: 0;">
+                                <label class="ffm-form-label" for="cattle" style="font-size: 0.76rem;">Cattle Count</label>
+                                <input type="text" id="cattle" name="cattle" class="ffm-form-control"/>
+                            </div>
+                            <div class="ffm-form-group" style="margin-bottom: 0;">
+                                <label class="ffm-form-label" for="aqua" style="font-size: 0.76rem;">Fishery / Aqua</label>
+                                <input type="text" id="aqua" name="aqua" class="ffm-form-control"/>
+                            </div>
+                            <div class="ffm-form-group" style="margin-bottom: 0;">
+                                <label class="ffm-form-label" for="bird_count" style="font-size: 0.76rem;">Total Animals / Birds</label>
+                                <input type="number" id="bird_count" name="bird_count" class="ffm-form-control" min="0" value="0" style="font-weight: 700; color: #0f172a;"/>
                             </div>
                         </div>
                     </div>
 
                     <div class="ffm-form-group">
-                        <label class="ffm-form-label">Discussion Highlights &amp; Farmer Feedback</label>
-                        <input type="text" id="farm_note" name="note" class="ffm-form-control" placeholder="Medicines discussed, issues raised, orders promised..."/>
+                        <label class="ffm-form-label" for="farm_note">Discussion Highlights &amp; Farmer Feedback</label>
+                        <input type="text" id="farm_note" name="note" class="ffm-form-control"/>
                     </div>
 
                     <!-- ── Journey Details Block ── -->
                     <div class="ffm-journey-card">
                         <div class="ffm-journey-header">
-                            <svg class="ffm-icon ffm-icon-xs" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #2563eb;"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
-                            <span>Travel &amp; Journey Calculation (T.A.)</span>
+                            <div class="ffm-journey-title">
+                                <span class="ffm-icon-box ffm-icon-box-sm ffm-icon-box--blue" style="margin-bottom: 0;">
+                                    <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                                </span>
+                                <span>Travel &amp; Journey Calculation (T.A.)</span>
+                            </div>
+                            <span class="ffm-badge ffm-badge-neutral" style="font-size: 0.72rem;">Optional</span>
                         </div>
 
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="ffm-row-2">
                             <div class="ffm-form-group">
-                                <label class="ffm-form-label">Starting Place</label>
+                                <label class="ffm-form-label" for="farm_place_from_id">Starting Place</label>
                                 <select id="farm_place_from_id" class="ffm-form-control">
                                     <option value="">-- From Place --</option>
                                     <t t-foreach="places" t-as="p">
@@ -1222,7 +1272,7 @@
                                 </select>
                             </div>
                             <div class="ffm-form-group">
-                                <label class="ffm-form-label">Destination Place</label>
+                                <label class="ffm-form-label" for="farm_place_to_id">Destination Place</label>
                                 <select id="farm_place_to_id" class="ffm-form-control">
                                     <option value="">-- To Place --</option>
                                     <t t-foreach="places" t-as="p">
@@ -1233,7 +1283,7 @@
                         </div>
 
                         <div class="ffm-form-group">
-                            <label class="ffm-form-label">Mode of Journey</label>
+                            <label class="ffm-form-label" for="farm_mode">Mode of Journey</label>
                             <select id="farm_mode" class="ffm-form-control">
                                 <option value="">-- Leave blank if walking / no expense --</option>
                                 <t t-foreach="transport_modes" t-as="m">
@@ -1242,18 +1292,23 @@
                             </select>
                         </div>
 
-                        <button type="button" class="ffm-btn ffm-btn-secondary" onclick="calculateFarmJourney()" style="margin-bottom: 14px; font-size: 0.88rem; min-height: 42px;">
-                            <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #2563eb;"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line></svg> Auto-Calculate Distance &amp; Fare
+                        <button type="button" class="ffm-journey-calc-btn" onclick="calculateFarmJourney()">
+                            <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line></svg> Auto-Calculate Distance &amp; Fare
                         </button>
 
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="ffm-row-2">
                             <div class="ffm-form-group" style="margin-bottom: 0;">
-                                <label class="ffm-form-label">Distance (km)</label>
+                                <label class="ffm-form-label" for="farm_distance_km">Distance (km)</label>
                                 <input type="number" id="farm_distance_km" class="ffm-form-control" step="0.1" value="0"/>
                             </div>
                             <div class="ffm-form-group" style="margin-bottom: 0;">
-                                <label class="ffm-form-label">Travel Fare (Tk) *</label>
-                                <input type="number" id="farm_fare_tk" class="ffm-form-control" step="1" value="0" style="font-weight: 700; color: #1e40af;"/>
+                                <label class="ffm-form-label" for="farm_fare_tk">
+                                    <span>Travel Fare (Tk)</span>
+                                </label>
+                                <div class="ffm-currency-wrap">
+                                    <span class="ffm-currency-prefix">Tk</span>
+                                    <input type="number" id="farm_fare_tk" class="ffm-form-control" step="1" value="0" style="color: #1e40af;"/>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1351,7 +1406,9 @@
     <!-- Today's Entries & Date/Month/Year Summary Screen -->
     <template id="ff_entries_today" name="FFM Today Entries and Summary">
         <t t-call="ffm_daily_report.ff_layout">
-            <a href="/ff/report/daily" class="ffm-back-link">← Back to Daily Report</a>
+            <a href="/ff/report/daily" class="ffm-back-link">
+                <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Back to Daily Report
+            </a>
 
             <div class="ffm-form-card">
                 <div class="ffm-form-header">
@@ -1385,21 +1442,21 @@
                     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center; margin-bottom: 12px;">
                         <div style="background: #ecfdf5; border: 1px solid #a7f3d0; padding: 10px; border-radius: 8px;">
                             <div style="font-size: 0.72rem; color: #047857; font-weight: 600; text-transform: uppercase;">Order (Tk)</div>
-                            <div style="font-size: 1.10rem; font-weight: 800; color: #065f46; margin-top: 2px;">৳<t t-esc="'%.0f' % (report.total_order_tk if report else 0)"/></div>
+                            <div style="font-size: 1.10rem; font-weight: 800; color: #065f46; margin-top: 2px;">Tk <t t-esc="'%.0f' % (report.total_order_tk if report else 0)"/></div>
                         </div>
                         <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 10px; border-radius: 8px;">
                             <div style="font-size: 0.72rem; color: #1d4ed8; font-weight: 600; text-transform: uppercase;">Sale (Tk)</div>
-                            <div style="font-size: 1.10rem; font-weight: 800; color: #1e40af; margin-top: 2px;">৳<t t-esc="'%.0f' % (report.total_sale_tk if report else 0)"/></div>
+                            <div style="font-size: 1.10rem; font-weight: 800; color: #1e40af; margin-top: 2px;">Tk <t t-esc="'%.0f' % (report.total_sale_tk if report else 0)"/></div>
                         </div>
                         <div style="background: #fefce8; border: 1px solid #fef08a; padding: 10px; border-radius: 8px;">
                             <div style="font-size: 0.72rem; color: #a16207; font-weight: 600; text-transform: uppercase;">Collection (Tk)</div>
-                            <div style="font-size: 1.10rem; font-weight: 800; color: #854d0e; margin-top: 2px;">৳<t t-esc="'%.0f' % (report.total_coll_tk if report else 0)"/></div>
+                            <div style="font-size: 1.10rem; font-weight: 800; color: #854d0e; margin-top: 2px;">Tk <t t-esc="'%.0f' % (report.total_coll_tk if report else 0)"/></div>
                         </div>
                     </div>
 
                     <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: #15803d; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 8px 12px; border-radius: 6px; margin-bottom: 10px;">
                         <span>Daily Total Expenses (Field + Journey):</span>
-                        <strong>৳<t t-esc="'%.0f' % day_expense_total"/></strong>
+                        <strong>Tk <t t-esc="'%.0f' % day_expense_total"/></strong>
                     </div>
 
                     <div style="display: flex; justify-content: space-between; font-size: 0.82rem; color: #475569; padding-top: 8px; border-top: 1px solid #e2e8f0; flex-wrap: wrap; gap: 8px;">
@@ -1417,9 +1474,9 @@
                             Month-to-Date Performance (Supervisor View)
                         </div>
                         <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: #166534;">
-                            <span>Order: <strong>৳<t t-esc="'%.0f' % month_order"/></strong></span>
-                            <span>Sale: <strong>৳<t t-esc="'%.0f' % month_sale"/></strong></span>
-                            <span>Collection: <strong>৳<t t-esc="'%.0f' % month_coll"/></strong></span>
+                            <span>Order: <strong>Tk <t t-esc="'%.0f' % month_order"/></strong></span>
+                            <span>Sale: <strong>Tk <t t-esc="'%.0f' % month_sale"/></strong></span>
+                            <span>Collection: <strong>Tk <t t-esc="'%.0f' % month_coll"/></strong></span>
                         </div>
                     </div>
                 </t>
@@ -1437,10 +1494,10 @@
                             <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; font-size: 0.85rem; background: #ffffff; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
                                 <div style="display: flex; justify-content: space-between; align-items: center; font-weight: 700; margin-bottom: 4px;">
                                     <span style="color: #0f172a;"><t t-esc="c.chemist_id.name or c.chemist_name_manual"/></span>
-                                    <span style="color: #107c41; font-size: 0.92rem;">৳<t t-esc="'%.0f' % c.order_tk"/> <span style="font-size: 0.72rem; font-weight: 600; color: #64748b;">(Order)</span></span>
+                                    <span style="color: #107c41; font-size: 0.92rem;">Tk <t t-esc="'%.0f' % c.order_tk"/> <span style="font-size: 0.72rem; font-weight: 600; color: #64748b;">(Order)</span></span>
                                 </div>
                                 <div style="color: #64748b; font-size: 0.80rem;">
-                                    Sale: <strong style="color: #1e40af;">৳<t t-esc="'%.0f' % c.sale_tk"/></strong> | Collection: <strong style="color: #854d0e;">৳<t t-esc="'%.0f' % c.coll_tk"/></strong>
+                                    Sale: <strong style="color: #1e40af;">Tk <t t-esc="'%.0f' % c.sale_tk"/></strong> | Collection: <strong style="color: #854d0e;">Tk <t t-esc="'%.0f' % c.coll_tk"/></strong>
                                     <t t-if="c.address"> | <t t-esc="c.address"/></t>
                                 </div>
                                 <t t-if="c.note">
@@ -1524,7 +1581,7 @@
                             <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; font-size: 0.85rem; background: #ffffff; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
                                 <div style="display: flex; justify-content: space-between; align-items: center; font-weight: 700;">
                                     <span><t t-esc="j.place_from_id.name"/> → <t t-esc="j.place_to_id.name"/></span>
-                                    <span style="color: #b45309; font-weight: 800;">৳<t t-esc="'%.0f' % j.fare_tk"/></span>
+                                    <span style="color: #b45309; font-weight: 800;">Tk <t t-esc="'%.0f' % j.fare_tk"/></span>
                                 </div>
                                 <div style="color: #64748b; font-size: 0.78rem; margin-top: 2px;">
                                     Mode: <strong style="color: #334155;"><t t-esc="j.mode.title()"/></strong> | Distance: <t t-esc="j.distance_km"/> km
@@ -1542,7 +1599,7 @@
                     <h3 style="font-size: 0.95rem; font-weight: 700; color: #1e293b; margin: 0;">
                         Daily Expenses (<t t-esc="len(daily_expenses)"/> entries)
                     </h3>
-                    <span style="color: #047857; font-size: 0.9rem; font-weight: 700;">Total: ৳<t t-esc="'%.0f' % day_expense_total"/></span>
+                    <span style="color: #047857; font-size: 0.9rem; font-weight: 700;">Total: Tk <t t-esc="'%.0f' % day_expense_total"/></span>
                 </div>
                 <t t-if="daily_expenses">
                     <div style="display: flex; flex-direction: column; gap: 8px;">
@@ -1550,18 +1607,18 @@
                             <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; font-size: 0.85rem; background: #ffffff; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
                                 <div style="display: flex; justify-content: space-between; font-weight: 700;">
                                     <span>Expense Entry #<t t-esc="exp.id"/></span>
-                                    <span style="color: #047857; font-size: 0.95rem;">৳<t t-esc="'%.0f' % exp.total_amount"/></span>
+                                    <span style="color: #047857; font-size: 0.95rem;">Tk <t t-esc="'%.0f' % exp.total_amount"/></span>
                                 </div>
                                 <div style="color: #4b5563; font-size: 0.78rem; margin-top: 6px; line-height: 1.8;">
-                                    <t t-if="exp.entertainment"><div><span class="ffm-badge ffm-badge-neutral">Entertainment</span> <strong>৳<t t-esc="'%.0f' % exp.entertainment"/></strong> (Voucher Attached)</div></t>
-                                    <t t-if="exp.courier"><div><span class="ffm-badge ffm-badge-neutral">Courier</span> <strong>৳<t t-esc="'%.0f' % exp.courier"/></strong> (Voucher Attached)</div></t>
-                                    <t t-if="exp.photocopy"><div><span class="ffm-badge ffm-badge-neutral">Photocopy</span> <strong>৳<t t-esc="'%.0f' % exp.photocopy"/></strong> (Voucher Attached)</div></t>
-                                    <t t-if="exp.hotel_rent"><div><span class="ffm-badge ffm-badge-neutral">Hotel Rent</span> <strong>৳<t t-esc="'%.0f' % exp.hotel_rent"/></strong> (Voucher Attached)</div></t>
-                                    <t t-if="exp.promotion"><div><span class="ffm-badge ffm-badge-neutral">Promotion</span> <strong>৳<t t-esc="'%.0f' % exp.promotion"/></strong></div></t>
-                                    <t t-if="exp.stationery"><div><span class="ffm-badge ffm-badge-neutral">Stationery</span> <strong>৳<t t-esc="'%.0f' % exp.stationery"/></strong></div></t>
-                                    <t t-if="exp.carrying"><div><span class="ffm-badge ffm-badge-neutral">Carrying</span> <strong>৳<t t-esc="'%.0f' % exp.carrying"/></strong></div></t>
-                                    <t t-if="exp.banking"><div><span class="ffm-badge ffm-badge-neutral">Banking</span> <strong>৳<t t-esc="'%.0f' % exp.banking"/></strong></div></t>
-                                    <t t-if="exp.bike"><div><span class="ffm-badge ffm-badge-neutral">Bike / Fuel</span> <strong>৳<t t-esc="'%.0f' % exp.bike"/></strong></div></t>
+                                    <t t-if="exp.entertainment"><div><span class="ffm-badge ffm-badge-neutral">Entertainment</span> <strong>Tk <t t-esc="'%.0f' % exp.entertainment"/></strong> (Voucher Attached)</div></t>
+                                    <t t-if="exp.courier"><div><span class="ffm-badge ffm-badge-neutral">Courier</span> <strong>Tk <t t-esc="'%.0f' % exp.courier"/></strong> (Voucher Attached)</div></t>
+                                    <t t-if="exp.photocopy"><div><span class="ffm-badge ffm-badge-neutral">Photocopy</span> <strong>Tk <t t-esc="'%.0f' % exp.photocopy"/></strong> (Voucher Attached)</div></t>
+                                    <t t-if="exp.hotel_rent"><div><span class="ffm-badge ffm-badge-neutral">Hotel Rent</span> <strong>Tk <t t-esc="'%.0f' % exp.hotel_rent"/></strong> (Voucher Attached)</div></t>
+                                    <t t-if="exp.promotion"><div><span class="ffm-badge ffm-badge-neutral">Promotion</span> <strong>Tk <t t-esc="'%.0f' % exp.promotion"/></strong></div></t>
+                                    <t t-if="exp.stationery"><div><span class="ffm-badge ffm-badge-neutral">Stationery</span> <strong>Tk <t t-esc="'%.0f' % exp.stationery"/></strong></div></t>
+                                    <t t-if="exp.carrying"><div><span class="ffm-badge ffm-badge-neutral">Carrying</span> <strong>Tk <t t-esc="'%.0f' % exp.carrying"/></strong></div></t>
+                                    <t t-if="exp.banking"><div><span class="ffm-badge ffm-badge-neutral">Banking</span> <strong>Tk <t t-esc="'%.0f' % exp.banking"/></strong></div></t>
+                                    <t t-if="exp.bike"><div><span class="ffm-badge ffm-badge-neutral">Bike / Fuel</span> <strong>Tk <t t-esc="'%.0f' % exp.bike"/></strong></div></t>
                                     <t t-if="exp.note">
                                         <div style="color: #4b5563; font-style: italic; margin-top: 4px;">Note: <t t-esc="exp.note"/></div>
                                     </t>
@@ -1580,151 +1637,207 @@
     <!-- Daily Expense Form Screen (Phase 4) -->
     <template id="ff_daily_expense" name="FFM Marketer Daily Expense">
         <t t-call="ffm_daily_report.ff_layout">
-            <a href="/ff" class="ffm-back-link">← Back to Dashboard</a>
+            <a href="/ff" class="ffm-back-link">
+                <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Back to Dashboard
+            </a>
 
             <div class="ffm-form-card">
                 <div class="ffm-form-header">
                     <div>
                         <h2 class="ffm-form-title">
-                            <svg class="ffm-icon ffm-icon-sm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 6px; color: #047857;"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg> Daily Expense &amp; Vouchers
+                            <span class="ffm-icon-box ffm-icon-box-sm ffm-icon-box--green" style="margin-bottom: 0;">
+                                <svg class="ffm-icon ffm-icon-sm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+                            </span>
+                            Daily Expense &amp; Vouchers
                         </h2>
-                        <p class="ffm-form-subtitle">Record official daily expenses with mandatory voucher receipts.</p>
+                        <p class="ffm-form-subtitle">Record official field expenses with required receipt voucher uploads.</p>
                     </div>
                     <div style="text-align: right;">
-                        <span class="ffm-badge ffm-badge-info" style="font-size: 0.78rem; padding: 4px 10px;">
+                        <span class="ffm-badge ffm-badge-info" style="font-size: 0.80rem; padding: 5px 12px; font-weight: 600;">
                             <t t-esc="today_str"/>
                         </span>
                     </div>
                 </div>
 
-                <div style="background: #eff6ff; border-left: 4px solid var(--ffm-accent); padding: 12px 14px; border-radius: 6px; font-size: 0.82rem; color: #1e40af; margin-bottom: 20px;">
-                    At least one expense category (>0) is required. Money receipts/vouchers are mandatory for <strong>Entertainment, Courier, Photocopy, and Hotel Rent</strong>.
+                <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-left: 4px solid #2563eb; padding: 12px 16px; border-radius: 8px; font-size: 0.82rem; color: #1e40af; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                    <svg class="ffm-icon ffm-icon-sm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #2563eb; flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                    <span>At least one category is required (>0). Receipts/vouchers are mandatory for <strong>Entertainment, Courier, Photocopy, and Hotel Rent</strong>.</span>
                 </div>
 
                 <form id="dailyExpenseForm" onsubmit="return handleExpenseSubmit(event)">
-                    <!-- 1. Entertainment -->
-                    <div class="ffm-expense-card">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                            <label class="ffm-form-label" style="margin-bottom: 0; font-weight: 700; color: #1e293b;">Entertainment Expense (Tk)</label>
-                            <span id="badge_v_ent" class="ffm-badge ffm-badge-danger" style="display: none; font-size: 0.72rem;">Voucher Required</span>
-                        </div>
-                        <input type="number" id="entertainment" name="entertainment" class="ffm-form-control ffm-amount-control" min="0" step="1" placeholder="0" oninput="onAmountChanged('entertainment')"/>
-                        
-                        <div id="voucher_box_entertainment" class="ffm-upload-box" style="margin-top: 10px;">
-                            <label style="font-size: 0.78rem; font-weight: 600; color: #475569; display: block; margin-bottom: 6px;">
-                                <svg class="ffm-icon ffm-icon-xs" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 4px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg> Attach Voucher Receipt (Camera / Gallery):
-                            </label>
-                            <input type="file" id="file_entertainment" accept="image/*" class="ffm-form-control" style="padding: 6px;" onchange="onFileSelected(this, 'preview_ent', 'hidden_v_ent')"/>
-                            <input type="hidden" id="hidden_v_ent" name="voucher_entertainment"/>
-                            <div id="preview_ent_box" style="margin-top: 8px; display: none;">
-                                <img id="preview_ent" src="" alt="Voucher Preview" style="max-height: 120px; border-radius: 6px; border: 1px solid #cbd5e1;"/>
-                                <button type="button" class="ffm-btn ffm-btn-secondary" style="min-height: 28px; padding: 2px 10px; font-size: 0.75rem; width: auto; margin-left: 8px;" onclick="clearVoucher('file_entertainment', 'preview_ent', 'preview_ent_box', 'hidden_v_ent')">Remove</button>
+                    <!-- 4 Voucher-Required Expenses in Responsive 2-Col Grid -->
+                    <div class="ffm-expense-grid">
+                        <!-- 1. Entertainment -->
+                        <div class="ffm-expense-card" style="border-top-color: #0284c7;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <label class="ffm-form-label" for="entertainment" style="margin-bottom: 0; font-weight: 700; color: #1e293b;">
+                                    <span>Entertainment (Tk)</span>
+                                </label>
+                                <span id="badge_v_ent" class="ffm-badge ffm-badge-danger" style="display: none; font-size: 0.70rem; padding: 2px 7px;">Voucher Required</span>
+                            </div>
+                            <div class="ffm-currency-wrap">
+                                <span class="ffm-currency-prefix">Tk</span>
+                                <input type="number" id="entertainment" name="entertainment" class="ffm-form-control ffm-amount-control" min="0" step="1" oninput="onAmountChanged('entertainment')"/>
+                            </div>
+                            
+                            <div id="voucher_box_entertainment" class="ffm-upload-box">
+                                <label for="file_entertainment" style="display: flex; align-items: center; justify-content: center; gap: 7px; padding: 8px 12px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.80rem; font-weight: 600; color: #334155; cursor: pointer; margin-bottom: 0; transition: all 0.15s ease;">
+                                    <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #0284c7;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                                    <span>Camera / Upload Voucher</span>
+                                </label>
+                                <input type="file" id="file_entertainment" accept="image/*" style="display: none;" onchange="onFileSelected(this, 'preview_ent', 'hidden_v_ent')"/>
+                                <input type="hidden" id="hidden_v_ent" name="voucher_entertainment"/>
+                                <div id="preview_ent_box" style="margin-top: 10px; display: none; text-align: center;">
+                                    <img id="preview_ent" src="" alt="Voucher Preview" style="max-height: 90px; border-radius: 6px; border: 1px solid #cbd5e1; box-shadow: 0 1px 3px rgba(0,0,0,0.08);"/>
+                                    <div style="margin-top: 6px;">
+                                        <button type="button" class="ffm-btn ffm-btn-secondary" style="min-height: 24px; padding: 2px 10px; font-size: 0.72rem; width: auto; color: #dc2626; border-color: #fca5a5; display: inline-flex;" onclick="clearVoucher('file_entertainment', 'preview_ent', 'preview_ent_box', 'hidden_v_ent')">Remove</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- 2. Courier -->
-                    <div class="ffm-expense-card">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                            <label class="ffm-form-label" style="margin-bottom: 0; font-weight: 700; color: #1e293b;">Courier Expense (Tk)</label>
-                            <span id="badge_v_cou" class="ffm-badge ffm-badge-danger" style="display: none; font-size: 0.72rem;">Voucher Required</span>
-                        </div>
-                        <input type="number" id="courier" name="courier" class="ffm-form-control ffm-amount-control" min="0" step="1" placeholder="0" oninput="onAmountChanged('courier')"/>
-                        
-                        <div id="voucher_box_courier" class="ffm-upload-box" style="margin-top: 10px;">
-                            <label style="font-size: 0.78rem; font-weight: 600; color: #475569; display: block; margin-bottom: 6px;">
-                                <svg class="ffm-icon ffm-icon-xs" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 4px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg> Attach Courier Receipt (Camera / Gallery):
-                            </label>
-                            <input type="file" id="file_courier" accept="image/*" class="ffm-form-control" style="padding: 6px;" onchange="onFileSelected(this, 'preview_cou', 'hidden_v_cou')"/>
-                            <input type="hidden" id="hidden_v_cou" name="voucher_courier"/>
-                            <div id="preview_cou_box" style="margin-top: 8px; display: none;">
-                                <img id="preview_cou" src="" alt="Voucher Preview" style="max-height: 120px; border-radius: 6px; border: 1px solid #cbd5e1;"/>
-                                <button type="button" class="ffm-btn ffm-btn-secondary" style="min-height: 28px; padding: 2px 10px; font-size: 0.75rem; width: auto; margin-left: 8px;" onclick="clearVoucher('file_courier', 'preview_cou', 'preview_cou_box', 'hidden_v_cou')">Remove</button>
+                        <!-- 2. Courier -->
+                        <div class="ffm-expense-card" style="border-top-color: #107c41;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <label class="ffm-form-label" for="courier" style="margin-bottom: 0; font-weight: 700; color: #1e293b;">
+                                    <span>Courier (Tk)</span>
+                                </label>
+                                <span id="badge_v_cou" class="ffm-badge ffm-badge-danger" style="display: none; font-size: 0.70rem; padding: 2px 7px;">Voucher Required</span>
+                            </div>
+                            <div class="ffm-currency-wrap">
+                                <span class="ffm-currency-prefix">Tk</span>
+                                <input type="number" id="courier" name="courier" class="ffm-form-control ffm-amount-control" min="0" step="1" oninput="onAmountChanged('courier')"/>
+                            </div>
+                            
+                            <div id="voucher_box_courier" class="ffm-upload-box">
+                                <label for="file_courier" style="display: flex; align-items: center; justify-content: center; gap: 7px; padding: 8px 12px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.80rem; font-weight: 600; color: #334155; cursor: pointer; margin-bottom: 0; transition: all 0.15s ease;">
+                                    <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #107c41;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                                    <span>Camera / Upload Voucher</span>
+                                </label>
+                                <input type="file" id="file_courier" accept="image/*" style="display: none;" onchange="onFileSelected(this, 'preview_cou', 'hidden_v_cou')"/>
+                                <input type="hidden" id="hidden_v_cou" name="voucher_courier"/>
+                                <div id="preview_cou_box" style="margin-top: 10px; display: none; text-align: center;">
+                                    <img id="preview_cou" src="" alt="Voucher Preview" style="max-height: 90px; border-radius: 6px; border: 1px solid #cbd5e1; box-shadow: 0 1px 3px rgba(0,0,0,0.08);"/>
+                                    <div style="margin-top: 6px;">
+                                        <button type="button" class="ffm-btn ffm-btn-secondary" style="min-height: 24px; padding: 2px 10px; font-size: 0.72rem; width: auto; color: #dc2626; border-color: #fca5a5; display: inline-flex;" onclick="clearVoucher('file_courier', 'preview_cou', 'preview_cou_box', 'hidden_v_cou')">Remove</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- 3. Photocopy -->
-                    <div class="ffm-expense-card">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                            <label class="ffm-form-label" style="margin-bottom: 0; font-weight: 700; color: #1e293b;">Photocopy Expense (Tk)</label>
-                            <span id="badge_v_pho" class="ffm-badge ffm-badge-danger" style="display: none; font-size: 0.72rem;">Voucher Required</span>
-                        </div>
-                        <input type="number" id="photocopy" name="photocopy" class="ffm-form-control ffm-amount-control" min="0" step="1" placeholder="0" oninput="onAmountChanged('photocopy')"/>
-                        
-                        <div id="voucher_box_photocopy" class="ffm-upload-box" style="margin-top: 10px;">
-                            <label style="font-size: 0.78rem; font-weight: 600; color: #475569; display: block; margin-bottom: 6px;">
-                                <svg class="ffm-icon ffm-icon-xs" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 4px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg> Attach Photocopy Bill (Camera / Gallery):
-                            </label>
-                            <input type="file" id="file_photocopy" accept="image/*" class="ffm-form-control" style="padding: 6px;" onchange="onFileSelected(this, 'preview_pho', 'hidden_v_pho')"/>
-                            <input type="hidden" id="hidden_v_pho" name="voucher_photocopy"/>
-                            <div id="preview_pho_box" style="margin-top: 8px; display: none;">
-                                <img id="preview_pho" src="" alt="Voucher Preview" style="max-height: 120px; border-radius: 6px; border: 1px solid #cbd5e1;"/>
-                                <button type="button" class="ffm-btn ffm-btn-secondary" style="min-height: 28px; padding: 2px 10px; font-size: 0.75rem; width: auto; margin-left: 8px;" onclick="clearVoucher('file_photocopy', 'preview_pho', 'preview_pho_box', 'hidden_v_pho')">Remove</button>
+                        <!-- 3. Photocopy -->
+                        <div class="ffm-expense-card" style="border-top-color: #7c3aed;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <label class="ffm-form-label" for="photocopy" style="margin-bottom: 0; font-weight: 700; color: #1e293b;">
+                                    <span>Photocopy (Tk)</span>
+                                </label>
+                                <span id="badge_v_pho" class="ffm-badge ffm-badge-danger" style="display: none; font-size: 0.70rem; padding: 2px 7px;">Voucher Required</span>
+                            </div>
+                            <div class="ffm-currency-wrap">
+                                <span class="ffm-currency-prefix">Tk</span>
+                                <input type="number" id="photocopy" name="photocopy" class="ffm-form-control ffm-amount-control" min="0" step="1" oninput="onAmountChanged('photocopy')"/>
+                            </div>
+                            
+                            <div id="voucher_box_photocopy" class="ffm-upload-box">
+                                <label for="file_photocopy" style="display: flex; align-items: center; justify-content: center; gap: 7px; padding: 8px 12px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.80rem; font-weight: 600; color: #334155; cursor: pointer; margin-bottom: 0; transition: all 0.15s ease;">
+                                    <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #7c3aed;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                                    <span>Camera / Upload Voucher</span>
+                                </label>
+                                <input type="file" id="file_photocopy" accept="image/*" style="display: none;" onchange="onFileSelected(this, 'preview_pho', 'hidden_v_pho')"/>
+                                <input type="hidden" id="hidden_v_pho" name="voucher_photocopy"/>
+                                <div id="preview_pho_box" style="margin-top: 10px; display: none; text-align: center;">
+                                    <img id="preview_pho" src="" alt="Voucher Preview" style="max-height: 90px; border-radius: 6px; border: 1px solid #cbd5e1; box-shadow: 0 1px 3px rgba(0,0,0,0.08);"/>
+                                    <div style="margin-top: 6px;">
+                                        <button type="button" class="ffm-btn ffm-btn-secondary" style="min-height: 24px; padding: 2px 10px; font-size: 0.72rem; width: auto; color: #dc2626; border-color: #fca5a5; display: inline-flex;" onclick="clearVoucher('file_photocopy', 'preview_pho', 'preview_pho_box', 'hidden_v_pho')">Remove</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- 4. Hotel Rent -->
-                    <div class="ffm-expense-card">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                            <label class="ffm-form-label" style="margin-bottom: 0; font-weight: 700; color: #1e293b;">Hotel Rent Expense (Tk)</label>
-                            <span id="badge_v_hot" class="ffm-badge ffm-badge-danger" style="display: none; font-size: 0.72rem;">Voucher Required</span>
-                        </div>
-                        <input type="number" id="hotel_rent" name="hotel_rent" class="ffm-form-control ffm-amount-control" min="0" step="1" placeholder="0" oninput="onAmountChanged('hotel_rent')"/>
-                        
-                        <div id="voucher_box_hotel_rent" class="ffm-upload-box" style="margin-top: 10px;">
-                            <label style="font-size: 0.78rem; font-weight: 600; color: #475569; display: block; margin-bottom: 6px;">
-                                <svg class="ffm-icon ffm-icon-xs" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 4px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg> Attach Hotel Money Receipt (Camera / Gallery):
-                            </label>
-                            <input type="file" id="file_hotel_rent" accept="image/*" class="ffm-form-control" style="padding: 6px;" onchange="onFileSelected(this, 'preview_hot', 'hidden_v_hot')"/>
-                            <input type="hidden" id="hidden_v_hot" name="voucher_hotel_rent"/>
-                            <div id="preview_hot_box" style="margin-top: 8px; display: none;">
-                                <img id="preview_hot" src="" alt="Voucher Preview" style="max-height: 120px; border-radius: 6px; border: 1px solid #cbd5e1;"/>
-                                <button type="button" class="ffm-btn ffm-btn-secondary" style="min-height: 28px; padding: 2px 10px; font-size: 0.75rem; width: auto; margin-left: 8px;" onclick="clearVoucher('file_hotel_rent', 'preview_hot', 'preview_hot_box', 'hidden_v_hot')">Remove</button>
+                        <!-- 4. Hotel Rent -->
+                        <div class="ffm-expense-card" style="border-top-color: #d97706;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <label class="ffm-form-label" for="hotel_rent" style="margin-bottom: 0; font-weight: 700; color: #1e293b;">
+                                    <span>Hotel Rent (Tk)</span>
+                                </label>
+                                <span id="badge_v_hot" class="ffm-badge ffm-badge-danger" style="display: none; font-size: 0.70rem; padding: 2px 7px;">Voucher Required</span>
+                            </div>
+                            <div class="ffm-currency-wrap">
+                                <span class="ffm-currency-prefix">Tk</span>
+                                <input type="number" id="hotel_rent" name="hotel_rent" class="ffm-form-control ffm-amount-control" min="0" step="1" oninput="onAmountChanged('hotel_rent')"/>
+                            </div>
+                            
+                            <div id="voucher_box_hotel_rent" class="ffm-upload-box">
+                                <label for="file_hotel_rent" style="display: flex; align-items: center; justify-content: center; gap: 7px; padding: 8px 12px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.80rem; font-weight: 600; color: #334155; cursor: pointer; margin-bottom: 0; transition: all 0.15s ease;">
+                                    <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d97706;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                                    <span>Camera / Upload Voucher</span>
+                                </label>
+                                <input type="file" id="file_hotel_rent" accept="image/*" style="display: none;" onchange="onFileSelected(this, 'preview_hot', 'hidden_v_hot')"/>
+                                <input type="hidden" id="hidden_v_hot" name="voucher_hotel_rent"/>
+                                <div id="preview_hot_box" style="margin-top: 10px; display: none; text-align: center;">
+                                    <img id="preview_hot" src="" alt="Voucher Preview" style="max-height: 90px; border-radius: 6px; border: 1px solid #cbd5e1; box-shadow: 0 1px 3px rgba(0,0,0,0.08);"/>
+                                    <div style="margin-top: 6px;">
+                                        <button type="button" class="ffm-btn ffm-btn-secondary" style="min-height: 24px; padding: 2px 10px; font-size: 0.72rem; width: auto; color: #dc2626; border-color: #fca5a5; display: inline-flex;" onclick="clearVoucher('file_hotel_rent', 'preview_hot', 'preview_hot_box', 'hidden_v_hot')">Remove</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- General Categories Grid -->
-                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; margin-bottom: 16px;">
-                        <div style="font-size: 0.78rem; font-weight: 700; color: #475569; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.03em;">
-                            General Operational Expenses (No Voucher Required)
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px 20px; margin-bottom: 18px;">
+                        <div style="font-size: 0.80rem; font-weight: 700; color: #475569; text-transform: uppercase; margin-bottom: 14px; letter-spacing: 0.04em; display: flex; align-items: center; gap: 6px;">
+                            <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #64748b;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+                            <span>General Operational Expenses (No Voucher Required)</span>
                         </div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
-                            <div class="ffm-form-group" style="margin-bottom: 6px;">
-                                <label class="ffm-form-label" style="font-size: 0.76rem;">Promotion (Tk)</label>
-                                <input type="number" id="promotion" name="promotion" class="ffm-form-control expense-amount-input" min="0" step="1" placeholder="0" oninput="recalcTotal()" style="background: #ffffff;"/>
+                        <div class="ffm-general-grid">
+                            <div class="ffm-form-group">
+                                <label class="ffm-form-label" for="promotion" style="font-size: 0.76rem;">Promotion (Tk)</label>
+                                <div class="ffm-currency-wrap">
+                                    <span class="ffm-currency-prefix">Tk</span>
+                                    <input type="number" id="promotion" name="promotion" class="ffm-form-control expense-amount-input" min="0" step="1" oninput="recalcTotal()"/>
+                                </div>
                             </div>
-                            <div class="ffm-form-group" style="margin-bottom: 6px;">
-                                <label class="ffm-form-label" style="font-size: 0.76rem;">Stationery (Tk)</label>
-                                <input type="number" id="stationery" name="stationery" class="ffm-form-control expense-amount-input" min="0" step="1" placeholder="0" oninput="recalcTotal()" style="background: #ffffff;"/>
+                            <div class="ffm-form-group">
+                                <label class="ffm-form-label" for="stationery" style="font-size: 0.76rem;">Stationery (Tk)</label>
+                                <div class="ffm-currency-wrap">
+                                    <span class="ffm-currency-prefix">Tk</span>
+                                    <input type="number" id="stationery" name="stationery" class="ffm-form-control expense-amount-input" min="0" step="1" oninput="recalcTotal()"/>
+                                </div>
                             </div>
-                            <div class="ffm-form-group" style="margin-bottom: 6px;">
-                                <label class="ffm-form-label" style="font-size: 0.76rem;">Carrying (Tk)</label>
-                                <input type="number" id="carrying" name="carrying" class="ffm-form-control expense-amount-input" min="0" step="1" placeholder="0" oninput="recalcTotal()" style="background: #ffffff;"/>
+                            <div class="ffm-form-group">
+                                <label class="ffm-form-label" for="carrying" style="font-size: 0.76rem;">Carrying (Tk)</label>
+                                <div class="ffm-currency-wrap">
+                                    <span class="ffm-currency-prefix">Tk</span>
+                                    <input type="number" id="carrying" name="carrying" class="ffm-form-control expense-amount-input" min="0" step="1" oninput="recalcTotal()"/>
+                                </div>
                             </div>
-                            <div class="ffm-form-group" style="margin-bottom: 6px;">
-                                <label class="ffm-form-label" style="font-size: 0.76rem;">Banking (Tk)</label>
-                                <input type="number" id="banking" name="banking" class="ffm-form-control expense-amount-input" min="0" step="1" placeholder="0" oninput="recalcTotal()" style="background: #ffffff;"/>
+                            <div class="ffm-form-group">
+                                <label class="ffm-form-label" for="banking" style="font-size: 0.76rem;">Banking (Tk)</label>
+                                <div class="ffm-currency-wrap">
+                                    <span class="ffm-currency-prefix">Tk</span>
+                                    <input type="number" id="banking" name="banking" class="ffm-form-control expense-amount-input" min="0" step="1" oninput="recalcTotal()"/>
+                                </div>
                             </div>
-                        </div>
-
-                        <div class="ffm-form-group" style="margin-bottom: 0;">
-                            <label class="ffm-form-label" style="font-size: 0.76rem;">Motorcycle Fuel &amp; Maintenance (Tk)</label>
-                            <input type="number" id="bike" name="bike" class="ffm-form-control expense-amount-input" min="0" step="1" placeholder="0" oninput="recalcTotal()" style="background: #ffffff;"/>
+                            <div class="ffm-form-group">
+                                <label class="ffm-form-label" for="bike" style="font-size: 0.76rem;">Motorcycle Fuel &amp; Maintenance (Tk)</label>
+                                <div class="ffm-currency-wrap">
+                                    <span class="ffm-currency-prefix">Tk</span>
+                                    <input type="number" id="bike" name="bike" class="ffm-form-control expense-amount-input" min="0" step="1" oninput="recalcTotal()"/>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     <div class="ffm-form-group">
-                        <label class="ffm-form-label">Expense Description / Notes</label>
-                        <textarea id="note" name="note" class="ffm-form-control" rows="2" placeholder="Provide any details about journey, purposes or vouchers..."></textarea>
+                        <label class="ffm-form-label" for="note">Expense Description / Notes</label>
+                        <textarea id="note" name="note" class="ffm-form-control" rows="2"></textarea>
                     </div>
 
                     <!-- Live Total Display -->
-                    <div style="background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 8px; padding: 14px 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
                         <span style="font-weight: 700; color: #166534; font-size: 0.95rem;">This Entry Total Amount:</span>
-                        <span style="font-weight: 800; color: #15803d; font-size: 1.15rem;">৳<span id="live_form_total">0</span></span>
+                        <span style="font-weight: 800; color: #15803d; font-size: 1.25rem;">Tk <span id="live_form_total">0</span></span>
                     </div>
 
                     <button type="submit" id="submitExpenseBtn" class="ffm-btn ffm-btn-primary">
@@ -1733,34 +1846,35 @@
                 </form>
 
                 <!-- Today's Submitted Expenses List -->
-                <div style="margin-top: 32px; border-top: 2px dashed #e2e8f0; padding-top: 20px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                        <h3 style="font-size: 1rem; font-weight: 700; color: #1e293b; margin: 0;">
+                <div style="margin-top: 32px; border-top: 2px dashed #e2e8f0; padding-top: 22px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                        <h3 style="font-size: 1rem; font-weight: 700; color: #1e293b; margin: 0; display: flex; align-items: center; gap: 6px;">
+                            <svg class="ffm-icon ffm-icon-xs" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #047857;"><polyline points="20 6 9 17 4 12"></polyline></svg>
                             Today's Recorded Expenses (<t t-esc="len(today_expenses)"/>)
                         </h3>
-                        <span style="font-size: 0.95rem; font-weight: 800; color: #047857;">
-                            Total: ৳<t t-esc="'%.0f' % day_expense_total"/>
+                        <span style="font-size: 1.05rem; font-weight: 800; color: #047857;">
+                            Total: Tk <t t-esc="'%.0f' % day_expense_total"/>
                         </span>
                     </div>
 
                     <t t-if="today_expenses">
-                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
                             <t t-foreach="today_expenses" t-as="exp">
-                                <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; background: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+                                <div style="border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 16px; background: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
                                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid #f1f5f9;">
                                         <strong style="color: #1e293b; font-size: 0.90rem;">Expense Entry #<t t-esc="exp.id"/></strong>
-                                        <span style="font-weight: 800; color: #047857; font-size: 1.05rem;">৳<t t-esc="'%.0f' % exp.total_amount"/></span>
+                                        <span style="font-weight: 800; color: #047857; font-size: 1.05rem;">Tk <t t-esc="'%.0f' % exp.total_amount"/></span>
                                     </div>
                                     <div style="font-size: 0.82rem; color: #475569; line-height: 1.8;">
-                                        <t t-if="exp.entertainment"><div><span class="ffm-badge ffm-badge-neutral">Entertainment</span> <strong>৳<t t-esc="'%.0f' % exp.entertainment"/></strong> <span class="ffm-badge ffm-badge-success" style="font-size: 0.7rem; padding: 1px 6px;">Voucher Saved</span></div></t>
-                                        <t t-if="exp.courier"><div><span class="ffm-badge ffm-badge-neutral">Courier</span> <strong>৳<t t-esc="'%.0f' % exp.courier"/></strong> <span class="ffm-badge ffm-badge-success" style="font-size: 0.7rem; padding: 1px 6px;">Voucher Saved</span></div></t>
-                                        <t t-if="exp.photocopy"><div><span class="ffm-badge ffm-badge-neutral">Photocopy</span> <strong>৳<t t-esc="'%.0f' % exp.photocopy"/></strong> <span class="ffm-badge ffm-badge-success" style="font-size: 0.7rem; padding: 1px 6px;">Voucher Saved</span></div></t>
-                                        <t t-if="exp.hotel_rent"><div><span class="ffm-badge ffm-badge-neutral">Hotel Rent</span> <strong>৳<t t-esc="'%.0f' % exp.hotel_rent"/></strong> <span class="ffm-badge ffm-badge-success" style="font-size: 0.7rem; padding: 1px 6px;">Voucher Saved</span></div></t>
-                                        <t t-if="exp.promotion"><div><span class="ffm-badge ffm-badge-neutral">Promotion</span> <strong>৳<t t-esc="'%.0f' % exp.promotion"/></strong></div></t>
-                                        <t t-if="exp.stationery"><div><span class="ffm-badge ffm-badge-neutral">Stationery</span> <strong>৳<t t-esc="'%.0f' % exp.stationery"/></strong></div></t>
-                                        <t t-if="exp.carrying"><div><span class="ffm-badge ffm-badge-neutral">Carrying</span> <strong>৳<t t-esc="'%.0f' % exp.carrying"/></strong></div></t>
-                                        <t t-if="exp.banking"><div><span class="ffm-badge ffm-badge-neutral">Banking</span> <strong>৳<t t-esc="'%.0f' % exp.banking"/></strong></div></t>
-                                        <t t-if="exp.bike"><div><span class="ffm-badge ffm-badge-neutral">Bike / Fuel</span> <strong>৳<t t-esc="'%.0f' % exp.bike"/></strong></div></t>
+                                        <t t-if="exp.entertainment"><div><span class="ffm-badge ffm-badge-neutral">Entertainment</span> <strong>Tk <t t-esc="'%.0f' % exp.entertainment"/></strong> <span class="ffm-badge ffm-badge-success" style="font-size: 0.7rem; padding: 1px 6px;">Voucher Saved</span></div></t>
+                                        <t t-if="exp.courier"><div><span class="ffm-badge ffm-badge-neutral">Courier</span> <strong>Tk <t t-esc="'%.0f' % exp.courier"/></strong> <span class="ffm-badge ffm-badge-success" style="font-size: 0.7rem; padding: 1px 6px;">Voucher Saved</span></div></t>
+                                        <t t-if="exp.photocopy"><div><span class="ffm-badge ffm-badge-neutral">Photocopy</span> <strong>Tk <t t-esc="'%.0f' % exp.photocopy"/></strong> <span class="ffm-badge ffm-badge-success" style="font-size: 0.7rem; padding: 1px 6px;">Voucher Saved</span></div></t>
+                                        <t t-if="exp.hotel_rent"><div><span class="ffm-badge ffm-badge-neutral">Hotel Rent</span> <strong>Tk <t t-esc="'%.0f' % exp.hotel_rent"/></strong> <span class="ffm-badge ffm-badge-success" style="font-size: 0.7rem; padding: 1px 6px;">Voucher Saved</span></div></t>
+                                        <t t-if="exp.promotion"><div><span class="ffm-badge ffm-badge-neutral">Promotion</span> <strong>Tk <t t-esc="'%.0f' % exp.promotion"/></strong></div></t>
+                                        <t t-if="exp.stationery"><div><span class="ffm-badge ffm-badge-neutral">Stationery</span> <strong>Tk <t t-esc="'%.0f' % exp.stationery"/></strong></div></t>
+                                        <t t-if="exp.carrying"><div><span class="ffm-badge ffm-badge-neutral">Carrying</span> <strong>Tk <t t-esc="'%.0f' % exp.carrying"/></strong></div></t>
+                                        <t t-if="exp.banking"><div><span class="ffm-badge ffm-badge-neutral">Banking</span> <strong>Tk <t t-esc="'%.0f' % exp.banking"/></strong></div></t>
+                                        <t t-if="exp.bike"><div><span class="ffm-badge ffm-badge-neutral">Bike / Fuel</span> <strong>Tk <t t-esc="'%.0f' % exp.bike"/></strong></div></t>
                                         <t t-if="exp.note">
                                             <div style="color: #64748b; font-style: italic; margin-top: 4px;">Note: <t t-esc="exp.note"/></div>
                                         </t>
@@ -1770,7 +1884,7 @@
                         </div>
                     </t>
                     <t t-else="">
-                        <div style="font-size: 0.85rem; color: #94a3b8; font-style: italic; text-align: center; padding: 16px; background: #f8fafc; border-radius: 6px;">
+                        <div style="font-size: 0.85rem; color: #94a3b8; font-style: italic; text-align: center; padding: 16px; background: #f8fafc; border-radius: 8px; border: 1px dashed #e2e8f0;">
                             No daily expenses submitted today.
                         </div>
                     </t>
@@ -1940,7 +2054,9 @@
     <!-- Daily & Monthly Report Cards Template (Phase 5) -->
     <template id="ff_report_cards" name="FFM Marketer Report Cards">
         <t t-call="ffm_daily_report.ff_layout">
-            <a href="/ff" class="ffm-back-link">← Back to Dashboard</a>
+            <a href="/ff" class="ffm-back-link">
+                <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Back to Dashboard
+            </a>
 
             <div class="ffm-form-card" style="padding: 16px;">
                 <t t-if="is_fp">
@@ -1955,7 +2071,8 @@
                                 <div style="font-size: 0.82rem; color: #64748b;">
                                     Marketer: <strong style="color: #1e293b;" t-esc="target_employee.name if target_employee else ''"/>
                                     <t t-if="target_employee and target_employee.job_id"> • <span t-esc="target_employee.job_id.name"/></t>
-                                    <t t-if="target_employee and target_employee.hq"> • HQ: <span t-esc="target_employee.hq"/></t>
+                                    <t t-if="target_territory_name"> • Territory: <span t-esc="target_territory_name"/></t>
+                                    <t t-elif="target_employee and (target_employee.user_id.territory_id or target_employee.hq)"> • Territory: <span t-esc="target_employee.user_id.territory_id.name if target_employee.user_id.territory_id else target_employee.hq"/></t>
                                 </div>
                             </div>
                             <div style="display: flex; align-items: center; gap: 8px;">
@@ -1981,13 +2098,6 @@
                                 </a>
                             </div>
                         </div>
-
-                        <!-- Date Picker Form for Field Person -->
-                        <form method="get" action="/ff/report/cards" style="margin-top: 12px; padding-top: 10px; border-top: 1px solid #f1f5f9; display: flex; align-items: center; gap: 10px;">
-                            <label style="font-size: 0.82rem; font-weight: 600; color: #475569; margin: 0;">Select Date:</label>
-                            <input type="date" name="date" t-att-value="query_date" class="ffm-form-control" style="max-width: 170px; padding: 6px 10px; font-size: 0.85rem;" onchange="this.form.submit()"/>
-                            <button type="submit" class="ffm-btn ffm-btn-secondary" style="min-height: 34px; padding: 4px 12px; font-size: 0.82rem;">View</button>
-                        </form>
                     </div>
                 </t>
                 <t t-else="">
@@ -2150,7 +2260,7 @@
                                         <div style="color: #166534; font-size: 0.76rem; margin-top: 4px;">
                                             Designation: <t t-esc="item['employee'].job_id.name or 'Marketer'"/>
                                             <t t-if="item['attendance'].place_name"> | Location: <t t-esc="item['attendance'].place_name"/></t>
-                                            <t t-if="item['attendance'].reporting_time"> | Time: <t t-esc="item['attendance'].reporting_time.strftime('%I:%M %p') if item['attendance'].reporting_time else ''"/></t>
+                                            <t t-if="item['attendance'].reporting_time"> | Time: <t t-esc="item['attendance'].get_reporting_time_bd() if item['attendance'].reporting_time else ''"/></t>
                                             <t t-if="item['attendance'].accuracy"> | ±<t t-esc="'%.0f' % item['attendance'].accuracy"/>m</t>
                                         </div>
                                     </div>
@@ -2244,7 +2354,7 @@
                                         <div style="display: flex; align-items: center; gap: 6px;">
                                             <t t-if="m['attendance']">
                                                 <span style="font-size: 0.75rem; padding: 3px 8px; border-radius: 4px; background: #dcfce7; color: #15803d; font-weight: 600; border: 1px solid #bbf7d0;">
-                                                    Present (<t t-esc="m['attendance'].reporting_time.strftime('%I:%M %p') if m['attendance'].reporting_time else 'Marked'"/>)
+                                                    Present (<t t-esc="m['attendance'].get_reporting_time_bd() if m['attendance'].reporting_time else 'Marked'"/>)
                                                 </span>
                                             </t>
                                             <t t-else="">
@@ -2332,7 +2442,8 @@
                                 </h3>
                                 <div style="font-size: 0.8rem; color: #64748b;">
                                     <t t-if="target_employee and target_employee.job_id"><t t-esc="target_employee.job_id.name"/></t>
-                                    <t t-if="target_employee and target_employee.hq"> • HQ: <t t-esc="target_employee.hq"/></t>
+                                    <t t-if="target_territory_name"> • Territory: <t t-esc="target_territory_name"/></t>
+                                    <t t-elif="target_employee and (target_employee.user_id.territory_id or target_employee.hq)"> • Territory: <t t-esc="target_employee.user_id.territory_id.name if target_employee.user_id.territory_id else target_employee.hq"/></t>
                                     • Period: <t t-esc="period_label"/>
                                 </div>
                             </div>
@@ -2395,7 +2506,7 @@
                                 <strong style="color: #15803d; font-size: 0.85rem;">Attendance Status:</strong>
                                 <t t-if="single_day_attendance">
                                     <span style="color: #166534; margin-left: 8px;">
-                                        Marked at <strong><t t-esc="single_day_attendance.reporting_time.strftime('%I:%M %p') if single_day_attendance.reporting_time else '09:00 AM'"/></strong>
+                                        Marked at <strong><t t-esc="single_day_attendance.get_reporting_time_bd() if single_day_attendance.reporting_time else '09:00 AM'"/></strong>
                                         • Location: <strong><t t-esc="single_day_attendance.place_name or 'Field Base'"/></strong>
                                         • Mode: <strong><t t-esc="single_day_attendance.mode_of_journey or 'Field Tour'"/></strong>
                                     </span>
@@ -2777,7 +2888,7 @@
                         <input type="hidden" name="statement_id" t-att-value="statement.id"/>
                         <div class="ffm-form-group">
                             <label class="ffm-form-label">Your Comments / Justification (Optional):</label>
-                            <textarea name="remarks" class="ffm-form-control" rows="2" placeholder="Enter any additional remarks..."><t t-esc="statement.remarks or ''"/></textarea>
+                            <textarea name="remarks" class="ffm-form-control" rows="2"><t t-esc="statement.remarks or ''"/></textarea>
                         </div>
                         <button type="submit" class="ffm-btn ffm-btn-primary" style="font-size: 1rem;">
                             <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px; max-width: 12px; max-height: 12px; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor;"><polyline points="20 6 9 17 4 12"></polyline></svg> Submit Statement for Approval
@@ -3239,7 +3350,7 @@
                                             <div style="font-weight: 700; color: #0f172a; font-size: 0.92rem;"><t t-esc="att.employee_id.name"/></div>
                                             <div style="font-size: 0.78rem; color: #64748b; margin-top: 3px;">
                                                 <t t-if="att.employee_id.hq">HQ: <span style="font-weight: 600; color: #334155;"><t t-esc="att.employee_id.hq"/></span> • </t>
-                                                Reported at: <strong style="color: #0f172a;"><t t-esc="att.reporting_time.strftime('%I:%M %p') if att.reporting_time else '-'"/></strong>
+                                                Reported at: <strong style="color: #0f172a;"><t t-esc="att.get_reporting_time_bd() if att.reporting_time else '-'"/></strong>
                                             </div>
                                         </div>
                                         <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">

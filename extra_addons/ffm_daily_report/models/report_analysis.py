@@ -167,6 +167,14 @@ class FFMReportTerritoryAttendance(models.Model):
     accuracy = fields.Float(string='Accuracy (m)', readonly=True)
     place_name = fields.Char(string='Place / Location', readonly=True)
 
+    def get_reporting_time_bd(self, fmt='%I:%M %p'):
+        self.ensure_one()
+        if not self.reporting_time:
+            return ''
+        dhaka_tz = pytz.timezone('Asia/Dhaka')
+        utc_dt = pytz.utc.localize(self.reporting_time)
+        return utc_dt.astimezone(dhaka_tz).strftime(fmt)
+
     def init(self):
         tools.drop_view_if_exists(self.env.cr, self._table)
         self.env.cr.execute("""
