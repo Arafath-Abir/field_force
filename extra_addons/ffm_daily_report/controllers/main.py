@@ -114,6 +114,21 @@ class FFMController(http.Controller):
         now = datetime.now(tz)
         return now.date(), now.strftime('%I:%M %p')
 
+    def _get_live_location(self, payload):
+        """Validate the device GPS fix sent with every field form; None when missing or invalid."""
+        try:
+            lat = float(payload.get('latitude'))
+            lon = float(payload.get('longitude'))
+        except (TypeError, ValueError):
+            return None
+        if not (-90.0 <= lat <= 90.0 and -180.0 <= lon <= 180.0) or (lat == 0.0 and lon == 0.0):
+            return None
+        try:
+            accuracy = float(payload.get('gps_accuracy') or 0.0)
+        except (TypeError, ValueError):
+            accuracy = 0.0
+        return {'latitude': lat, 'longitude': lon, 'gps_accuracy': accuracy}
+
     def _generate_report_pdf(self, report):
         """Render report to PDF using Odoo actions or resilient xhtml2pdf fallback."""
         try:
@@ -400,12 +415,10 @@ class FFMController(http.Controller):
         employee = ctx['employee']
 
         report = request.env['ffm.daily.report'].get_or_create_today_report()
-        places = request.env['ffm.place'].sudo().search([('active', '=', True)], limit=150, order='name asc')
 
         ctx.update({
             'today_str': today_date.strftime('%d %B, %Y'),
             'report': report,
-            'places': places,
             'transport_modes': TRANSPORT_MODES,
         })
         return request.render('ffm_daily_report.ff_visit_chemist', ctx)
@@ -418,6 +431,10 @@ class FFMController(http.Controller):
                 existing = request.env['ffm.chemist.visit'].sudo().search([('client_uuid', '=', client_uuid)], limit=1)
                 if existing:
                     return {'status': 'success', 'visit_id': existing.id, 'message': _('Chemist visit already saved.')}
+
+            location = self._get_live_location(payload)
+            if not location:
+                return {'status': 'error', 'message': _('Live location is required. Please turn on GPS / location and try again.')}
 
             chemist_id = payload.get('chemist_id')
             chemist_name_manual = (payload.get('chemist_name_manual') or '').strip()
@@ -459,6 +476,7 @@ class FFMController(http.Controller):
                 'coll_tk': coll_tk,
                 'note': (payload.get('note') or '').strip(),
                 'client_uuid': client_uuid or False,
+                **location,
             })
 
             # Create Travel Leg
@@ -470,23 +488,18 @@ class FFMController(http.Controller):
                     'date': report.date,
                 })
 
-            place_from_id = payload.get('place_from_id')
-            place_to_id = payload.get('place_to_id')
-            distance_km = float(payload.get('distance_km', 0) or 0.0)
-
-            # Fallback to report working place or default first place
+            # Only mode + T.A. bill are collected; places fall back to the working place
             def_place = report.working_place_id or request.env['ffm.place'].sudo().search([], limit=1)
-            p_from = int(place_from_id) if place_from_id else (def_place.id if def_place else False)
-            p_to = int(place_to_id) if place_to_id else (def_place.id if def_place else False)
+            p_from = p_to = def_place.id if def_place else False
 
             if p_from and p_to:
-                request.env['ffm.travel.journey'].sudo().create({
+                request.env['ffm.travel.journey'].sudo().with_context(ffm_manual_fare=True).create({
                     'travel_log_id': travel_log.id,
                     'place_from_id': p_from,
                     'place_to_id': p_to,
                     'mode': mode,
                     'other_mode': (payload.get('other_mode') or '').strip(),
-                    'distance_km': distance_km,
+                    'distance_km': 0.0,
                     'fare_tk': fare_tk,
                     'chemist_visit_id': visit.id,
                     'client_uuid': f"{client_uuid}_leg" if client_uuid else False,
@@ -511,12 +524,10 @@ class FFMController(http.Controller):
         employee = ctx['employee']
 
         report = request.env['ffm.daily.report'].get_or_create_today_report()
-        places = request.env['ffm.place'].sudo().search([('active', '=', True)], limit=150, order='name asc')
 
         ctx.update({
             'today_str': today_date.strftime('%d %B, %Y'),
             'report': report,
-            'places': places,
             'transport_modes': TRANSPORT_MODES,
             'doctor_grades': DOCTOR_GRADES,
         })
@@ -530,6 +541,10 @@ class FFMController(http.Controller):
                 existing = request.env['ffm.prescriber.visit'].sudo().search([('client_uuid', '=', client_uuid)], limit=1)
                 if existing:
                     return {'status': 'success', 'visit_id': existing.id, 'message': _('Doctor visit already saved.')}
+
+            location = self._get_live_location(payload)
+            if not location:
+                return {'status': 'error', 'message': _('Live location is required. Please turn on GPS / location and try again.')}
 
             doctor_id = payload.get('doctor_id')
             prescriber_name_manual = (payload.get('prescriber_name_manual') or '').strip()
@@ -567,6 +582,7 @@ class FFMController(http.Controller):
                 'sample': sample,
                 'grade': grade,
                 'client_uuid': client_uuid or False,
+                **location,
             })
 
             # Create Travel Leg
@@ -578,22 +594,18 @@ class FFMController(http.Controller):
                     'date': report.date,
                 })
 
-            place_from_id = payload.get('place_from_id')
-            place_to_id = payload.get('place_to_id')
-            distance_km = float(payload.get('distance_km', 0) or 0.0)
-
+            # Only mode + T.A. bill are collected; places fall back to the working place
             def_place = report.working_place_id or request.env['ffm.place'].sudo().search([], limit=1)
-            p_from = int(place_from_id) if place_from_id else (def_place.id if def_place else False)
-            p_to = int(place_to_id) if place_to_id else (def_place.id if def_place else False)
+            p_from = p_to = def_place.id if def_place else False
 
             if p_from and p_to:
-                request.env['ffm.travel.journey'].sudo().create({
+                request.env['ffm.travel.journey'].sudo().with_context(ffm_manual_fare=True).create({
                     'travel_log_id': travel_log.id,
                     'place_from_id': p_from,
                     'place_to_id': p_to,
                     'mode': mode,
                     'other_mode': (payload.get('other_mode') or '').strip(),
-                    'distance_km': distance_km,
+                    'distance_km': 0.0,
                     'fare_tk': fare_tk,
                     'prescriber_visit_id': visit.id,
                     'client_uuid': f"{client_uuid}_leg" if client_uuid else False,
@@ -618,12 +630,10 @@ class FFMController(http.Controller):
         employee = ctx['employee']
 
         report = request.env['ffm.daily.report'].get_or_create_today_report()
-        places = request.env['ffm.place'].sudo().search([('active', '=', True)], limit=150, order='name asc')
 
         ctx.update({
             'today_str': today_date.strftime('%d %B, %Y'),
             'report': report,
-            'places': places,
             'transport_modes': TRANSPORT_MODES,
         })
         return request.render('ffm_daily_report.ff_visit_farm', ctx)
@@ -636,6 +646,14 @@ class FFMController(http.Controller):
                 existing = request.env['ffm.farm.visit'].sudo().search([('client_uuid', '=', client_uuid)], limit=1)
                 if existing:
                     return {'status': 'success', 'visit_id': existing.id, 'message': _('Farm visit already saved.')}
+
+            location = self._get_live_location(payload)
+            if not location:
+                return {'status': 'error', 'message': _('Live location is required. Please turn on GPS / location and try again.')}
+
+            mode = (payload.get('mode') or '').strip()
+            if not mode:
+                return {'status': 'error', 'message': _('Mode of journey is required.')}
 
             farm_name = (payload.get('farm_name') or '').strip()
             if not farm_name:
@@ -663,10 +681,10 @@ class FFMController(http.Controller):
                 'bird_count': bird_count,
                 'note': (payload.get('note') or '').strip(),
                 'client_uuid': client_uuid or False,
+                **location,
             })
 
-            # Journey leg if mode provided
-            mode = (payload.get('mode') or '').strip()
+            # Journey leg (mode of journey + T.A. bill for vehicle)
             if mode:
                 travel_log = report.travel_log_ids[:1]
                 if not travel_log:
@@ -676,23 +694,20 @@ class FFMController(http.Controller):
                         'date': report.date,
                     })
 
-                place_from_id = payload.get('place_from_id')
-                place_to_id = payload.get('place_to_id')
-                distance_km = float(payload.get('distance_km', 0) or 0.0)
                 fare_tk = float(payload.get('fare_tk', 0) or 0.0)
 
+                # Only mode + T.A. bill are collected; places fall back to the working place
                 def_place = report.working_place_id or request.env['ffm.place'].sudo().search([], limit=1)
-                p_from = int(place_from_id) if place_from_id else (def_place.id if def_place else False)
-                p_to = int(place_to_id) if place_to_id else (def_place.id if def_place else False)
+                p_from = p_to = def_place.id if def_place else False
 
                 if p_from and p_to:
-                    request.env['ffm.travel.journey'].sudo().create({
+                    request.env['ffm.travel.journey'].sudo().with_context(ffm_manual_fare=True).create({
                         'travel_log_id': travel_log.id,
                         'place_from_id': p_from,
                         'place_to_id': p_to,
                         'mode': mode,
                         'other_mode': (payload.get('other_mode') or '').strip(),
-                        'distance_km': distance_km,
+                        'distance_km': 0.0,
                         'fare_tk': fare_tk,
                         'farm_visit_id': visit.id,
                         'client_uuid': f"{client_uuid}_leg" if client_uuid else False,
@@ -745,6 +760,10 @@ class FFMController(http.Controller):
                         'expense_id': existing.id,
                         'message': _('Daily expense already saved.')
                     }
+
+            location = self._get_live_location(payload)
+            if not location:
+                return {'status': 'error', 'message': _('Live location is required. Please turn on GPS / location and try again.')}
 
             user = request.env.user
             employee = user.employee_id or request.env['hr.employee'].sudo().search([('user_id', '=', user.id)], limit=1)
@@ -820,6 +839,7 @@ class FFMController(http.Controller):
                 'bike': bike,
                 'note': (payload.get('note') or '').strip(),
                 'client_uuid': client_uuid or False,
+                **location,
                 'voucher_entertainment': v_entertainment or False,
                 'voucher_entertainment_filename': 'voucher_entertainment.jpg' if v_entertainment else False,
                 'voucher_courier': v_courier or False,
@@ -1194,6 +1214,14 @@ class FFMController(http.Controller):
             if not target_territory_name and target_employee.hq:
                 target_territory_name = target_employee.hq
 
+        # Own report for today is submitted from the Report Card (no separate Daily Report screen)
+        my_today_report = False
+        if employee and ctx.get('has_field_operations'):
+            my_today_report = request.env['ffm.daily.report'].sudo().search([
+                ('employee_id', '=', employee.id),
+                ('date', '=', today_date)
+            ], limit=1)
+
         ctx.update({
             'mode': mode,
             'report_type': report_type,
@@ -1207,6 +1235,7 @@ class FFMController(http.Controller):
             'target_report': target_report,
             'report_state': report_state,
             'single_day_attendance': single_day_attendance,
+            'my_today_report': my_today_report,
             'team_members_data': team_members_data,
             'chemist_visits': chemist_visits,
             'doctor_visits': doctor_visits,

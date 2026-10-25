@@ -398,11 +398,9 @@
                         <thead>
                             <tr>
                                 <th style="width: 5%; text-align: center;">SL</th>
-                                <th style="width: 32%;">From Starting Place</th>
-                                <th style="width: 32%;">To Destination Place</th>
-                                <th style="width: 13%; text-align: center;">Transport Mode</th>
-                                <th style="width: 9%; text-align: right;">Distance</th>
-                                <th style="width: 9%; text-align: right;">TA Fare (Tk)</th>
+                                <th style="width: 60%;">Visit</th>
+                                <th style="width: 17%; text-align: center;">Transport Mode</th>
+                                <th style="width: 18%; text-align: right;">T.A. Bill (Tk)</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -412,23 +410,20 @@
                                 <t t-foreach="all_legs" t-as="j">
                                     <tr>
                                         <td style="text-align: center;"><t t-esc="jsl"/></td>
-                                        <td><strong><t t-esc="j.place_from_id.name"/></strong></td>
-                                        <td><strong><t t-esc="j.place_to_id.name"/></strong></td>
+                                        <td><strong><t t-if="j.chemist_visit_id">Chemist: <t t-esc="j.chemist_visit_id.chemist_name_manual or j.chemist_visit_id.chemist_id.name"/></t><t t-elif="j.prescriber_visit_id">Doctor: <t t-esc="j.prescriber_visit_id.prescriber_name_manual or j.prescriber_visit_id.prescriber_id.name"/></t><t t-elif="j.farm_visit_id">Farm / Others: <t t-esc="j.farm_visit_id.farm_name"/></t><t t-else=""><t t-esc="j.place_from_id.name"/> → <t t-esc="j.place_to_id.name"/></t></strong></td>
                                         <td style="text-align: center;"><t t-esc="j.mode.title() if j.mode else '-'"/></td>
-                                        <td style="text-align: right;"><t t-esc="'%.1f' % j.distance_km"/> km</td>
                                         <td style="text-align: right;">Tk. <t t-esc="'%.0f' % j.fare_tk"/></td>
                                     </tr>
                                     <t t-set="jsl" t-value="jsl + 1"/>
                                 </t>
                                 <tr class="total-row">
-                                    <td colspan="4" style="text-align: right;">Total Journey (<t t-esc="live_journey['legs_count']"/> legs):</td>
-                                    <td style="text-align: right;"><t t-esc="'%.1f' % live_journey['distance']"/> km</td>
+                                    <td colspan="3" style="text-align: right;">Total Journey (<t t-esc="live_journey['legs_count']"/> legs):</td>
                                     <td style="text-align: right; color: #334155;">Tk. <t t-esc="'%.0f' % live_journey['fare']"/></td>
                                 </tr>
                             </t>
                             <t t-else="">
                                 <tr class="empty-row">
-                                    <td colspan="6">No journey legs recorded today.</td>
+                                    <td colspan="4">No journey legs recorded today.</td>
                                 </tr>
                             </t>
                         </tbody>

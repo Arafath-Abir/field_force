@@ -130,7 +130,8 @@ class DailyReport(models.Model):
 
 
 class ChemistVisit(models.Model):
-    _inherit = 'ffm.chemist.visit'
+    _name = 'ffm.chemist.visit'
+    _inherit = ['ffm.chemist.visit', 'ffm.live.location.mixin']
 
     client_uuid = fields.Char(string='Client UUID', index=True)
 
@@ -146,7 +147,8 @@ class ChemistVisit(models.Model):
 
 
 class PrescriberVisit(models.Model):
-    _inherit = 'ffm.prescriber.visit'
+    _name = 'ffm.prescriber.visit'
+    _inherit = ['ffm.prescriber.visit', 'ffm.live.location.mixin']
 
     client_uuid = fields.Char(string='Client UUID', index=True)
     mobile = fields.Char(string='Mail / Mobile')
@@ -177,6 +179,13 @@ class TravelJourney(models.Model):
     _sql_constraints = [
         ('unique_client_uuid', 'unique(client_uuid)', 'Journey leg with this UUID has already been submitted!'),
     ]
+
+    def _recalc(self, force=False):
+        # Field forms no longer collect From/To places or distance: the T.A. bill
+        # entered by the user is final, so skip the route and fare lookup.
+        if self.env.context.get('ffm_manual_fare'):
+            return
+        return super()._recalc(force=force)
 
     def init(self):
         super().init()

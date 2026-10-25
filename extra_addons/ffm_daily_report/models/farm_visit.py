@@ -4,6 +4,7 @@ from odoo.exceptions import ValidationError
 
 class FFMFarmVisit(models.Model):
     _name = 'ffm.farm.visit'
+    _inherit = ['ffm.live.location.mixin']
     _description = 'Farm & Others Visit Line'
     _order = 'sequence, id'
 

@@ -10,10 +10,10 @@
                 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
                 <meta name="apple-mobile-web-app-capable" content="yes"/>
                 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
-                <meta name="theme-color" content="#107c41"/>
+                <meta name="theme-color" content="#047857"/>
                 <title><t t-esc="app_name or 'Newtec FFM'"/></title>
                 <link rel="manifest" href="/ff/manifest.json"/>
-                                <link rel="stylesheet" href="/ffm_daily_report/static/src/css/ffm_mobile.css?v=2.2.0"/>
+                                <link rel="stylesheet" href="/ffm_daily_report/static/src/css/ffm_mobile.css?v=2.4.0"/>
                 <style>
                     svg {
                         fill: none !important;
@@ -54,7 +54,7 @@
                         padding: 10px 8px !important;
                     }
                 </style>
-                <script src="/ffm_daily_report/static/src/js/ffm_app.js"></script>
+                <script src="/ffm_daily_report/static/src/js/ffm_app.js?v=2.4.0"></script>
             </head>
             <body>
                 <!-- Header -->
@@ -135,7 +135,7 @@
             <div class="ffm-status-card" style="margin-bottom: 20px; padding: 16px 20px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
                     <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="width: 44px; height: 44px; border-radius: 12px; background: #ecfdf5; color: #0f5132; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.05rem; border: 1px solid #bbf7d0; flex-shrink: 0;">
+                        <div class="ffm-avatar">
                             <t t-esc="(employee.name[:2] if employee and employee.name else (user_name[:2] if user_name else 'FF')).upper()"/>
                         </div>
                         <div>
@@ -175,12 +175,12 @@
             <!-- Section 1: Daily Field Operations (6 balanced cards for FP, ASM, RSM) -->
             <t t-if="has_field_operations">
                 <div style="margin-bottom: 24px;">
-                    <div style="font-size: 0.74rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px;">
+                    <div class="ffm-section-title">
                         Daily Field Operations
                     </div>
                     <div class="ffm-grid">
                         <!-- 1. Daily Attendance -->
-                        <a href="/ff/attendance" class="ffm-tile">
+                        <a href="/ff/attendance" class="ffm-tile ffm-tile--green">
                             <div class="ffm-icon-box ffm-icon-box--green"><svg class="ffm-icon ffm-icon-lg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></div>
                             <div class="ffm-tile-title">Daily Attendance</div>
                             <div class="ffm-tile-subtitle">Clock in &amp; location</div>
@@ -192,39 +192,30 @@
                             </t>
                         </a>
 
-                        <!-- 2. Daily Report -->
-                        <a href="/ff/report/daily" class="ffm-tile">
-                            <div class="ffm-icon-box ffm-icon-box--blue"><svg class="ffm-icon ffm-icon-lg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg></div>
-                            <div class="ffm-tile-title">Daily Report</div>
-                            <div class="ffm-tile-subtitle">Header &amp; journey</div>
-                            <t t-if="today_report">
-                                <span class="ffm-badge ffm-badge-success" style="margin-top: 6px;"><t t-esc="today_report.state.title()"/></span>
-                            </t>
-                        </a>
 
                         <!-- 3. Chemist Visit -->
-                        <a href="/ff/visit/chemist" class="ffm-tile">
+                        <a href="/ff/visit/chemist" class="ffm-tile ffm-tile--emerald">
                             <div class="ffm-icon-box ffm-icon-box--emerald"><svg class="ffm-icon ffm-icon-lg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"></path><path d="m8.5 8.5 7 7"></path></svg></div>
                             <div class="ffm-tile-title">Chemist Visit</div>
                             <div class="ffm-tile-subtitle">Orders &amp; collections</div>
                         </a>
 
                         <!-- 4. Doctor Visit -->
-                        <a href="/ff/visit/doctor" class="ffm-tile">
+                        <a href="/ff/visit/doctor" class="ffm-tile ffm-tile--rose">
                             <div class="ffm-icon-box ffm-icon-box--rose"><svg class="ffm-icon ffm-icon-lg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 3v5a4.5 4.5 0 0 0 9 0V3"></path><path d="M9 12.5V17a4 4 0 0 0 4 4h1a4 4 0 0 0 4-4v-3.5"></path><circle cx="18" cy="11.5" r="2"></circle><circle cx="4.5" cy="3" r="1.5"></circle><circle cx="13.5" cy="3" r="1.5"></circle></svg></div>
                             <div class="ffm-tile-title">Doctor Visit</div>
                             <div class="ffm-tile-subtitle">Discussion &amp; sampling</div>
                         </a>
 
                         <!-- 5. Farm Visit -->
-                        <a href="/ff/visit/farm" class="ffm-tile">
+                        <a href="/ff/visit/farm" class="ffm-tile ffm-tile--amber">
                             <div class="ffm-icon-box ffm-icon-box--amber"><svg class="ffm-icon ffm-icon-lg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"></path></svg></div>
                             <div class="ffm-tile-title">Farm Visit</div>
                             <div class="ffm-tile-subtitle">Livestock &amp; poultry</div>
                         </a>
 
                         <!-- 6. Daily Expense -->
-                        <a href="/ff/expense" class="ffm-tile">
+                        <a href="/ff/expense" class="ffm-tile ffm-tile--teal">
                             <div class="ffm-icon-box ffm-icon-box--teal"><svg class="ffm-icon ffm-icon-lg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg></div>
                             <div class="ffm-tile-title">Daily Expense</div>
                             <div class="ffm-tile-subtitle">Allowance &amp; vouchers</div>
@@ -235,12 +226,12 @@
 
             <!-- Section 2: Reports & Management -->
             <div>
-                <div style="font-size: 0.74rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px;">
+                <div class="ffm-section-title">
                     Reports &amp; Management
                 </div>
                 <div class="ffm-grid">
                     <!-- 7. Daily Report Card -->
-                    <a href="/ff/report/cards" class="ffm-tile">
+                    <a href="/ff/report/cards" class="ffm-tile ffm-tile--indigo">
                         <div class="ffm-icon-box ffm-icon-box--indigo"><svg class="ffm-icon ffm-icon-lg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></div>
                         <div class="ffm-tile-title">Daily Report Card</div>
                         <div class="ffm-tile-subtitle">Self report &amp; PDF</div>
@@ -248,7 +239,7 @@
 
                     <!-- 8. Monthly Statement (Supervisors and Managers Only) -->
                     <t t-if="not is_fp">
-                        <a href="/ff/statement" class="ffm-tile">
+                        <a href="/ff/statement" class="ffm-tile ffm-tile--purple">
                             <div class="ffm-icon-box ffm-icon-box--purple"><svg class="ffm-icon ffm-icon-lg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="8" y1="13" x2="16" y2="13"></line><line x1="8" y1="17" x2="16" y2="17"></line></svg></div>
                             <div class="ffm-tile-title">Monthly Statement</div>
                             <div class="ffm-tile-subtitle">Monthly bill &amp; claims</div>
@@ -257,8 +248,8 @@
 
                     <!-- 9. Team Approvals (Dedicated Menu/Option for Supervisors) -->
                     <t t-if="is_supervisor">
-                        <a href="/ff/manager" class="ffm-tile ffm-tile-featured">
-                            <div class="ffm-icon-box" style="background: #eff6ff; color: #1d4ed8;"><svg class="ffm-icon ffm-icon-lg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg></div>
+                        <a href="/ff/manager" class="ffm-tile ffm-tile-featured ffm-tile--blue">
+                            <div class="ffm-icon-box ffm-icon-box--blue"><svg class="ffm-icon ffm-icon-lg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg></div>
                             <div class="ffm-tile-title">Team Approvals</div>
                             <div class="ffm-tile-subtitle">Review &amp; approve reports</div>
                             <t t-if="pending_reports_count and pending_reports_count &gt; 0">
@@ -287,7 +278,7 @@
                         <h2 class="ffm-form-title">
                             <svg class="ffm-icon ffm-icon-sm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 6px; color: #107c41;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> Daily Field Attendance
                         </h2>
-                        <p class="ffm-form-subtitle">Record daily field reporting time and geo-coordinates.</p>
+                        <p class="ffm-form-subtitle">Tap submit to record your reporting time with live location.</p>
                     </div>
                     <span class="ffm-badge ffm-badge-info" style="font-size: 0.78rem; padding: 4px 10px;">
                         <t t-esc="today_str"/>
@@ -331,21 +322,10 @@
                 <!-- Case B: Not submitted yet -->
                 <t t-else="">
                     <form id="attendanceForm" onsubmit="return handleAttendanceSubmit(event)">
-                        <!-- GPS Capture Box -->
-                        <div class="ffm-gps-box">
-                            <button type="button" id="btnCaptureGPS" class="ffm-btn ffm-btn-secondary" onclick="captureLocation()" style="margin-bottom: 8px; max-width: 260px; margin: 0 auto 8px auto;">
-                                <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; fill: none; stroke: currentColor;"><circle cx="12" cy="12" r="2"></circle><path d="M16.2 7.8a6 6 0 0 1 0 8.4m-8.4 0a6 6 0 0 1 0-8.4m11.3-2.9a10 10 0 0 1 0 14.2m-14.2 0a10 10 0 0 1 0-14.2"></path></svg> Capture Live GPS Location
-                            </button>
-                            <div id="gpsStatusText" style="font-size: 0.82rem; color: #64748b; margin-top: 6px;">
-                                Click above to detect current location coordinates
-                            </div>
-                            <div id="gpsCoordsDisplay" class="ffm-gps-coords" style="display: none; background: #ffffff; border: 1px solid #bbf7d0; padding: 6px 12px; border-radius: 6px; margin-top: 8px;"></div>
+                        <div class="ffm-live-loc-note" style="margin-top: 0;">
+                            <svg class="ffm-icon ffm-icon-sm" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                            <span>Your live location is captured when you tap Submit. Attendance cannot be submitted without location, so keep GPS / location turned on.</span>
                         </div>
-
-                        <!-- Hidden GPS inputs -->
-                        <input type="hidden" id="latitude" name="latitude" value=""/>
-                        <input type="hidden" id="longitude" name="longitude" value=""/>
-                        <input type="hidden" id="accuracy" name="accuracy" value=""/>
 
                         <!-- Mode of Journey -->
                         <div class="ffm-form-group">
@@ -363,94 +343,54 @@
                             </select>
                         </div>
 
-                        <!-- Submit Button -->
-                        <button type="submit" id="btnSubmitAttendance" class="ffm-btn ffm-btn-primary" disabled="disabled">
+                        <!-- Submit Button: captures live GPS, then submits -->
+                        <button type="submit" id="btnSubmitAttendance" class="ffm-btn ffm-btn-primary">
                             <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle;"><polyline points="20 6 9 17 4 12"></polyline></svg> Submit Daily Attendance
                         </button>
                     </form>
 
                     <script>
-                        var hasGps = false;
-
-                        function captureLocation() {
-                            var btn = document.getElementById('btnCaptureGPS');
-                            var status = document.getElementById('gpsStatusText');
-                            var display = document.getElementById('gpsCoordsDisplay');
-                            var submitBtn = document.getElementById('btnSubmitAttendance');
-
-                            btn.disabled = true;
-                            status.innerText = 'Detecting GPS signal...';
-
-                            FFM.captureGPS(
-                                function(pos) {
-                                    btn.disabled = false;
-                                    document.getElementById('latitude').value = pos.latitude.toFixed(7);
-                                    document.getElementById('longitude').value = pos.longitude.toFixed(7);
-                                    document.getElementById('accuracy').value = pos.accuracy.toFixed(1);
-
-                                    hasGps = true;
-                                    status.innerHTML = 'Location captured successfully!';
-                                    status.style.color = 'var(--ffm-success)';
-                                    display.style.display = 'block';
-                                    display.innerText = 'Lat: ' + pos.latitude.toFixed(5) + ', Lon: ' + pos.longitude.toFixed(5) + ' (Accuracy: ±' + Math.round(pos.accuracy) + 'm)';
-                                    submitBtn.disabled = false;
-                                },
-                                function(err) {
-                                    btn.disabled = false;
-                                    hasGps = false;
-                                    submitBtn.disabled = true;
-                                    status.innerText = 'Error: ' + err.message;
-                                    status.style.color = 'var(--ffm-danger)';
-                                    FFM.showToast(err.message, 'error');
-                                }
-                            );
-                        }
-
                         function handleAttendanceSubmit(e) {
                             e.preventDefault();
-                            if (!hasGps) {
-                                FFM.showToast('Please capture your GPS location first.', 'error');
-                                return false;
-                            }
-
                             var submitBtn = document.getElementById('btnSubmitAttendance');
-                            var release = FFM.doubleTapGuard(submitBtn, 'Submitting attendance...');
 
-                            var payload = {
-                                latitude: parseFloat(document.getElementById('latitude').value),
-                                longitude: parseFloat(document.getElementById('longitude').value),
-                                accuracy: parseFloat(document.getElementById('accuracy').value),
-                                mode_of_journey: document.getElementById('mode_of_journey').value,
-                                client_uuid: FFM.getOrGenerateUUID('ffm_attendance_uuid')
-                            };
+                            FFM.withLiveLocation(submitBtn, 'Submitting attendance...', function(loc, release) {
+                                var payload = {
+                                    latitude: loc.latitude,
+                                    longitude: loc.longitude,
+                                    accuracy: loc.gps_accuracy,
+                                    mode_of_journey: document.getElementById('mode_of_journey').value,
+                                    client_uuid: FFM.getOrGenerateUUID('ffm_attendance_uuid')
+                                };
 
-                            fetch('/ff/attendance/submit', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify({params: payload})
-                            })
-                            .then(function(res) {
-                                return res.json();
-                            })
-                            .then(function(data) {
-                                var res = data.result || data;
-                                if (res.status === 'success') {
-                                    FFM.clearDraft('attendance');
-                                    FFM.resetUUID('ffm_attendance_uuid');
-                                    FFM.showToast(res.message || 'Attendance submitted successfully!', 'success');
-                                    setTimeout(function() {
-                                        window.location.reload();
-                                    }, 1200);
-                                } else {
+                                fetch('/ff/attendance/submit', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({params: payload})
+                                })
+                                .then(function(res) {
+                                    return res.json();
+                                })
+                                .then(function(data) {
+                                    var res = data.result || data;
+                                    if (res.status === 'success') {
+                                        FFM.clearDraft('attendance');
+                                        FFM.resetUUID('ffm_attendance_uuid');
+                                        FFM.showToast(res.message || 'Attendance submitted successfully!', 'success');
+                                        setTimeout(function() {
+                                            window.location.reload();
+                                        }, 1200);
+                                    } else {
+                                        release();
+                                        FFM.showToast(res.message || 'Failed to submit attendance.', 'error');
+                                    }
+                                })
+                                .catch(function(err) {
                                     release();
-                                    FFM.showToast(res.message || 'Failed to submit attendance.', 'error');
-                                }
-                            })
-                            .catch(function(err) {
-                                release();
-                                FFM.showToast('Network connection error. Please try again.', 'error');
+                                    FFM.showToast('Network connection error. Please try again.', 'error');
+                                });
                             });
 
                             return false;
@@ -713,8 +653,8 @@
     <!-- Chemist Visit Form -->
     <template id="ff_visit_chemist" name="FFM Chemist Visit Form">
         <t t-call="ffm_daily_report.ff_layout">
-            <a href="/ff/report/daily" class="ffm-back-link">
-                <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Back to Daily Report
+            <a href="/ff" class="ffm-back-link">
+                <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Back to Dashboard
             </a>
 
             <div class="ffm-form-card">
@@ -778,74 +718,47 @@
                         <input type="text" id="note" name="note" class="ffm-form-control"/>
                     </div>
 
-                    <!-- ── Journey Details Block ── -->
+                    <!-- ── Journey & T.A. Bill ── -->
                     <div class="ffm-journey-card">
                         <div class="ffm-journey-header">
                             <div class="ffm-journey-title">
                                 <span class="ffm-icon-box ffm-icon-box-sm ffm-icon-box--blue" style="margin-bottom: 0;">
                                     <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
                                 </span>
-                                <span>Travel &amp; Journey Calculation (T.A.)</span>
-                            </div>
-                            <span class="ffm-badge ffm-badge-neutral" style="font-size: 0.72rem;">Optional</span>
-                        </div>
-
-                        <div class="ffm-row-2">
-                            <div class="ffm-form-group">
-                                <label class="ffm-form-label" for="place_from_id">Starting Place</label>
-                                <select id="place_from_id" class="ffm-form-control">
-                                    <option value="">-- From Place --</option>
-                                    <t t-foreach="places" t-as="p">
-                                        <option t-att-value="p.id"><t t-esc="p.name"/></option>
-                                    </t>
-                                </select>
-                            </div>
-                            <div class="ffm-form-group">
-                                <label class="ffm-form-label" for="place_to_id">Destination Place</label>
-                                <select id="place_to_id" class="ffm-form-control">
-                                    <option value="">-- To Place --</option>
-                                    <t t-foreach="places" t-as="p">
-                                        <option t-att-value="p.id"><t t-esc="p.name"/></option>
-                                    </t>
-                                </select>
+                                <span>Journey &amp; T.A. Bill</span>
                             </div>
                         </div>
 
-                        <div class="ffm-form-group">
-                            <label class="ffm-form-label" for="mode">
-                                <span>Mode of Journey <span class="ffm-req">*</span></span>
-                            </label>
-                            <select id="mode" class="ffm-form-control" required="required" onchange="checkModeOther(this.value)">
-                                <t t-foreach="transport_modes" t-as="m">
-                                    <option t-att-value="m[0]"><t t-esc="m[1]"/></option>
-                                </t>
-                            </select>
-                        </div>
-
-                        <div class="ffm-form-group" id="divOtherMode" style="display: none;">
-                            <label class="ffm-form-label" for="other_mode">Other Transport Details</label>
-                            <input type="text" id="other_mode" class="ffm-form-control"/>
-                        </div>
-
-                        <button type="button" class="ffm-journey-calc-btn" onclick="calculateJourney()">
-                            <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line></svg> Auto-Calculate Distance &amp; Fare
-                        </button>
-
-                        <div class="ffm-row-2">
+                        <div class="ffm-row-2" style="margin-bottom: 0;">
                             <div class="ffm-form-group" style="margin-bottom: 0;">
-                                <label class="ffm-form-label" for="distance_km">Distance (km)</label>
-                                <input type="number" id="distance_km" class="ffm-form-control" step="0.1" value="0"/>
+                                <label class="ffm-form-label" for="mode">
+                                    <span>Mode of Journey <span class="ffm-req">*</span></span>
+                                </label>
+                                <select id="mode" class="ffm-form-control" required="required" onchange="checkModeOther(this.value)">
+                                    <t t-foreach="transport_modes" t-as="m">
+                                        <option t-att-value="m[0]"><t t-esc="m[1]"/></option>
+                                    </t>
+                                </select>
                             </div>
                             <div class="ffm-form-group" style="margin-bottom: 0;">
                                 <label class="ffm-form-label" for="fare_tk">
-                                    <span>Travel Fare (Tk) <span class="ffm-req">*</span></span>
+                                    <span>T.A. Bill for Vehicle (Tk) <span class="ffm-req">*</span></span>
                                 </label>
                                 <div class="ffm-currency-wrap">
                                     <span class="ffm-currency-prefix">Tk</span>
-                                    <input type="number" id="fare_tk" class="ffm-form-control" step="1" value="0" required="required" style="color: #1e40af;"/>
+                                    <input type="number" id="fare_tk" class="ffm-form-control" min="0" step="1" value="0" required="required" style="color: #1e40af;"/>
                                 </div>
                             </div>
                         </div>
+                        <div class="ffm-form-group" id="divOtherMode" style="display: none; margin-top: 12px; margin-bottom: 0;">
+                            <label class="ffm-form-label" for="other_mode">Other Transport Details</label>
+                            <input type="text" id="other_mode" class="ffm-form-control"/>
+                        </div>
+                    </div>
+
+                    <div class="ffm-live-loc-note">
+                        <svg class="ffm-icon ffm-icon-sm" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                        <span>Your live location is captured automatically when you save. Keep GPS / location turned on.</span>
                     </div>
 
                     <button type="submit" id="btnSubmitChemist" class="ffm-btn ffm-btn-primary">
@@ -857,32 +770,6 @@
             <script>
                 function checkModeOther(val) {
                     document.getElementById('divOtherMode').style.display = (val === 'others') ? 'block' : 'none';
-                }
-
-                function calculateJourney() {
-                    var pFrom = document.getElementById('place_from_id').value;
-                    var pTo = document.getElementById('place_to_id').value;
-                    var mode = document.getElementById('mode').value;
-
-                    if (!pFrom || !pTo) {
-                        FFM.showToast('Please select starting and destination places.', 'error');
-                        return;
-                    }
-
-                    fetch('/ff/api/journey/calculate', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({params: {place_from_id: pFrom, place_to_id: pTo, mode: mode}})
-                    })
-                    .then(function(res) { return res.json(); })
-                    .then(function(data) {
-                        var res = data.result || data;
-                        if (res.distance_km !== undefined) {
-                            document.getElementById('distance_km').value = res.distance_km;
-                            document.getElementById('fare_tk').value = res.fare_tk;
-                            FFM.showToast('Distance: ' + res.distance_km + ' km, Fare: Tk ' + res.fare_tk, 'success');
-                        }
-                    });
                 }
 
                 function handleChemistSubmit(e) {
@@ -904,44 +791,44 @@
                     }
 
                     var btn = document.getElementById('btnSubmitChemist');
-                    var release = FFM.doubleTapGuard(btn, 'Saving...');
+                    FFM.withLiveLocation(btn, 'Saving...', function(loc, release) {
+                        var payload = {
+                            latitude: loc.latitude,
+                            longitude: loc.longitude,
+                            gps_accuracy: loc.gps_accuracy,
+                            chemist_id: false,
+                            chemist_name_manual: chemManual || false,
+                            order_tk: order,
+                            sale_tk: sale,
+                            coll_tk: coll,
+                            note: document.getElementById('note').value.trim(),
+                            mode: document.getElementById('mode').value,
+                            other_mode: document.getElementById('other_mode').value.trim(),
+                            fare_tk: parseFloat(document.getElementById('fare_tk').value || 0),
+                            client_uuid: FFM.getOrGenerateUUID('ffm_chemist_visit_uuid')
+                        };
 
-                    var payload = {
-                        chemist_id: chemId || false,
-                        chemist_name_manual: chemManual || false,
-                        order_tk: order,
-                        sale_tk: sale,
-                        coll_tk: coll,
-                        note: document.getElementById('note').value.trim(),
-                        place_from_id: document.getElementById('place_from_id').value,
-                        place_to_id: document.getElementById('place_to_id').value,
-                        mode: document.getElementById('mode').value,
-                        other_mode: document.getElementById('other_mode').value.trim(),
-                        distance_km: parseFloat(document.getElementById('distance_km').value || 0),
-                        fare_tk: parseFloat(document.getElementById('fare_tk').value || 0),
-                        client_uuid: FFM.getOrGenerateUUID('ffm_chemist_visit_uuid')
-                    };
-
-                    fetch('/ff/visit/chemist/submit', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({params: payload})
-                    })
-                    .then(function(res) { return res.json(); })
-                    .then(function(data) {
-                        var res = data.result || data;
-                        if (res.status === 'success') {
-                            FFM.resetUUID('ffm_chemist_visit_uuid');
-                            FFM.showToast(res.message, 'success');
-                            setTimeout(function() { window.location.href = '/ff/report/cards'; }, 1000);
-                        } else {
+                        fetch('/ff/visit/chemist/submit', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({params: payload})
+                        })
+                        .then(function(res) { return res.json(); })
+                        .then(function(data) {
+                            var res = data.result || data;
+                            if (res.status === 'success') {
+                                FFM.resetUUID('ffm_chemist_visit_uuid');
+                                FFM.showToast(res.message, 'success');
+                                setTimeout(function() { window.location.href = '/ff/report/cards'; }, 1000);
+                            } else {
+                                release();
+                                FFM.showToast(res.message, 'error');
+                            }
+                        })
+                        .catch(function(err) {
                             release();
-                            FFM.showToast(res.message, 'error');
-                        }
-                    })
-                    .catch(function(err) {
-                        release();
-                        FFM.showToast('Network connection error occurred.', 'error');
+                            FFM.showToast('Network connection error occurred.', 'error');
+                        });
                     });
 
                     return false;
@@ -953,8 +840,8 @@
     <!-- Doctor Visit Form -->
     <template id="ff_visit_doctor" name="FFM Doctor Visit Form">
         <t t-call="ffm_daily_report.ff_layout">
-            <a href="/ff/report/daily" class="ffm-back-link">
-                <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Back to Daily Report
+            <a href="/ff" class="ffm-back-link">
+                <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Back to Dashboard
             </a>
 
             <div class="ffm-form-card">
@@ -1020,69 +907,43 @@
                         <input type="text" id="sample" name="sample" class="ffm-form-control" required="required"/>
                     </div>
 
-                    <!-- ── Journey Details Block ── -->
+                    <!-- ── Journey & T.A. Bill ── -->
                     <div class="ffm-journey-card">
                         <div class="ffm-journey-header">
                             <div class="ffm-journey-title">
                                 <span class="ffm-icon-box ffm-icon-box-sm ffm-icon-box--blue" style="margin-bottom: 0;">
                                     <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
                                 </span>
-                                <span>Travel &amp; Journey Calculation (T.A.)</span>
-                            </div>
-                            <span class="ffm-badge ffm-badge-neutral" style="font-size: 0.72rem;">Optional</span>
-                        </div>
-
-                        <div class="ffm-row-2">
-                            <div class="ffm-form-group">
-                                <label class="ffm-form-label" for="doc_place_from_id">Starting Place</label>
-                                <select id="doc_place_from_id" class="ffm-form-control">
-                                    <option value="">-- From Place --</option>
-                                    <t t-foreach="places" t-as="p">
-                                        <option t-att-value="p.id"><t t-esc="p.name"/></option>
-                                    </t>
-                                </select>
-                            </div>
-                            <div class="ffm-form-group">
-                                <label class="ffm-form-label" for="doc_place_to_id">Destination Place</label>
-                                <select id="doc_place_to_id" class="ffm-form-control">
-                                    <option value="">-- To Place --</option>
-                                    <t t-foreach="places" t-as="p">
-                                        <option t-att-value="p.id"><t t-esc="p.name"/></option>
-                                    </t>
-                                </select>
+                                <span>Journey &amp; T.A. Bill</span>
                             </div>
                         </div>
 
-                        <div class="ffm-form-group">
-                            <label class="ffm-form-label" for="doc_mode">
-                                <span>Mode of Journey <span class="ffm-req">*</span></span>
-                            </label>
-                            <select id="doc_mode" class="ffm-form-control" required="required">
-                                <t t-foreach="transport_modes" t-as="m">
-                                    <option t-att-value="m[0]"><t t-esc="m[1]"/></option>
-                                </t>
-                            </select>
-                        </div>
-
-                        <button type="button" class="ffm-journey-calc-btn" onclick="calculateDoctorJourney()">
-                            <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line></svg> Auto-Calculate Distance &amp; Fare
-                        </button>
-
-                        <div class="ffm-row-2">
+                        <div class="ffm-row-2" style="margin-bottom: 0;">
                             <div class="ffm-form-group" style="margin-bottom: 0;">
-                                <label class="ffm-form-label" for="doc_distance_km">Distance (km)</label>
-                                <input type="number" id="doc_distance_km" class="ffm-form-control" step="0.1" value="0"/>
+                                <label class="ffm-form-label" for="doc_mode">
+                                    <span>Mode of Journey <span class="ffm-req">*</span></span>
+                                </label>
+                                <select id="doc_mode" class="ffm-form-control" required="required">
+                                    <t t-foreach="transport_modes" t-as="m">
+                                        <option t-att-value="m[0]"><t t-esc="m[1]"/></option>
+                                    </t>
+                                </select>
                             </div>
                             <div class="ffm-form-group" style="margin-bottom: 0;">
                                 <label class="ffm-form-label" for="doc_fare_tk">
-                                    <span>Travel Fare (Tk) <span class="ffm-req">*</span></span>
+                                    <span>T.A. Bill for Vehicle (Tk) <span class="ffm-req">*</span></span>
                                 </label>
                                 <div class="ffm-currency-wrap">
                                     <span class="ffm-currency-prefix">Tk</span>
-                                    <input type="number" id="doc_fare_tk" class="ffm-form-control" step="1" value="0" required="required" style="color: #1e40af;"/>
+                                    <input type="number" id="doc_fare_tk" class="ffm-form-control" min="0" step="1" value="0" required="required" style="color: #1e40af;"/>
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="ffm-live-loc-note">
+                        <svg class="ffm-icon ffm-icon-sm" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                        <span>Your live location is captured automatically when you save. Keep GPS / location turned on.</span>
                     </div>
 
                     <button type="submit" id="btnSubmitDoctor" class="ffm-btn ffm-btn-primary">
@@ -1092,32 +953,6 @@
             </div>
 
             <script>
-                function calculateDoctorJourney() {
-                    var pFrom = document.getElementById('doc_place_from_id').value;
-                    var pTo = document.getElementById('doc_place_to_id').value;
-                    var mode = document.getElementById('doc_mode').value;
-
-                    if (!pFrom || !pTo) {
-                        FFM.showToast('Please select starting and destination places.', 'error');
-                        return;
-                    }
-
-                    fetch('/ff/api/journey/calculate', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({params: {place_from_id: pFrom, place_to_id: pTo, mode: mode}})
-                    })
-                    .then(function(res) { return res.json(); })
-                    .then(function(data) {
-                        var res = data.result || data;
-                        if (res.distance_km !== undefined) {
-                            document.getElementById('doc_distance_km').value = res.distance_km;
-                            document.getElementById('doc_fare_tk').value = res.fare_tk;
-                            FFM.showToast('Distance: ' + res.distance_km + ' km, Fare: Tk ' + res.fare_tk, 'success');
-                        }
-                    });
-                }
-
                 function handleDoctorSubmit(e) {
                     e.preventDefault();
                     var docManual = document.getElementById('prescriber_name_manual').value.trim();
@@ -1128,44 +963,44 @@
                     }
 
                     var btn = document.getElementById('btnSubmitDoctor');
-                    var release = FFM.doubleTapGuard(btn, 'Saving...');
+                    FFM.withLiveLocation(btn, 'Saving...', function(loc, release) {
+                        var payload = {
+                            latitude: loc.latitude,
+                            longitude: loc.longitude,
+                            gps_accuracy: loc.gps_accuracy,
+                            doctor_id: false,
+                            prescriber_name_manual: docManual,
+                            mobile: document.getElementById('mobile').value.trim(),
+                            mailing_address: document.getElementById('mailing_address').value.trim(),
+                            product_discussion: document.getElementById('product_discussion').value.trim(),
+                            sample: document.getElementById('sample').value.trim(),
+                            grade: document.getElementById('grade').value,
+                            mode: document.getElementById('doc_mode').value,
+                            fare_tk: parseFloat(document.getElementById('doc_fare_tk').value || 0),
+                            client_uuid: FFM.getOrGenerateUUID('ffm_doctor_visit_uuid')
+                        };
 
-                    var payload = {
-                        doctor_id: false,
-                        prescriber_name_manual: docManual,
-                        mobile: document.getElementById('mobile').value.trim(),
-                        mailing_address: document.getElementById('mailing_address').value.trim(),
-                        product_discussion: document.getElementById('product_discussion').value.trim(),
-                        sample: document.getElementById('sample').value.trim(),
-                        grade: document.getElementById('grade').value,
-                        place_from_id: document.getElementById('doc_place_from_id').value,
-                        place_to_id: document.getElementById('doc_place_to_id').value,
-                        mode: document.getElementById('doc_mode').value,
-                        distance_km: parseFloat(document.getElementById('doc_distance_km').value || 0),
-                        fare_tk: parseFloat(document.getElementById('doc_fare_tk').value || 0),
-                        client_uuid: FFM.getOrGenerateUUID('ffm_doctor_visit_uuid')
-                    };
-
-                    fetch('/ff/visit/doctor/submit', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({params: payload})
-                    })
-                    .then(function(res) { return res.json(); })
-                    .then(function(data) {
-                        var res = data.result || data;
-                        if (res.status === 'success') {
-                            FFM.resetUUID('ffm_doctor_visit_uuid');
-                            FFM.showToast(res.message, 'success');
-                            setTimeout(function() { window.location.href = '/ff/report/cards'; }, 1000);
-                        } else {
+                        fetch('/ff/visit/doctor/submit', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({params: payload})
+                        })
+                        .then(function(res) { return res.json(); })
+                        .then(function(data) {
+                            var res = data.result || data;
+                            if (res.status === 'success') {
+                                FFM.resetUUID('ffm_doctor_visit_uuid');
+                                FFM.showToast(res.message, 'success');
+                                setTimeout(function() { window.location.href = '/ff/report/cards'; }, 1000);
+                            } else {
+                                release();
+                                FFM.showToast(res.message, 'error');
+                            }
+                        })
+                        .catch(function(err) {
                             release();
-                            FFM.showToast(res.message, 'error');
-                        }
-                    })
-                    .catch(function(err) {
-                        release();
-                        FFM.showToast('Network connection error occurred.', 'error');
+                            FFM.showToast('Network connection error occurred.', 'error');
+                        });
                     });
 
                     return false;
@@ -1177,8 +1012,8 @@
     <!-- Farm / Others Visit Form -->
     <template id="ff_visit_farm" name="FFM Farm Visit Form">
         <t t-call="ffm_daily_report.ff_layout">
-            <a href="/ff/report/daily" class="ffm-back-link">
-                <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Back to Daily Report
+            <a href="/ff" class="ffm-back-link">
+                <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Back to Dashboard
             </a>
 
             <div class="ffm-form-card">
@@ -1249,68 +1084,43 @@
                         <input type="text" id="farm_note" name="note" class="ffm-form-control"/>
                     </div>
 
-                    <!-- ── Journey Details Block ── -->
+                    <!-- ── Journey & T.A. Bill ── -->
                     <div class="ffm-journey-card">
                         <div class="ffm-journey-header">
                             <div class="ffm-journey-title">
                                 <span class="ffm-icon-box ffm-icon-box-sm ffm-icon-box--blue" style="margin-bottom: 0;">
                                     <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
                                 </span>
-                                <span>Travel &amp; Journey Calculation (T.A.)</span>
-                            </div>
-                            <span class="ffm-badge ffm-badge-neutral" style="font-size: 0.72rem;">Optional</span>
-                        </div>
-
-                        <div class="ffm-row-2">
-                            <div class="ffm-form-group">
-                                <label class="ffm-form-label" for="farm_place_from_id">Starting Place</label>
-                                <select id="farm_place_from_id" class="ffm-form-control">
-                                    <option value="">-- From Place --</option>
-                                    <t t-foreach="places" t-as="p">
-                                        <option t-att-value="p.id"><t t-esc="p.name"/></option>
-                                    </t>
-                                </select>
-                            </div>
-                            <div class="ffm-form-group">
-                                <label class="ffm-form-label" for="farm_place_to_id">Destination Place</label>
-                                <select id="farm_place_to_id" class="ffm-form-control">
-                                    <option value="">-- To Place --</option>
-                                    <t t-foreach="places" t-as="p">
-                                        <option t-att-value="p.id"><t t-esc="p.name"/></option>
-                                    </t>
-                                </select>
+                                <span>Journey &amp; T.A. Bill</span>
                             </div>
                         </div>
 
-                        <div class="ffm-form-group">
-                            <label class="ffm-form-label" for="farm_mode">Mode of Journey</label>
-                            <select id="farm_mode" class="ffm-form-control">
-                                <option value="">-- Leave blank if walking / no expense --</option>
-                                <t t-foreach="transport_modes" t-as="m">
-                                    <option t-att-value="m[0]"><t t-esc="m[1]"/></option>
-                                </t>
-                            </select>
-                        </div>
-
-                        <button type="button" class="ffm-journey-calc-btn" onclick="calculateFarmJourney()">
-                            <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line></svg> Auto-Calculate Distance &amp; Fare
-                        </button>
-
-                        <div class="ffm-row-2">
+                        <div class="ffm-row-2" style="margin-bottom: 0;">
                             <div class="ffm-form-group" style="margin-bottom: 0;">
-                                <label class="ffm-form-label" for="farm_distance_km">Distance (km)</label>
-                                <input type="number" id="farm_distance_km" class="ffm-form-control" step="0.1" value="0"/>
+                                <label class="ffm-form-label" for="farm_mode">
+                                    <span>Mode of Journey <span class="ffm-req">*</span></span>
+                                </label>
+                                <select id="farm_mode" class="ffm-form-control" required="required">
+                                    <t t-foreach="transport_modes" t-as="m">
+                                        <option t-att-value="m[0]"><t t-esc="m[1]"/></option>
+                                    </t>
+                                </select>
                             </div>
                             <div class="ffm-form-group" style="margin-bottom: 0;">
                                 <label class="ffm-form-label" for="farm_fare_tk">
-                                    <span>Travel Fare (Tk)</span>
+                                    <span>T.A. Bill for Vehicle (Tk) <span class="ffm-req">*</span></span>
                                 </label>
                                 <div class="ffm-currency-wrap">
                                     <span class="ffm-currency-prefix">Tk</span>
-                                    <input type="number" id="farm_fare_tk" class="ffm-form-control" step="1" value="0" style="color: #1e40af;"/>
+                                    <input type="number" id="farm_fare_tk" class="ffm-form-control" min="0" step="1" value="0" required="required" style="color: #1e40af;"/>
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="ffm-live-loc-note">
+                        <svg class="ffm-icon ffm-icon-sm" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                        <span>Your live location is captured automatically when you save. Keep GPS / location turned on.</span>
                     </div>
 
                     <button type="submit" id="btnSubmitFarm" class="ffm-btn ffm-btn-primary">
@@ -1320,32 +1130,6 @@
             </div>
 
             <script>
-                function calculateFarmJourney() {
-                    var pFrom = document.getElementById('farm_place_from_id').value;
-                    var pTo = document.getElementById('farm_place_to_id').value;
-                    var mode = document.getElementById('farm_mode').value;
-
-                    if (!pFrom || !pTo) {
-                        FFM.showToast('Please select starting and destination places.', 'error');
-                        return;
-                    }
-
-                    fetch('/ff/api/journey/calculate', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({params: {place_from_id: pFrom, place_to_id: pTo, mode: mode}})
-                    })
-                    .then(function(res) { return res.json(); })
-                    .then(function(data) {
-                        var res = data.result || data;
-                        if (res.distance_km !== undefined) {
-                            document.getElementById('farm_distance_km').value = res.distance_km;
-                            document.getElementById('farm_fare_tk').value = res.fare_tk;
-                            FFM.showToast('Distance: ' + res.distance_km + ' km, Fare: Tk ' + res.fare_tk, 'success');
-                        }
-                    });
-                }
-
                 function handleFarmSubmit(e) {
                     e.preventDefault();
                     var name = document.getElementById('farm_name').value.trim();
@@ -1355,46 +1139,46 @@
                     }
 
                     var btn = document.getElementById('btnSubmitFarm');
-                    var release = FFM.doubleTapGuard(btn, 'Saving...');
+                    FFM.withLiveLocation(btn, 'Saving...', function(loc, release) {
+                        var payload = {
+                            latitude: loc.latitude,
+                            longitude: loc.longitude,
+                            gps_accuracy: loc.gps_accuracy,
+                            farm_name: name,
+                            address: document.getElementById('farm_address').value.trim(),
+                            broiler: document.getElementById('broiler').value.trim(),
+                            layer: document.getElementById('layer').value.trim(),
+                            sonali: document.getElementById('sonali').value.trim(),
+                            cattle: document.getElementById('cattle').value.trim(),
+                            aqua: document.getElementById('aqua').value.trim(),
+                            bird_count: parseInt(document.getElementById('bird_count').value || 0, 10),
+                            note: document.getElementById('farm_note').value.trim(),
+                            mode: document.getElementById('farm_mode').value,
+                            fare_tk: parseFloat(document.getElementById('farm_fare_tk').value || 0),
+                            client_uuid: FFM.getOrGenerateUUID('ffm_farm_visit_uuid')
+                        };
 
-                    var payload = {
-                        farm_name: name,
-                        address: document.getElementById('farm_address').value.trim(),
-                        broiler: document.getElementById('broiler').value.trim(),
-                        layer: document.getElementById('layer').value.trim(),
-                        sonali: document.getElementById('sonali').value.trim(),
-                        cattle: document.getElementById('cattle').value.trim(),
-                        aqua: document.getElementById('aqua').value.trim(),
-                        bird_count: parseInt(document.getElementById('bird_count').value || 0, 10),
-                        note: document.getElementById('farm_note').value.trim(),
-                        place_from_id: document.getElementById('farm_place_from_id').value,
-                        place_to_id: document.getElementById('farm_place_to_id').value,
-                        mode: document.getElementById('farm_mode').value,
-                        distance_km: parseFloat(document.getElementById('farm_distance_km').value || 0),
-                        fare_tk: parseFloat(document.getElementById('farm_fare_tk').value || 0),
-                        client_uuid: FFM.getOrGenerateUUID('ffm_farm_visit_uuid')
-                    };
-
-                    fetch('/ff/visit/farm/submit', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({params: payload})
-                    })
-                    .then(function(res) { return res.json(); })
-                    .then(function(data) {
-                        var res = data.result || data;
-                        if (res.status === 'success') {
-                            FFM.resetUUID('ffm_farm_visit_uuid');
-                            FFM.showToast(res.message, 'success');
-                            setTimeout(function() { window.location.href = '/ff/report/cards'; }, 1000);
-                        } else {
+                        fetch('/ff/visit/farm/submit', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({params: payload})
+                        })
+                        .then(function(res) { return res.json(); })
+                        .then(function(data) {
+                            var res = data.result || data;
+                            if (res.status === 'success') {
+                                FFM.resetUUID('ffm_farm_visit_uuid');
+                                FFM.showToast(res.message, 'success');
+                                setTimeout(function() { window.location.href = '/ff/report/cards'; }, 1000);
+                            } else {
+                                release();
+                                FFM.showToast(res.message, 'error');
+                            }
+                        })
+                        .catch(function(err) {
                             release();
-                            FFM.showToast(res.message, 'error');
-                        }
-                    })
-                    .catch(function(err) {
-                        release();
-                        FFM.showToast('Network connection error occurred.', 'error');
+                            FFM.showToast('Network connection error occurred.', 'error');
+                        });
                     });
 
                     return false;
@@ -1406,8 +1190,8 @@
     <!-- Today's Entries & Date/Month/Year Summary Screen -->
     <template id="ff_entries_today" name="FFM Today Entries and Summary">
         <t t-call="ffm_daily_report.ff_layout">
-            <a href="/ff/report/daily" class="ffm-back-link">
-                <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Back to Daily Report
+            <a href="/ff" class="ffm-back-link">
+                <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Back to Dashboard
             </a>
 
             <div class="ffm-form-card">
@@ -1580,11 +1364,11 @@
                         <t t-foreach="journey_legs" t-as="j">
                             <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; font-size: 0.85rem; background: #ffffff; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
                                 <div style="display: flex; justify-content: space-between; align-items: center; font-weight: 700;">
-                                    <span><t t-esc="j.place_from_id.name"/> → <t t-esc="j.place_to_id.name"/></span>
+                                    <span><t t-if="j.chemist_visit_id">Chemist: <t t-esc="j.chemist_visit_id.chemist_name_manual or j.chemist_visit_id.chemist_id.name"/></t><t t-elif="j.prescriber_visit_id">Doctor: <t t-esc="j.prescriber_visit_id.prescriber_name_manual or j.prescriber_visit_id.prescriber_id.name"/></t><t t-elif="j.farm_visit_id">Farm / Others: <t t-esc="j.farm_visit_id.farm_name"/></t><t t-else=""><t t-esc="j.place_from_id.name"/> → <t t-esc="j.place_to_id.name"/></t></span>
                                     <span style="color: #b45309; font-weight: 800;">Tk <t t-esc="'%.0f' % j.fare_tk"/></span>
                                 </div>
                                 <div style="color: #64748b; font-size: 0.78rem; margin-top: 2px;">
-                                    Mode: <strong style="color: #334155;"><t t-esc="j.mode.title()"/></strong> | Distance: <t t-esc="j.distance_km"/> km
+                                    Mode: <strong style="color: #334155;"><t t-esc="j.mode.title()"/></strong>
                                 </div>
                             </div>
                         </t>
@@ -1840,6 +1624,10 @@
                         <span style="font-weight: 800; color: #15803d; font-size: 1.25rem;">Tk <span id="live_form_total">0</span></span>
                     </div>
 
+                    <div class="ffm-live-loc-note">
+                        <svg class="ffm-icon ffm-icon-sm" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                        <span>Your live location is captured automatically when you save. Keep GPS / location turned on.</span>
+                    </div>
                     <button type="submit" id="submitExpenseBtn" class="ffm-btn ffm-btn-primary">
                         <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Submit Daily Expense Entry
                     </button>
@@ -2000,49 +1788,53 @@
                     }
 
                     var btn = document.getElementById('submitExpenseBtn');
-                    var release = FFM.doubleTapGuard(btn, 'Submitting... please wait');
-                    var clientUuid = FFM.getOrGenerateUUID('ffm_expense_uuid');
+                    FFM.withLiveLocation(btn, 'Submitting... please wait', function(loc, release) {
+                        var clientUuid = FFM.getOrGenerateUUID('ffm_expense_uuid');
 
-                    var payload = {
-                        client_uuid: clientUuid,
-                        entertainment: entertainment,
-                        courier: courier,
-                        photocopy: photocopy,
-                        hotel_rent: hotel_rent,
-                        promotion: promotion,
-                        stationery: stationery,
-                        carrying: carrying,
-                        banking: banking,
-                        bike: bike,
-                        note: note,
-                        voucher_entertainment: v_ent,
-                        voucher_courier: v_cou,
-                        voucher_photocopy: v_pho,
-                        voucher_hotel_rent: v_hot
-                    };
+                        var payload = {
+                            latitude: loc.latitude,
+                            longitude: loc.longitude,
+                            gps_accuracy: loc.gps_accuracy,
+                            client_uuid: clientUuid,
+                            entertainment: entertainment,
+                            courier: courier,
+                            photocopy: photocopy,
+                            hotel_rent: hotel_rent,
+                            promotion: promotion,
+                            stationery: stationery,
+                            carrying: carrying,
+                            banking: banking,
+                            bike: bike,
+                            note: note,
+                            voucher_entertainment: v_ent,
+                            voucher_courier: v_cou,
+                            voucher_photocopy: v_pho,
+                            voucher_hotel_rent: v_hot
+                        };
 
-                    fetch('/ff/expense/submit', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({params: payload})
-                    })
-                    .then(function(res) { return res.json(); })
-                    .then(function(data) {
-                        var res = data.result || data;
-                        if (res.status === 'success') {
-                            FFM.resetUUID('ffm_expense_uuid');
-                            FFM.showToast(res.message || 'Daily expense submitted successfully.', 'success');
-                            setTimeout(function() {
-                                window.location.reload();
-                            }, 800);
-                        } else {
+                        fetch('/ff/expense/submit', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({params: payload})
+                        })
+                        .then(function(res) { return res.json(); })
+                        .then(function(data) {
+                            var res = data.result || data;
+                            if (res.status === 'success') {
+                                FFM.resetUUID('ffm_expense_uuid');
+                                FFM.showToast(res.message || 'Daily expense submitted successfully.', 'success');
+                                setTimeout(function() {
+                                    window.location.reload();
+                                }, 800);
+                            } else {
+                                release();
+                                FFM.showToast(res.message || 'Failed to save expense.', 'error');
+                            }
+                        })
+                        .catch(function(err) {
                             release();
-                            FFM.showToast(res.message || 'Failed to save expense.', 'error');
-                        }
-                    })
-                    .catch(function(err) {
-                        release();
-                        FFM.showToast('Network error. Please try again.', 'error');
+                            FFM.showToast('Network error. Please try again.', 'error');
+                        });
                     });
 
                     return false;
@@ -2057,6 +1849,49 @@
             <a href="/ff" class="ffm-back-link">
                 <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Back to Dashboard
             </a>
+
+            <!-- Today's own report: submit for approval -->
+            <t t-if="my_today_report and my_today_report.state == 'draft'">
+                <div class="ffm-submit-strip">
+                    <div>
+                        <div class="ffm-submit-strip-title">Today's report is not submitted yet</div>
+                        <div class="ffm-submit-strip-sub">Submit once all of today's visits and expenses are entered. It goes to your manager for approval.</div>
+                    </div>
+                    <button type="button" id="btnSubmitReport" class="ffm-btn ffm-btn-primary" onclick="submitDailyReport()">
+                        <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Submit Today's Report
+                    </button>
+                </div>
+                <script>
+                    function submitDailyReport() {
+                        if (!confirm('Are you sure you want to finalize and submit today\'s report? Changes cannot be made after submission.')) {
+                            return;
+                        }
+                        var btn = document.getElementById('btnSubmitReport');
+                        var release = FFM.doubleTapGuard(btn, 'Submitting...');
+
+                        fetch('/ff/report/daily/submit', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({params: {}})
+                        })
+                        .then(function(res) { return res.json(); })
+                        .then(function(data) {
+                            var res = data.result || data;
+                            if (res.status === 'success') {
+                                FFM.showToast(res.message, 'success');
+                                setTimeout(function() { window.location.reload(); }, 1200);
+                            } else {
+                                release();
+                                FFM.showToast(res.message, 'error');
+                            }
+                        })
+                        .catch(function(err) {
+                            release();
+                            FFM.showToast('Network error. Please try again.', 'error');
+                        });
+                    }
+                </script>
+            </t>
 
             <div class="ffm-form-card" style="padding: 16px;">
                 <t t-if="is_fp">
@@ -2326,7 +2161,7 @@
                             <span>Chemists: <strong style="color: #0f172a;"><t t-esc="total_chemists_count"/></strong></span>
                             <span>Doctors: <strong style="color: #0f172a;"><t t-esc="total_doctors_count"/></strong></span>
                             <span>Farms: <strong style="color: #0f172a;"><t t-esc="total_farms_count"/></strong></span>
-                            <span>Journey: <strong style="color: #0f172a;">৳<t t-esc="'%.0f' % total_fare"/></strong> (<t t-esc="'%.0f' % total_distance"/> km)</span>
+                            <span>Journey: <strong style="color: #0f172a;">৳<t t-esc="'%.0f' % total_fare"/></strong></span>
                             <span>Expenses: <strong style="color: #0f172a;">৳<t t-esc="'%.0f' % total_expense"/></strong></span>
                         </div>
                     </div>
@@ -2495,7 +2330,7 @@
                             <span>Chemist Visits: <strong style="color: #0f172a;"><t t-esc="total_chemists_count"/></strong></span>
                             <span>Doctor Visits: <strong style="color: #0f172a;"><t t-esc="total_doctors_count"/></strong> (A+: <t t-esc="grade_counts['a_plus']"/>, A: <t t-esc="grade_counts['a']"/>)</span>
                             <span>Farm Visits: <strong style="color: #0f172a;"><t t-esc="total_farms_count"/></strong></span>
-                            <span>Journey: <strong style="color: #0f172a;">৳<t t-esc="'%.0f' % total_fare"/></strong> (<t t-esc="'%.0f' % total_distance"/> km)</span>
+                            <span>Journey: <strong style="color: #0f172a;">৳<t t-esc="'%.0f' % total_fare"/></strong></span>
                         </div>
                     </div>
 
@@ -2690,10 +2525,9 @@
                                     <thead>
                                         <tr style="background: #f1f5f9; color: #475569; text-align: left; border-bottom: 1px solid #cbd5e1;">
                                             <th style="padding: 8px 10px; width: 36px; text-align: center;">#</th>
-                                            <th style="padding: 8px 10px;">Route (From → To)</th>
+                                            <th style="padding: 8px 10px;">Visit</th>
                                             <th style="padding: 8px 10px; width: 120px;">Mode</th>
-                                            <th style="padding: 8px 10px; text-align: right; width: 100px;">Distance</th>
-                                            <th style="padding: 8px 10px; text-align: right; width: 100px;">Fare</th>
+                                            <th style="padding: 8px 10px; text-align: right; width: 110px;">T.A. Bill</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -2701,13 +2535,10 @@
                                             <tr style="border-bottom: 1px solid #f1f5f9;">
                                                 <td style="padding: 8px 10px; text-align: center; color: #94a3b8;"><t t-esc="j_index + 1"/></td>
                                                 <td style="padding: 8px 10px; font-weight: 600; color: #0f172a;">
-                                                    <t t-esc="j.place_from_id.name"/> → <t t-esc="j.place_to_id.name"/>
+                                                    <t t-if="j.chemist_visit_id">Chemist: <t t-esc="j.chemist_visit_id.chemist_name_manual or j.chemist_visit_id.chemist_id.name"/></t><t t-elif="j.prescriber_visit_id">Doctor: <t t-esc="j.prescriber_visit_id.prescriber_name_manual or j.prescriber_visit_id.prescriber_id.name"/></t><t t-elif="j.farm_visit_id">Farm / Others: <t t-esc="j.farm_visit_id.farm_name"/></t><t t-else=""><t t-esc="j.place_from_id.name"/> → <t t-esc="j.place_to_id.name"/></t>
                                                 </td>
                                                 <td style="padding: 8px 10px; color: #64748b; text-transform: capitalize;">
                                                     <t t-esc="j.mode"/>
-                                                </td>
-                                                <td style="padding: 8px 10px; text-align: right; color: #334155;">
-                                                    <t t-esc="'%.1f' % j.distance_km"/> km
                                                 </td>
                                                 <td style="padding: 8px 10px; text-align: right; font-weight: 700; color: #b45309;">
                                                     ৳<t t-esc="'%.0f' % j.fare_tk"/>
@@ -2718,7 +2549,6 @@
                                     <tfoot>
                                         <tr style="background: #f8fafc; font-weight: 700; border-top: 2px solid #cbd5e1;">
                                             <td colspan="3" style="padding: 8px 10px; text-align: right; color: #334155;">Subtotal:</td>
-                                            <td style="padding: 8px 10px; text-align: right; color: #334155;"><t t-esc="'%.1f' % total_distance"/> km</td>
                                             <td style="padding: 8px 10px; text-align: right; color: #b45309;">৳<t t-esc="'%.0f' % total_fare"/></td>
                                         </tr>
                                     </tfoot>

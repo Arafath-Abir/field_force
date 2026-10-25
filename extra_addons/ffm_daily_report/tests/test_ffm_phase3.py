@@ -339,11 +339,11 @@ class TestFFMPhase3Http(HttpCase):
                 'sale_tk': 3500,
                 'coll_tk': 2000,
                 'note': 'Order taken for next week delivery',
-                'place_from_id': place.id,
-                'place_to_id': place.id,
                 'mode': 'bus',
-                'distance_km': 8.5,
                 'fare_tk': 40.0,
+                'latitude': 23.7461,
+                'longitude': 90.3742,
+                'gps_accuracy': 12.0,
                 'client_uuid': 'http-test-chem-uuid-101',
             }
         }
@@ -357,6 +357,28 @@ class TestFFMPhase3Http(HttpCase):
         self.assertEqual(chem_res.get('status'), 'success')
         visit_id = chem_res.get('visit_id')
         self.assertTrue(visit_id)
+
+        # Live location stored on the visit; the T.A. bill typed by the user is kept as-is
+        visit = self.env['ffm.chemist.visit'].sudo().browse(visit_id)
+        self.assertAlmostEqual(visit.latitude, 23.7461, places=4)
+        self.assertAlmostEqual(visit.longitude, 90.3742, places=4)
+        leg = self.env['ffm.travel.journey'].sudo().search([('chemist_visit_id', '=', visit_id)], limit=1)
+        self.assertEqual(leg.fare_tk, 40.0)
+        self.assertEqual(leg.distance_km, 0.0)
+
+        # A visit without live location is rejected
+        no_gps_payload = json.loads(json.dumps(chem_payload))
+        for key in ('latitude', 'longitude', 'gps_accuracy'):
+            no_gps_payload['params'].pop(key)
+        no_gps_payload['params']['client_uuid'] = 'http-test-chem-uuid-no-gps'
+        res_no_gps = self.url_open(
+            '/ff/visit/chemist/submit',
+            data=json.dumps(no_gps_payload),
+            headers={'Content-Type': 'application/json'}
+        )
+        no_gps_res = res_no_gps.json().get('result', {})
+        self.assertEqual(no_gps_res.get('status'), 'error')
+        self.assertIn('Live location is required', no_gps_res.get('message', ''))
 
         # 4. Idempotency test: submit same chemist visit client_uuid again
         res_chem_retry = self.url_open(
@@ -380,11 +402,11 @@ class TestFFMPhase3Http(HttpCase):
                 'product_discussion': 'Antibiotic and Vitamin Syrups',
                 'sample': '2 Sample Strips',
                 'grade': 'a',
-                'place_from_id': place.id,
-                'place_to_id': place.id,
                 'mode': 'rickshaw',
-                'distance_km': 2.0,
                 'fare_tk': 30.0,
+                'latitude': 23.7465,
+                'longitude': 90.3750,
+                'gps_accuracy': 15.0,
                 'client_uuid': 'http-test-doc-uuid-201',
             }
         }
@@ -408,6 +430,10 @@ class TestFFMPhase3Http(HttpCase):
                 'bird_count': 4000,
                 'note': 'Good feedback on feed quality',
                 'mode': 'on_foot',
+                'fare_tk': 0,
+                'latitude': 23.7470,
+                'longitude': 90.3761,
+                'gps_accuracy': 9.0,
                 'client_uuid': 'http-test-farm-uuid-301',
             }
         }

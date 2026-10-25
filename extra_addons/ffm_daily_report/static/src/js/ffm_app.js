@@ -133,6 +133,27 @@
         );
     };
 
+    // 5b. Live Location Gate: every field form is submitted with a fresh GPS fix, never without one
+    FFM.withLiveLocation = function(buttonElement, loadingText, onLocated) {
+        var release = FFM.doubleTapGuard(buttonElement, 'Getting live location...');
+        FFM.captureGPS(
+            function(pos) {
+                if (buttonElement) {
+                    buttonElement.innerHTML = loadingText || 'Saving...';
+                }
+                onLocated({
+                    latitude: pos.latitude,
+                    longitude: pos.longitude,
+                    gps_accuracy: pos.accuracy
+                }, release);
+            },
+            function(err) {
+                release();
+                FFM.showToast(err.message + ' Not submitted.', 'error');
+            }
+        );
+    };
+
     // 6. Browser Image Compression Helper (~1280px max, JPEG ~0.7)
     FFM.compressImage = function(file, callback, maxDimension, quality) {
         if (!file) {

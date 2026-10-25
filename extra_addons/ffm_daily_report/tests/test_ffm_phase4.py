@@ -326,6 +326,9 @@ class TestFFMPhase4Http(HttpCase):
             'params': {
                 'entertainment': 400.0,
                 'note': 'Tea and biscuits with chemist',
+                'latitude': 23.7461,
+                'longitude': 90.3742,
+                'gps_accuracy': 12.0,
             }
         }
         res_err = self.url_open(
@@ -349,6 +352,9 @@ class TestFFMPhase4Http(HttpCase):
                 'carrying': 200.0,
                 'note': 'Sample delivery carrying and tea',
                 'client_uuid': uuid_token,
+                'latitude': 23.7461,
+                'longitude': 90.3742,
+                'gps_accuracy': 12.0,
             }
         }
         res_ok = self.url_open(

@@ -38,6 +38,7 @@ def _validate_image_bytes(binary_data, field_label):
 
 class FFMDailyExpense(models.Model):
     _name = 'ffm.daily.expense'
+    _inherit = ['ffm.live.location.mixin']
     _description = 'Daily Field Expense'
     _order = 'date desc, id desc'
 

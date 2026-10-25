@@ -922,13 +922,6 @@ textarea.ffm-form-control {
     display: table;
     clear: both;
 }
-    height: 38px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
 
 .ffm-action-tile-content {
     flex: 1;
@@ -1553,5 +1546,356 @@ textarea.ffm-form-control {
         padding: 8px 18px;
         font-size: 0.88rem;
         border-radius: 6px;
+    }
+}
+
+/* ==========================================================================
+   Colorful Professional Theme Layer
+   Brand gradient (emerald → teal → cyan) with per-module accent colors.
+   Kept as an override layer so the base layout rules above stay untouched.
+   ========================================================================== */
+
+:root {
+    --ffm-grad-brand: linear-gradient(110deg, #064e3b 0%, #047857 38%, #0f766e 68%, #0e7490 100%);
+    --ffm-grad-accent: linear-gradient(90deg, #10b981 0%, #06b6d4 35%, #6366f1 70%, #f59e0b 100%);
+    --ffm-grad-primary: linear-gradient(135deg, #059669 0%, #0d9488 100%);
+    --ffm-grad-primary-hover: linear-gradient(135deg, #047857 0%, #0f766e 100%);
+}
+
+body {
+    background:
+        radial-gradient(1100px 420px at 0% -8%, rgba(16, 185, 129, 0.10), transparent 60%),
+        radial-gradient(900px 380px at 100% -8%, rgba(99, 102, 241, 0.09), transparent 60%),
+        #f4f7fb;
+    background-attachment: fixed;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+.ffm-header {
+    background: var(--ffm-grad-brand);
+    box-shadow: 0 4px 18px -6px rgba(6, 78, 59, 0.45);
+}
+
+.ffm-header::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 3px;
+    background: var(--ffm-grad-accent);
+    opacity: 0.9;
+}
+
+.ffm-header-badge-role {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(167, 243, 208, 0.55);
+    color: #ecfdf5;
+}
+
+/* ── Status / Profile Card ─────────────────────────────────────────────── */
+.ffm-status-card {
+    background:
+        var(--ffm-grad-accent) top / 100% 3px no-repeat,
+        linear-gradient(135deg, #ffffff 0%, #f0fdf9 55%, #eef2ff 100%);
+    border-color: #d9f0e8;
+    box-shadow: 0 6px 20px -10px rgba(15, 118, 110, 0.25);
+}
+
+.ffm-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--ffm-grad-primary);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.05rem;
+    flex-shrink: 0;
+    letter-spacing: 0.02em;
+    box-shadow: 0 6px 14px -6px rgba(5, 150, 105, 0.6);
+}
+
+/* ── Section Titles ────────────────────────────────────────────────────── */
+.ffm-section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: #334155;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 10px;
+}
+
+.ffm-section-title::before {
+    content: "";
+    width: 4px;
+    height: 14px;
+    border-radius: 2px;
+    background: linear-gradient(180deg, #10b981 0%, #0891b2 100%);
+}
+
+/* ── Colored Dashboard Tiles ───────────────────────────────────────────── */
+.ffm-tile {
+    --tile-c: #0d9488;
+    --tile-c2: #0f766e;
+    --tile-soft: #f0fdfa;
+    --tile-border: #99f6e4;
+    --tile-glow: rgba(13, 148, 136, 0.28);
+    background:
+        linear-gradient(90deg, var(--tile-c), var(--tile-c2)) top / 100% 3px no-repeat,
+        #ffffff;
+    border-color: #e5eaf1;
+}
+
+.ffm-tile:hover {
+    background:
+        linear-gradient(90deg, var(--tile-c), var(--tile-c2)) top / 100% 3px no-repeat,
+        linear-gradient(180deg, #ffffff 0%, var(--tile-soft) 100%);
+    border-color: var(--tile-border);
+    box-shadow: 0 12px 26px -12px var(--tile-glow);
+}
+
+.ffm-tile .ffm-icon-box {
+    background: linear-gradient(135deg, var(--tile-c) 0%, var(--tile-c2) 100%);
+    color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 6px 14px -6px var(--tile-glow);
+}
+
+.ffm-tile:hover .ffm-icon-box {
+    transform: scale(1.06);
+}
+
+.ffm-tile--green   { --tile-c: #10b981; --tile-c2: #047857; --tile-soft: #ecfdf5; --tile-border: #a7f3d0; --tile-glow: rgba(5, 150, 105, 0.32); }
+.ffm-tile--blue    { --tile-c: #3b82f6; --tile-c2: #1d4ed8; --tile-soft: #eff6ff; --tile-border: #bfdbfe; --tile-glow: rgba(37, 99, 235, 0.30); }
+.ffm-tile--emerald { --tile-c: #22c55e; --tile-c2: #15803d; --tile-soft: #f0fdf4; --tile-border: #bbf7d0; --tile-glow: rgba(22, 163, 74, 0.30); }
+.ffm-tile--rose    { --tile-c: #f43f5e; --tile-c2: #be123c; --tile-soft: #fff1f2; --tile-border: #fecdd3; --tile-glow: rgba(225, 29, 72, 0.28); }
+.ffm-tile--amber   { --tile-c: #f59e0b; --tile-c2: #c2410c; --tile-soft: #fffbeb; --tile-border: #fde68a; --tile-glow: rgba(217, 119, 6, 0.30); }
+.ffm-tile--teal    { --tile-c: #14b8a6; --tile-c2: #0e7490; --tile-soft: #f0fdfa; --tile-border: #99f6e4; --tile-glow: rgba(13, 148, 136, 0.30); }
+.ffm-tile--purple  { --tile-c: #a855f7; --tile-c2: #7e22ce; --tile-soft: #faf5ff; --tile-border: #e9d5ff; --tile-glow: rgba(147, 51, 234, 0.28); }
+.ffm-tile--indigo  { --tile-c: #6366f1; --tile-c2: #4338ca; --tile-soft: #eef2ff; --tile-border: #c7d2fe; --tile-glow: rgba(79, 70, 229, 0.30); }
+
+.ffm-tile-featured,
+.ffm-tile-featured:hover {
+    border: 1.5px solid var(--tile-border);
+}
+
+.ffm-tile-featured {
+    background:
+        linear-gradient(90deg, var(--tile-c), var(--tile-c2)) top / 100% 3px no-repeat,
+        linear-gradient(180deg, #ffffff 0%, var(--tile-soft) 100%);
+}
+
+/* ── KPI Metric Cards (Manager) ─────────────────────────────────────────── */
+.ffm-metric-card {
+    --metric-c: #0d9488;
+    --metric-soft: #f0fdfa;
+    background:
+        linear-gradient(var(--metric-c), var(--metric-c)) left / 4px 100% no-repeat,
+        linear-gradient(135deg, #ffffff 40%, var(--metric-soft) 100%);
+    border-color: #e5eaf1;
+}
+
+.ffm-metric-card:nth-child(5n+1) { --metric-c: #10b981; --metric-soft: #ecfdf5; }
+.ffm-metric-card:nth-child(5n+2) { --metric-c: #f59e0b; --metric-soft: #fffbeb; }
+.ffm-metric-card:nth-child(5n+3) { --metric-c: #14b8a6; --metric-soft: #f0fdfa; }
+.ffm-metric-card:nth-child(5n+4) { --metric-c: #3b82f6; --metric-soft: #eff6ff; }
+.ffm-metric-card:nth-child(5n+5) { --metric-c: #f97316; --metric-soft: #fff7ed; }
+
+.ffm-metric-card:hover {
+    border-color: #cfd8e3;
+    box-shadow: 0 10px 22px -12px rgba(15, 23, 42, 0.18);
+}
+
+/* ── Segmented Nav & Tab Pills ─────────────────────────────────────────── */
+.ffm-segmented-nav {
+    background: #ffffff;
+    border: 1px solid #e5eaf1;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.ffm-seg-tab:hover {
+    background: #f0fdfa;
+    color: #0f766e;
+}
+
+.ffm-seg-tab.active {
+    background: var(--ffm-grad-primary);
+    color: #ffffff;
+    box-shadow: 0 4px 12px -4px rgba(13, 148, 136, 0.55);
+}
+
+.ffm-tab-pill.active {
+    background: var(--ffm-grad-primary);
+    border-color: #0f766e;
+    box-shadow: 0 3px 10px -4px rgba(13, 148, 136, 0.55);
+}
+
+/* ── Cards, Forms & Lists ──────────────────────────────────────────────── */
+.ffm-form-card {
+    background:
+        var(--ffm-grad-accent) top / 100% 4px no-repeat,
+        #ffffff;
+    box-shadow: 0 8px 24px -14px rgba(15, 23, 42, 0.18);
+}
+
+.ffm-form-header {
+    border-bottom-color: #e6f4ef;
+}
+
+.ffm-form-control:focus {
+    border-color: #0d9488;
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
+}
+
+.ffm-approval-card {
+    border-left: 4px solid #f59e0b;
+}
+
+.ffm-approval-card:hover {
+    box-shadow: 0 10px 24px -14px rgba(217, 119, 6, 0.35);
+}
+
+.ffm-monitor-item {
+    border-left: 3px solid #5eead4;
+}
+
+.ffm-monitor-item:hover {
+    border-left-color: #0d9488;
+}
+
+.ffm-action-tile:hover {
+    border-color: #99f6e4;
+    box-shadow: 0 10px 22px -12px rgba(13, 148, 136, 0.35);
+}
+
+.ffm-journey-card {
+    background: linear-gradient(135deg, #f0f9ff 0%, #f8fafc 100%);
+    border-color: #bae6fd;
+}
+
+.ffm-back-link {
+    color: #0f766e;
+}
+
+.ffm-back-link:hover {
+    background: #ccfbf1;
+}
+
+/* ── Buttons ───────────────────────────────────────────────────────────── */
+.ffm-btn-primary {
+    background: var(--ffm-grad-primary) !important;
+    border-color: #0f766e;
+    box-shadow: 0 4px 12px -4px rgba(13, 148, 136, 0.5);
+}
+
+.ffm-btn-primary:hover {
+    background: var(--ffm-grad-primary-hover) !important;
+    box-shadow: 0 8px 18px -6px rgba(13, 148, 136, 0.55);
+}
+
+.ffm-btn-secondary:hover {
+    border-color: #5eead4;
+    color: #0f766e;
+    background-color: #f0fdfa;
+}
+
+/* ── Tables ────────────────────────────────────────────────────────────── */
+.ffm-table-responsive th {
+    background: linear-gradient(180deg, #f0fdfa 0%, #ecfeff 100%);
+    color: #115e59;
+    border-bottom-color: #ccfbf1;
+}
+
+.ffm-table-responsive tbody tr:hover td {
+    background-color: #f0fdfa;
+}
+
+/* ── Toasts ────────────────────────────────────────────────────────────── */
+.ffm-toast-success {
+    background: linear-gradient(135deg, #047857 0%, #0f766e 100%);
+}
+
+.ffm-toast-danger {
+    background: linear-gradient(135deg, #b91c1c 0%, #9f1239 100%);
+}
+
+/* Header actions collapse to icon + count on narrow phones so Logout stays visible */
+@media (max-width: 420px) {
+    .ffm-action-text {
+        display: none !important;
+    }
+}
+
+/* ── Live location notice (every field form submits with GPS) ─────────── */
+.ffm-live-loc-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    background: linear-gradient(135deg, #ecfdf5 0%, #f0f9ff 100%);
+    border: 1px solid #a7f3d0;
+    color: #065f46;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin: 14px 0;
+    font-size: 0.8rem;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.ffm-live-loc-note .ffm-icon {
+    color: #059669;
+    margin-top: 1px;
+}
+
+/* ── Today's report submit strip (Report Card page) ────────────────────── */
+.ffm-submit-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+    background:
+        linear-gradient(#f59e0b, #f59e0b) left / 4px 100% no-repeat,
+        linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
+    border: 1px solid #fde68a;
+    border-radius: 10px;
+    padding: 14px 16px 14px 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 6px 18px -12px rgba(217, 119, 6, 0.45);
+}
+
+.ffm-submit-strip-title {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #92400e;
+}
+
+.ffm-submit-strip-sub {
+    font-size: 0.78rem;
+    color: #a16207;
+    margin-top: 2px;
+}
+
+.ffm-submit-strip .ffm-btn {
+    width: auto;
+    padding: 8px 18px;
+}
+
+@media (max-width: 540px) {
+    .ffm-submit-strip .ffm-btn {
+        width: 100%;
+    }
+}
+
+/* Mode of Journey / T.A. Bill stack on phones: keep breathing room between them */
+@media (max-width: 540px) {
+    .ffm-journey-card .ffm-row-2 > * + * {
+        margin-top: 12px !important;
     }
 }
