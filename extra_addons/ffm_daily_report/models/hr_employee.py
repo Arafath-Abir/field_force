@@ -8,6 +8,37 @@ class HrEmployee(models.Model):
 
     hq = fields.Char(string='Headquarter / Base Station', help='Headquarter location, e.g. Dhaka, Bogura, Rajshahi')
     ffm_phone = fields.Char(string='Field Force Phone', help='Primary contact mobile for field activities')
+    ffm_territory_ids = fields.Many2many(
+        'territory.territory', 'ffm_territory_member_rel', 'employee_id', 'territory_id',
+        string='Territories')
+    ffm_role = fields.Selection([
+        ('manager', 'Manager'),
+        ('rsm', 'RSM'),
+        ('asm', 'ASM'),
+        ('fp', 'Field Person'),
+    ], string='Field Force Role', compute='_compute_ffm_role', store=True, index=True)
+
+    FIELD_JOB_WORDS = ('field', 'mpo', 'medical', 'representative', 'promotion', 'territory', 'marketer', 'sales officer')
+
+    @api.depends('job_id.name', 'user_id.groups_id')
+    def _compute_ffm_role(self):
+        for emp in self:
+            user = emp.user_id
+            job = (emp.job_id.name or '').lower()
+            if user and (user.has_group('field_force_management.group_ffm_nsm') or
+                         user.has_group('field_force_management.group_ffm_director') or
+                         user.has_group('field_force_management.group_ffm_admin')):
+                emp.ffm_role = 'manager'
+            elif (user and user.has_group('field_force_management.group_ffm_rsm')) or 'rsm' in job or 'regional' in job:
+                emp.ffm_role = 'rsm'
+            elif (user and user.has_group('field_force_management.group_ffm_asm')) or 'asm' in job or 'area' in job:
+                emp.ffm_role = 'asm'
+            elif (user and user.has_group('field_force_management.group_ffm_field_person')) or \
+                    any(word in job for word in self.FIELD_JOB_WORDS):
+                emp.ffm_role = 'fp'
+            else:
+                # Office / HR staff are not part of the field force
+                emp.ffm_role = False
 
     def _get_target_ffm_group_xmlid(self):
         self.ensure_one()
@@ -103,3 +134,13 @@ class HrEmployeePublic(models.Model):
     branch_id = fields.Many2one('aam.branch', string='Branch')
     hq = fields.Char(string='Headquarter / Base Station')
     ffm_phone = fields.Char(string='Field Force Phone')
+    # Users without HR rights read employees through this model: mirror the field force fields
+    ffm_role = fields.Selection([
+        ('manager', 'Manager'),
+        ('rsm', 'RSM'),
+        ('asm', 'ASM'),
+        ('fp', 'Field Person'),
+    ], string='Field Force Role', readonly=True)
+    ffm_territory_ids = fields.Many2many(
+        'territory.territory', 'ffm_territory_member_rel', 'employee_id', 'territory_id',
+        string='Territories', readonly=True)

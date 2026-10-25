@@ -313,160 +313,161 @@
         FFM.jsonRpcPost('/ff/admin/seed_demo', {}, btn, 'Seeding Demo Data...', null);
     };
 
-    FFM.saveEmployee = function(btn) {
-        var empId = (document.getElementById('adm_emp_id') || {}).value || '';
-        var name = (document.getElementById('adm_emp_name') || {}).value || '';
-        var role = (document.getElementById('adm_emp_role') || {}).value || 'fp';
-        var login = (document.getElementById('adm_emp_login') || {}).value || '';
-        var password = (document.getElementById('adm_emp_password') || {}).value || '';
-        var parentId = (document.getElementById('adm_emp_parent_id') || {}).value || '';
-        var branchId = (document.getElementById('adm_emp_branch_id') || {}).value || '';
-        var hq = (document.getElementById('adm_emp_hq') || {}).value || '';
-        var phone = (document.getElementById('adm_emp_phone') || {}).value || '';
+    // People & logins (management): RSM / ASM / Field Person with email + password
+    FFM.checkedValues = function(containerId) {
+        var box = document.getElementById(containerId);
+        if (!box) return [];
+        return Array.prototype.map.call(box.querySelectorAll('input[type="checkbox"]:checked'), function(el) {
+            return parseInt(el.value, 10);
+        });
+    };
 
-        if (!name.trim()) {
-            FFM.showToast('Please enter the personnel full name.', 'error');
+    FFM.setChecked = function(containerId, csv) {
+        var wanted = (csv || '').split(',').filter(function(v) { return v; });
+        var box = document.getElementById(containerId);
+        if (!box) return;
+        box.querySelectorAll('input[type="checkbox"]').forEach(function(el) {
+            el.checked = wanted.indexOf(el.value) !== -1;
+        });
+    };
+
+    FFM.filterChecklist = function(input, containerId) {
+        var q = (input.value || '').trim().toLowerCase();
+        var box = document.getElementById(containerId);
+        if (!box) return;
+        box.querySelectorAll('.ffm-check').forEach(function(label) {
+            label.style.display = (!q || label.textContent.toLowerCase().indexOf(q) !== -1) ? '' : 'none';
+        });
+    };
+
+    FFM.onPersonRoleChange = function() {
+        // Field Person reports to an ASM (or RSM), ASM reports to an RSM, RSM to nobody
+        var role = (document.getElementById('pf_role') || {}).value || 'fp';
+        var allowed = {fp: ['asm', 'rsm'], asm: ['rsm'], rsm: []}[role];
+        var select = document.getElementById('pf_parent');
+        if (!select) return;
+        select.querySelectorAll('option[data-role]').forEach(function(opt) {
+            var ok = allowed.indexOf(opt.getAttribute('data-role')) !== -1;
+            opt.hidden = !ok;
+            opt.disabled = !ok;
+            if (!ok && opt.selected) select.value = '';
+        });
+        select.querySelectorAll('optgroup').forEach(function(group) {
+            group.hidden = allowed.indexOf(group.label.toLowerCase()) === -1;
+        });
+    };
+
+    FFM.resetPersonForm = function() {
+        ['pf_id', 'pf_branch', 'pf_name', 'pf_email', 'pf_password', 'pf_phone', 'pf_hq', 'pf_terr_filter'].forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) el.value = '';
+        });
+        document.getElementById('pf_role').value = 'fp';
+        document.getElementById('pf_parent').value = '';
+        FFM.setChecked('pf_territories', '');
+        FFM.filterChecklist(document.getElementById('pf_terr_filter'), 'pf_territories');
+        FFM.onPersonRoleChange();
+        document.getElementById('pf_title').innerText = 'Add Person';
+        document.getElementById('pf_password_req').style.display = '';
+        document.getElementById('pf_password_hint').innerText = 'At least 6 characters.';
+        document.getElementById('pf_deactivate').style.display = 'none';
+    };
+
+    FFM.editPersonFromBtn = function(btn) {
+        if (!btn) return;
+        if (typeof switchManagerTab === 'function') switchManagerTab('team');
+        FFM.resetPersonForm();
+        document.getElementById('pf_id').value = btn.getAttribute('data-id') || '';
+        document.getElementById('pf_branch').value = btn.getAttribute('data-branch') || '';
+        document.getElementById('pf_name').value = btn.getAttribute('data-name') || '';
+        document.getElementById('pf_role').value = btn.getAttribute('data-role') || 'fp';
+        FFM.onPersonRoleChange();
+        document.getElementById('pf_parent').value = btn.getAttribute('data-parent') || '';
+        document.getElementById('pf_email').value = btn.getAttribute('data-email') || '';
+        document.getElementById('pf_phone').value = btn.getAttribute('data-phone') || '';
+        document.getElementById('pf_hq').value = btn.getAttribute('data-hq') || '';
+        FFM.setChecked('pf_territories', btn.getAttribute('data-territories'));
+        document.getElementById('pf_title').innerText = 'Edit: ' + (btn.getAttribute('data-name') || '');
+        document.getElementById('pf_password_req').style.display = 'none';
+        document.getElementById('pf_password_hint').innerText = 'Leave blank to keep the current password.';
+        document.getElementById('pf_deactivate').style.display = '';
+        var card = document.getElementById('personFormCard');
+        if (card && card.scrollIntoView) card.scrollIntoView({behavior: 'smooth', block: 'start'});
+    };
+
+    FFM.savePerson = function(btn) {
+        var empId = document.getElementById('pf_id').value;
+        var name = document.getElementById('pf_name').value.trim();
+        var email = document.getElementById('pf_email').value.trim();
+        var password = document.getElementById('pf_password').value;
+        if (!name) {
+            FFM.showToast('Please enter the full name.', 'error');
             return;
         }
-        if (!empId && !login.trim()) {
-            FFM.showToast('Please enter a login username for the new personnel.', 'error');
+        if (!email) {
+            FFM.showToast('Please enter the email used to log in.', 'error');
             return;
         }
-
+        if (!empId && password.length < 6) {
+            FFM.showToast('Password must be at least 6 characters.', 'error');
+            return;
+        }
         FFM.jsonRpcPost('/ff/admin/employee/save', {
             emp_id: empId || null,
             name: name,
-            role: role,
-            login: login,
+            role: document.getElementById('pf_role').value,
+            email: email,
             password: password,
-            parent_id: parentId || null,
-            branch_id: branchId || null,
-            hq: hq,
-            phone: phone
-        }, btn, 'Saving Personnel...', 'team');
+            parent_id: document.getElementById('pf_parent').value || null,
+            territory_ids: FFM.checkedValues('pf_territories'),
+            branch_id: document.getElementById('pf_branch').value || null,
+            phone: document.getElementById('pf_phone').value,
+            hq: document.getElementById('pf_hq').value
+        }, btn, 'Saving...', 'team');
     };
 
-    FFM.editEmployeeFromBtn = function(btn) {
-        if (!btn) return;
-        document.getElementById('adm_emp_id').value = btn.getAttribute('data-id') || '';
-        document.getElementById('adm_emp_name').value = btn.getAttribute('data-name') || '';
-        document.getElementById('adm_emp_role').value = btn.getAttribute('data-role') || 'fp';
-        document.getElementById('adm_emp_login').value = btn.getAttribute('data-login') || '';
-        document.getElementById('adm_emp_password').value = '';
-        document.getElementById('adm_emp_parent_id').value = btn.getAttribute('data-parent') || '';
-        document.getElementById('adm_emp_branch_id').value = btn.getAttribute('data-branch') || '';
-        document.getElementById('adm_emp_hq').value = btn.getAttribute('data-hq') || '';
-        document.getElementById('adm_emp_phone').value = btn.getAttribute('data-phone') || '';
-        var titleEl = document.getElementById('adm_emp_form_title');
-        if (titleEl) {
-            titleEl.innerText = 'Edit Personnel: ' + (btn.getAttribute('data-name') || '');
-        }
-        var card = document.getElementById('adminEmployeeFormCard');
-        if (card && card.scrollIntoView) {
-            card.scrollIntoView({behavior: 'smooth', block: 'start'});
-        }
+    FFM.deactivatePerson = function(btn) {
+        var empId = document.getElementById('pf_id').value;
+        if (!empId) return;
+        if (!confirm('Deactivate this person? Their login will stop working.')) return;
+        FFM.jsonRpcPost('/ff/admin/employee/delete', {emp_id: empId}, btn, 'Deactivating...', 'team');
     };
 
-    FFM.resetEmployeeForm = function() {
-        document.getElementById('adm_emp_id').value = '';
-        document.getElementById('adm_emp_name').value = '';
-        document.getElementById('adm_emp_role').value = 'fp';
-        document.getElementById('adm_emp_login').value = '';
-        document.getElementById('adm_emp_password').value = '';
-        document.getElementById('adm_emp_parent_id').value = '';
-        document.getElementById('adm_emp_branch_id').value = '';
-        document.getElementById('adm_emp_hq').value = '';
-        document.getElementById('adm_emp_phone').value = '';
-        var titleEl = document.getElementById('adm_emp_form_title');
-        if (titleEl) {
-            titleEl.innerText = 'Add New Personnel (RSM / ASM / Field Person)';
-        }
-    };
-
-    FFM.deleteEmployee = function(empId, btn) {
-        if (!confirm('Are you sure you want to remove/deactivate this personnel record?')) return;
-        FFM.jsonRpcPost('/ff/admin/employee/delete', {emp_id: empId}, btn, 'Removing...', 'team');
-    };
-
-    FFM.openPasswordResetFromBtn = function(btn) {
-        if (!btn) return;
-        var empId = btn.getAttribute('data-id') || '';
-        var selectEl = document.getElementById('adm_pwd_emp_id');
-        var pwdInput = document.getElementById('adm_pwd_new');
-        if (selectEl) selectEl.value = empId;
-        var card = document.getElementById('adminPasswordResetCard');
-        if (card && card.scrollIntoView) {
-            card.scrollIntoView({behavior: 'smooth', block: 'center'});
-        }
-        if (pwdInput) {
-            pwdInput.value = '';
-            setTimeout(function() { pwdInput.focus(); }, 250);
-        }
-    };
-
-    FFM.submitPasswordReset = function(btn) {
-        var empId = (document.getElementById('adm_pwd_emp_id') || {}).value || '';
-        var newPassword = (document.getElementById('adm_pwd_new') || {}).value || '';
-        if (!empId) {
-            FFM.showToast('Please select a personnel account first.', 'error');
-            return;
-        }
-        if (!newPassword.trim()) {
-            FFM.showToast('Please enter a new password.', 'error');
-            return;
-        }
-        FFM.jsonRpcPost('/ff/admin/employee/reset_password', {
-            emp_id: empId,
-            new_password: newPassword
-        }, btn, 'Updating Password...', 'team');
-    };
-
-    FFM.saveTerritory = function(btn) {
-        var terrId = (document.getElementById('adm_terr_id') || {}).value || '';
-        var name = (document.getElementById('adm_terr_name') || {}).value || '';
-        var branchId = (document.getElementById('adm_terr_branch_id') || {}).value || '';
-        var managerId = (document.getElementById('adm_terr_manager_id') || {}).value || '';
-        var fpId = (document.getElementById('adm_terr_fp_id') || {}).value || '';
-        if (!name.trim()) {
-            FFM.showToast('Please enter a territory name.', 'error');
-            return;
-        }
-        FFM.jsonRpcPost('/ff/admin/territory/save', {
-            territory_id: terrId || null,
-            name: name,
-            branch_id: branchId || null,
-            manager_id: managerId || null,
-            field_person_id: fpId || null
-        }, btn, 'Saving Territory...', 'territories');
+    // Territories (management): many RSMs / ASMs / Field Persons per territory
+    FFM.resetTerritoryForm = function() {
+        ['tf_id', 'tf_name', 'tf_branch', 'tf_filter'].forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) el.value = '';
+        });
+        FFM.setChecked('tf_members', '');
+        FFM.filterChecklist(document.getElementById('tf_filter'), 'tf_members');
+        document.getElementById('tf_title').innerText = 'Add Territory';
     };
 
     FFM.editTerritoryFromBtn = function(btn) {
         if (!btn) return;
-        document.getElementById('adm_terr_id').value = btn.getAttribute('data-id') || '';
-        document.getElementById('adm_terr_name').value = btn.getAttribute('data-name') || '';
-        document.getElementById('adm_terr_branch_id').value = btn.getAttribute('data-branch') || '';
-        document.getElementById('adm_terr_manager_id').value = btn.getAttribute('data-manager') || '';
-        document.getElementById('adm_terr_fp_id').value = btn.getAttribute('data-fp') || '';
-        var titleEl = document.getElementById('adm_terr_form_title');
-        if (titleEl) {
-            titleEl.innerText = 'Edit Territory: ' + (btn.getAttribute('data-name') || '');
-        }
-        var card = document.getElementById('adminTerritoryFormCard');
-        if (card && card.scrollIntoView) {
-            card.scrollIntoView({behavior: 'smooth', block: 'start'});
-        }
+        FFM.resetTerritoryForm();
+        document.getElementById('tf_id').value = btn.getAttribute('data-id') || '';
+        document.getElementById('tf_name').value = btn.getAttribute('data-name') || '';
+        document.getElementById('tf_branch').value = btn.getAttribute('data-branch') || '';
+        FFM.setChecked('tf_members', btn.getAttribute('data-members'));
+        document.getElementById('tf_title').innerText = 'Edit Territory: ' + (btn.getAttribute('data-name') || '');
+        var card = document.getElementById('territoryFormCard');
+        if (card && card.scrollIntoView) card.scrollIntoView({behavior: 'smooth', block: 'start'});
     };
 
-    FFM.resetTerritoryForm = function() {
-        document.getElementById('adm_terr_id').value = '';
-        document.getElementById('adm_terr_name').value = '';
-        document.getElementById('adm_terr_branch_id').value = '';
-        document.getElementById('adm_terr_manager_id').value = '';
-        document.getElementById('adm_terr_fp_id').value = '';
-        var titleEl = document.getElementById('adm_terr_form_title');
-        if (titleEl) {
-            titleEl.innerText = 'Add / Edit Territory';
+    FFM.saveTerritory = function(btn) {
+        var name = document.getElementById('tf_name').value.trim();
+        if (!name) {
+            FFM.showToast('Please enter a territory name.', 'error');
+            return;
         }
+        FFM.jsonRpcPost('/ff/admin/territory/save', {
+            territory_id: document.getElementById('tf_id').value || null,
+            name: name,
+            branch_id: document.getElementById('tf_branch').value || null,
+            member_ids: FFM.checkedValues('tf_members')
+        }, btn, 'Saving...', 'territories');
     };
 
     FFM.deleteTerritory = function(terrId, btn) {
@@ -518,6 +519,95 @@
         if (!confirm('Are you sure you want to delete this branch?')) return;
         FFM.jsonRpcPost('/ff/admin/branch/delete', {branch_id: branchId}, btn, 'Deleting...', 'territories');
     };
+
+    // Person picker: type a name, choose an existing person, open their report
+    FFM.initPersonPickers = function() {
+        document.querySelectorAll('.ffm-picker').forEach(function(root) {
+            var people = [];
+            try {
+                people = JSON.parse(root.getAttribute('data-people') || '[]');
+            } catch (e) {
+                people = [];
+            }
+            var input = root.querySelector('.ffm-picker-input');
+            var list = root.querySelector('.ffm-picker-list');
+            if (!input || !list) return;
+
+            function matchesFor(q) {
+                q = (q || '').trim().toLowerCase();
+                if (!q) return people.slice();
+                return people.filter(function(p) {
+                    return p.name.toLowerCase().indexOf(q) !== -1;
+                });
+            }
+
+            function open(person) {
+                var mode = root.getAttribute('data-mode') || 'daily';
+                var url = '/ff/report/cards?report_type=individual&mode=' + encodeURIComponent(mode) +
+                          '&employee_id=' + person.id;
+                if (mode === 'monthly') {
+                    url += '&period=' + encodeURIComponent(root.getAttribute('data-period') || 'current');
+                } else if (root.getAttribute('data-date')) {
+                    url += '&date=' + encodeURIComponent(root.getAttribute('data-date'));
+                }
+                window.location.href = url;
+            }
+
+            function render() {
+                var matches = matchesFor(input.value).slice(0, 40);
+                list.innerHTML = '';
+                if (!matches.length) {
+                    var empty = document.createElement('div');
+                    empty.className = 'ffm-picker-empty';
+                    empty.textContent = 'No person found with this name.';
+                    list.appendChild(empty);
+                }
+                matches.forEach(function(p) {
+                    var item = document.createElement('button');
+                    item.type = 'button';
+                    item.className = 'ffm-picker-item';
+                    var nameEl = document.createElement('span');
+                    nameEl.className = 'ffm-picker-name';
+                    nameEl.textContent = p.name;
+                    var metaEl = document.createElement('span');
+                    metaEl.className = 'ffm-picker-meta';
+                    metaEl.textContent = [p.role, p.territories].filter(function(v) { return v; }).join(' • ');
+                    item.appendChild(nameEl);
+                    item.appendChild(metaEl);
+                    item.addEventListener('mousedown', function(ev) {
+                        ev.preventDefault();
+                        input.value = p.name;
+                        list.style.display = 'none';
+                        open(p);
+                    });
+                    list.appendChild(item);
+                });
+                list.style.display = 'block';
+            }
+
+            input.addEventListener('focus', render);
+            input.addEventListener('input', render);
+            input.addEventListener('blur', function() {
+                setTimeout(function() { list.style.display = 'none'; }, 150);
+            });
+            input.addEventListener('keydown', function(ev) {
+                if (ev.key !== 'Enter') return;
+                ev.preventDefault();
+                var q = input.value.trim().toLowerCase();
+                var exact = people.filter(function(p) { return p.name.toLowerCase() === q; });
+                var matches = matchesFor(q);
+                if (exact.length === 1) {
+                    open(exact[0]);
+                } else if (q && matches.length === 1) {
+                    open(matches[0]);
+                } else {
+                    FFM.showToast(matches.length ? 'Several people match. Pick one from the list.' : 'No person found with this name.', 'error');
+                }
+            });
+        });
+    };
+
+    document.addEventListener('DOMContentLoaded', FFM.initPersonPickers);
 
     window.FFM = FFM;
 })(window);

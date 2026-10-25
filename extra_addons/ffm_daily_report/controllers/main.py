@@ -10,6 +10,9 @@ from odoo.http import request, Response
 from odoo.addons.web.controllers.main import Home
 from odoo.exceptions import UserError, ValidationError
 import werkzeug.utils
+import re
+
+EMAIL_RE = re.compile(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
 
 _logger = logging.getLogger(__name__)
 
@@ -128,6 +131,68 @@ class FFMController(http.Controller):
         except (TypeError, ValueError):
             accuracy = 0.0
         return {'latitude': lat, 'longitude': lon, 'gps_accuracy': accuracy}
+
+    # ── Team scope, filters and org tree (shared by Manager Panel and Report Cards) ──
+    ROLE_ORDER = {'rsm': 0, 'asm': 1, 'fp': 2, 'manager': 3}
+
+    def _ffm_team(self, ctx):
+        """Active field force people the current user supervises (never includes the user)."""
+        Emp = request.env['hr.employee'].sudo()
+        employee = ctx.get('employee')
+        if ctx.get('is_super_admin') or ctx.get('is_manager'):
+            return Emp.search([('active', '=', True), ('ffm_role', 'in', ('rsm', 'asm', 'fp'))], order='name')
+        if (ctx.get('is_rsm') or ctx.get('is_asm')) and employee:
+            return Emp.search([
+                ('active', '=', True),
+                ('id', 'child_of', employee.id),
+                ('id', '!=', employee.id),
+            ], order='name')
+        return Emp.browse([])
+
+    def _ffm_scope_options(self, ctx, team):
+        """Territories / RSMs / ASMs the user may filter reports by."""
+        Emp = request.env['hr.employee'].sudo()
+        employee = ctx.get('employee')
+        is_mgmt = ctx.get('is_super_admin') or ctx.get('is_manager')
+        if is_mgmt:
+            territories = request.env['territory.territory'].sudo().search([], order='name')
+        else:
+            people = team | (employee or Emp.browse([]))
+            territories = people.mapped('ffm_territory_ids').sorted('name')
+        rsms = team.filtered(lambda e: e.ffm_role == 'rsm') if is_mgmt else Emp.browse([])
+        asms = team.filtered(lambda e: e.ffm_role == 'asm') if (is_mgmt or ctx.get('is_rsm')) else Emp.browse([])
+        return territories, rsms, asms
+
+    def _ffm_people_json(self, team):
+        """Existing people the user can open a report for (name search picker)."""
+        role_label = {'rsm': 'RSM', 'asm': 'ASM', 'fp': 'Field Person', 'manager': 'Manager'}
+        return json.dumps([{
+            'id': e.id,
+            'name': e.name or '',
+            'role': role_label.get(e.ffm_role, ''),
+            'territories': ', '.join(e.ffm_territory_ids.mapped('name')),
+        } for e in team])
+
+    def _ffm_org_tree(self, team, viewer=None):
+        """Reporting tree built from parent_id: RSM → ASM → Field Person."""
+        nodes = team
+        if viewer and viewer.ffm_role in ('rsm', 'asm'):
+            nodes = nodes | viewer
+        ids = set(nodes.ids)
+        children = {}
+        roots = []
+        ordered = nodes.sorted(lambda e: (self.ROLE_ORDER.get(e.ffm_role, 9), (e.name or '').lower()))
+        for emp in ordered:
+            if emp.parent_id.id in ids:
+                children.setdefault(emp.parent_id.id, []).append(emp)
+            else:
+                roots.append(emp)
+
+        def build(emp, depth):
+            kids = children.get(emp.id, []) if depth < 5 else []
+            return {'emp': emp, 'children': [build(k, depth + 1) for k in kids]}
+
+        return [build(r, 0) for r in roots]
 
     def _generate_report_pdf(self, report):
         """Render report to PDF using Odoo actions or resilient xhtml2pdf fallback."""
@@ -962,6 +1027,34 @@ class FFMController(http.Controller):
                           search_query.lower() in (e.hq or '').lower()
             )
 
+        # Territory / RSM / ASM scope filters (team overview and attendance views)
+        Emp = request.env['hr.employee'].sudo()
+        scope_ctx = dict(ctx, is_super_admin=is_super_admin, is_manager=is_manager, is_rsm=is_rsm, is_asm=is_asm)
+        ff_team = subordinates.filtered(lambda e: e.ffm_role in ('rsm', 'asm', 'fp'))
+        scope_territories, scope_rsms, scope_asms = self._ffm_scope_options(scope_ctx, ff_team)
+
+        def _pick(recs, key):
+            try:
+                rid = int(kw.get(key) or 0)
+            except (TypeError, ValueError):
+                rid = 0
+            return recs.filtered(lambda r: r.id == rid)[:1]
+
+        sel_territory = _pick(scope_territories, 'territory_id')
+        sel_rsm = _pick(scope_rsms, 'rsm_id')
+        sel_asm = _pick(scope_asms, 'asm_id')
+        if sel_territory:
+            filtered_subordinates = filtered_subordinates & sel_territory.member_ids
+        for head in (sel_rsm, sel_asm):
+            if head:
+                branch = Emp.search([('id', 'child_of', head.id)])
+                filtered_subordinates = filtered_subordinates & branch
+        scope_parts = [label for label in (
+            sel_territory and _('Territory: %s') % sel_territory.name,
+            sel_rsm and _('RSM: %s') % sel_rsm.name,
+            sel_asm and _('ASM: %s') % sel_asm.name,
+        ) if label]
+
         # 4. Target Employee selection
         target_employee = employee
         report_type = kw.get('report_type')
@@ -1202,7 +1295,9 @@ class FFMController(http.Controller):
                 grade_counts[d.grade] += 1
 
         target_territory_name = False
-        if target_employee:
+        if target_employee and target_employee.ffm_territory_ids:
+            target_territory_name = ', '.join(target_employee.ffm_territory_ids.mapped('name'))
+        if target_employee and not target_territory_name:
             if hasattr(target_employee, 'user_id') and target_employee.user_id and hasattr(target_employee.user_id, 'territory_id') and target_employee.user_id.territory_id:
                 target_territory_name = target_employee.user_id.territory_id.name
             if not target_territory_name:
@@ -1223,6 +1318,15 @@ class FFMController(http.Controller):
             ], limit=1)
 
         ctx.update({
+            'period': kw.get('period') or 'current',
+            'scope_territories': scope_territories,
+            'scope_rsms': scope_rsms,
+            'scope_asms': scope_asms,
+            'sel_territory_id': sel_territory.id or False,
+            'sel_rsm_id': sel_rsm.id or False,
+            'sel_asm_id': sel_asm.id or False,
+            'scope_label': ' • '.join(scope_parts),
+            'people_json': self._ffm_people_json(ff_team),
             'mode': mode,
             'report_type': report_type,
             'query_date': str(date_start),
@@ -1620,7 +1724,10 @@ class FFMController(http.Controller):
         is_super_admin = (request.env.is_admin() or
                           user.has_group('field_force_management.group_ffm_admin') or
                           user.has_group('base.group_system'))
-        is_manager = user.has_group('field_force_management.group_ffm_nsm') and not is_super_admin
+        is_manager = (user.has_group('field_force_management.group_ffm_nsm') or
+                      user.has_group('field_force_management.group_ffm_director')) and not is_super_admin
+        # Management roles assign territories, people, logins and the reporting hierarchy
+        is_management = is_super_admin or is_manager
         is_rsm = user.has_group('field_force_management.group_ffm_rsm') and not (is_super_admin or is_manager)
         is_asm = user.has_group('field_force_management.group_ffm_asm') and not (is_super_admin or is_manager or is_rsm)
 
@@ -1671,7 +1778,7 @@ class FFMController(http.Controller):
 
         # Admin Management Data (Employees, Roles, Territories, Branches)
         emp_role_map = {}
-        if is_super_admin:
+        if is_management:
             for emp in subordinates:
                 u = emp.user_id
                 jname = (emp.job_id.name or '').lower()
@@ -1745,7 +1852,23 @@ class FFMController(http.Controller):
         total_coll_today = sum(today_reports.mapped('total_coll_tk')) if today_reports else sum(chemist_visits.mapped('coll_tk'))
         total_expense_today = sum(team_expenses.mapped('total_amount'))
 
+        # Team hierarchy, territories and report filter options
+        scope_ctx = dict(ctx, is_super_admin=is_super_admin, is_manager=is_manager, is_rsm=is_rsm, is_asm=is_asm)
+        team = self._ffm_team(scope_ctx)
+        scope_territories, scope_rsms, scope_asms = self._ffm_scope_options(scope_ctx, team)
+        if is_management:
+            my_territories = scope_territories
+        else:
+            my_territories = (team | (employee or team.browse([]))).mapped('ffm_territory_ids').sorted('name')
+
         tab = kw.get('tab', 'approvals')
+        valid_tabs = ['approvals', 'activity', 'reports', 'team'] + (['territories'] if is_management else [])
+        if tab in ('attendance', 'visits', 'expenses'):
+            tab = 'activity'
+        elif tab == 'statements':
+            tab = 'approvals'
+        elif tab not in valid_tabs:
+            tab = 'approvals'
 
         ctx.update({
             'today_str': today_date.strftime('%d %B, %Y'),
@@ -1757,7 +1880,19 @@ class FFMController(http.Controller):
             'is_manager': is_manager,
             'is_super_admin': is_super_admin,
             'is_admin': is_super_admin,
-            'can_manage_system': is_super_admin,
+            'can_manage_system': is_management,
+            'is_management': is_management,
+            'team_people': team,
+            'org_roots': self._ffm_org_tree(team, employee),
+            'my_territories': my_territories,
+            'visible_member_ids': None if is_management else (team.ids + ([employee.id] if employee else [])),
+            'scope_territories': scope_territories,
+            'scope_rsms': scope_rsms,
+            'scope_asms': scope_asms,
+            'people_json': self._ffm_people_json(team),
+            'rsm_options': team.filtered(lambda e: e.ffm_role == 'rsm') if is_management else team.browse([]),
+            'asm_options': team.filtered(lambda e: e.ffm_role == 'asm') if is_management else team.browse([]),
+            'today_iso': str(today_date),
             'subordinates': subordinates,
             'sub_count': len(subordinates),
             'all_employees': all_employees,
@@ -1839,18 +1974,28 @@ class FFMController(http.Controller):
             user.has_group('field_force_management.group_ffm_director')
         )
 
+    def _ffm_id_list(self, values):
+        ids = []
+        for v in values or []:
+            try:
+                ids.append(int(v))
+            except (TypeError, ValueError):
+                continue
+        return ids
+
     @http.route('/ff/admin/employee/save', type='json', auth='user', methods=['POST'])
-    def ff_admin_employee_save(self, name='', role='fp', login='', password='',
-                               emp_id=None, parent_id=None, branch_id=None,
-                               hq='', phone='', **kw):
+    def ff_admin_employee_save(self, name='', role='fp', email='', password='',
+                               emp_id=None, parent_id=None, territory_ids=None, branch_id=None,
+                               hq='', phone='', login='', **kw):
+        """Create / update an RSM, ASM or Field Person together with the login they sign in with."""
         if not self._is_ffm_admin_user():
-            return {'status': 'error', 'message': _('Access Denied: Only System Administrators can manage personnel.')}
+            return {'status': 'error', 'message': _('Access Denied: Only management can manage personnel.')}
         name = (name or '').strip()
-        login = (login or '').strip()
-        password = (password or '').strip()
+        email = (email or login or '').strip().lower()
+        password = password or ''
         role = (role or 'fp').strip().lower()
         if not name:
-            return {'status': 'error', 'message': _('Employee full name is required.')}
+            return {'status': 'error', 'message': _('Full name is required.')}
         if role not in ('rsm', 'asm', 'fp'):
             return {'status': 'error', 'message': _('Invalid role selected.')}
 
@@ -1861,79 +2006,90 @@ class FFMController(http.Controller):
         }
         group_xmlid, job_title = role_meta[role]
         try:
-            role_group = request.env.ref(group_xmlid)
-            grp_internal = request.env.ref('base.group_user')
-            Job = request.env['hr.job'].sudo()
-            job = Job.search([('name', '=', job_title)], limit=1)
-            if not job:
-                job = Job.create({'name': job_title})
-
             Employee = request.env['hr.employee'].sudo()
             Users = request.env['res.users'].sudo().with_context(active_test=False)
+            Territory = request.env['territory.territory'].sudo()
 
             emp = Employee.browse(int(emp_id)) if emp_id else Employee.browse([])
             if emp_id and not emp.exists():
-                return {'status': 'error', 'message': _('Employee record not found.')}
-
-            if not emp and not login:
-                return {'status': 'error', 'message': _('Login username is required when creating a new personnel account.')}
-
+                return {'status': 'error', 'message': _('Personnel record not found.')}
             user_rec = emp.user_id if emp else Users.browse([])
-            if login:
-                existing_user = Users.search([('login', '=', login)], limit=1)
-                if existing_user and (not user_rec or existing_user.id != user_rec.id):
-                    if emp and user_rec:
-                        return {'status': 'error', 'message': _('Another user with login "%s" already exists.') % login}
-                    user_rec = existing_user
 
+            # Login credentials: email is the login; a password is required for new accounts
+            if not email and not user_rec:
+                return {'status': 'error', 'message': _('Email (login) is required.')}
+            login_changed = bool(email) and (not user_rec or email != (user_rec.login or '').lower())
+            if login_changed and not EMAIL_RE.match(email):
+                return {'status': 'error', 'message': _('Please enter a valid email address for the login.')}
+            if login_changed:
+                clash = Users.search([('login', '=ilike', email)], limit=1)
+                if clash and clash != user_rec:
+                    return {'status': 'error', 'message': _('Another account already uses the login "%s".') % email}
+            if not user_rec and len(password) < 6:
+                return {'status': 'error', 'message': _('Password must be at least 6 characters for a new account.')}
+            if password and len(password) < 6:
+                return {'status': 'error', 'message': _('Password must be at least 6 characters.')}
+
+            # Reporting line: Field Person → ASM (or RSM), ASM → RSM, RSM → none
+            parent = Employee.browse(int(parent_id)) if parent_id else Employee.browse([])
+            allowed_parent = {'fp': ('asm', 'rsm'), 'asm': ('rsm',), 'rsm': ()}[role]
+            if parent:
+                if not parent.exists() or parent.ffm_role not in allowed_parent:
+                    return {'status': 'error', 'message': _('%s can only report to: %s.') % (
+                        dict(fp='Field Person', asm='ASM', rsm='RSM')[role],
+                        ', '.join(r.upper() for r in allowed_parent) or _('nobody (top of field force)'))}
+                if emp and parent == emp:
+                    return {'status': 'error', 'message': _('A person cannot report to themselves.')}
+
+            territories = Territory.browse(self._ffm_id_list(territory_ids)).exists()
+
+            Job = request.env['hr.job'].sudo()
+            job = Job.search([('name', '=', job_title)], limit=1) or Job.create({'name': job_title})
+            role_group = request.env.ref(group_xmlid)
+            grp_internal = request.env.ref('base.group_user')
+
+            user_vals = {
+                'name': name,
+                'active': True,
+                'groups_id': [(6, 0, [grp_internal.id, role_group.id])],
+                'territory_id': territories[:1].id or False,
+            }
+            if email:
+                user_vals.update({'login': email, 'email': email})
+            if password:
+                user_vals['password'] = password
             if user_rec:
-                u_vals = {
-                    'name': name,
-                    'active': True,
-                    'groups_id': [(6, 0, [grp_internal.id, role_group.id])],
-                }
-                if login:
-                    u_vals['login'] = login
-                if password:
-                    u_vals['password'] = password
-                user_rec.sudo().write(u_vals)
-            elif login:
-                user_rec = Users.create({
-                    'name': name,
-                    'login': login,
-                    'password': password or '123456',
-                    'active': True,
-                    'groups_id': [(6, 0, [grp_internal.id, role_group.id])],
-                })
+                user_rec.write(user_vals)
+            else:
+                user_vals.setdefault('tz', 'Asia/Dhaka')
+                user_rec = Users.create(user_vals)
 
+            old_territories = emp.ffm_territory_ids if emp else Territory.browse([])
             emp_vals = {
                 'name': name,
                 'job_id': job.id,
-                'parent_id': int(parent_id) if parent_id else False,
+                'parent_id': parent.id or False,
                 'branch_id': int(branch_id) if branch_id else False,
                 'hq': (hq or '').strip(),
                 'mobile_phone': (phone or '').strip(),
                 'ffm_phone': (phone or '').strip(),
+                'user_id': user_rec.id,
+                'work_email': user_rec.login,
+                'ffm_territory_ids': [(6, 0, territories.ids)],
                 'active': True,
             }
-            if user_rec:
-                emp_vals['user_id'] = user_rec.id
-                emp_vals['work_email'] = user_rec.login
-
+            if not emp:
+                # Creating a user may already have created a linked employee
+                emp = Employee.search([('user_id', '=', user_rec.id)], limit=1)
             if emp:
                 emp.write(emp_vals)
             else:
-                # Check if creating the user automatically created an employee
-                auto_emp = Employee.search([('user_id', '=', user_rec.id)], limit=1) if user_rec else Employee.browse([])
-                if auto_emp:
-                    auto_emp.write(emp_vals)
-                    emp = auto_emp
-                else:
-                    emp = Employee.create(emp_vals)
+                emp = Employee.create(emp_vals)
 
+            (old_territories | territories)._sync_legacy_links()
             return {
                 'status': 'success',
-                'message': _('Personnel "%s" (%s) saved successfully.') % (emp.name, job_title),
+                'message': _('%s (%s) saved. Login: %s') % (emp.name, job_title, user_rec.login),
                 'emp_id': emp.id,
             }
         except Exception as exc:
@@ -1971,6 +2127,8 @@ class FFMController(http.Controller):
             emp.sudo().write({'active': False})
             if linked_user and linked_user.id != request.env.user.id:
                 linked_user.sudo().write({'active': False})
+            # Territories keep pointing at an active ASM / Field Person
+            emp.ffm_territory_ids._sync_legacy_links()
             return {
                 'status': 'success',
                 'message': _('Personnel "%s" deactivated and removed from active roster.') % emp_name,
@@ -1979,20 +2137,20 @@ class FFMController(http.Controller):
             return {'status': 'error', 'message': str(exc)}
 
     @http.route('/ff/admin/territory/save', type='json', auth='user', methods=['POST'])
-    def ff_admin_territory_save(self, name='', territory_id=None, branch_id=None,
-                                manager_id=None, field_person_id=None, **kw):
+    def ff_admin_territory_save(self, name='', territory_id=None, branch_id=None, member_ids=None, **kw):
+        """Create / update a territory and the RSMs, ASMs and Field Persons assigned to it."""
         if not self._is_ffm_admin_user():
-            return {'status': 'error', 'message': _('Access Denied: Only System Administrators can manage territories.')}
+            return {'status': 'error', 'message': _('Access Denied: Only management can manage territories.')}
         name = (name or '').strip()
         if not name:
             return {'status': 'error', 'message': _('Territory name is required.')}
         try:
             Territory = request.env['territory.territory'].sudo()
+            members = request.env['hr.employee'].sudo().browse(self._ffm_id_list(member_ids)).exists()
             vals = {
                 'name': name,
                 'branch_id': int(branch_id) if branch_id else False,
-                'manager_id': int(manager_id) if manager_id else False,
-                'field_person_id': int(field_person_id) if field_person_id else False,
+                'member_ids': [(6, 0, members.ids)],
             }
             if territory_id:
                 rec = Territory.browse(int(territory_id))
@@ -2001,9 +2159,13 @@ class FFMController(http.Controller):
                 rec.write(vals)
             else:
                 rec = Territory.create(vals)
+            rec._sync_legacy_links()
+            # Users without a primary territory get this one (attendance / report territory)
+            for emp in members.filtered(lambda e: e.user_id and not e.user_id.territory_id):
+                emp.user_id.write({'territory_id': rec.id})
             return {
                 'status': 'success',
-                'message': _('Territory "%s" saved successfully.') % rec.name,
+                'message': _('Territory "%s" saved with %d people.') % (rec.name, len(members)),
                 'territory_id': rec.id,
             }
         except Exception as exc:

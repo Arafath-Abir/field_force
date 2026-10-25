@@ -6,3 +6,4 @@ from . import test_ffm_phase3
 from . import test_ffm_phase4
 from . import test_ffm_phase5
 from . import test_ffm_phase6
+from . import test_ffm_territory_team

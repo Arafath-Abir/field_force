@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Runs on every install/upgrade; copies legacy single-person territory links into member_ids -->
+    <function model="territory.territory" name="_ffm_migrate_legacy_members"/>
+</odoo>

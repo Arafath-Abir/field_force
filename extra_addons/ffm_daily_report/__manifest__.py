@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'FFM Daily Report & Monthly Expense',
-    'version': '14.0.2.0.0',
+    'version': '14.0.2.1.0',
     'category': 'Sales/Field Force',
     'summary': 'Newtec Field Force Daily Reporting, Attendance, Visits and Monthly Expense',
     'author': 'Newtec Solutions / Senior Odoo Engineer',
@@ -19,6 +19,7 @@
         'security/ir.model.access.csv',
         'security/security.xml',
         'data/demo_data.xml',
+        'data/territory_migration.xml',
         'views/attendance_views.xml',
         'views/allowance_rate_views.xml',
         'views/audit_log_views.xml',

@@ -4,6 +4,7 @@ from . import audit_log
 from . import allowance_rate
 from . import res_config_settings
 from . import live_location
+from . import territory_ext
 from . import attendance
 from . import daily_expense
 from . import farm_visit

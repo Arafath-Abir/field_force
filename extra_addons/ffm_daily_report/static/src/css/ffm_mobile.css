@@ -1899,3 +1899,540 @@ body {
         margin-top: 12px !important;
     }
 }
+
+/* ==========================================================================
+   Manager Workspace: header, report finder, people & territory management,
+   reporting tree
+   ========================================================================== */
+
+.ffm-mgr-head {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.ffm-mgr-head-main {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.ffm-mgr-name {
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.25;
+}
+
+.ffm-mgr-sub {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-top: 2px;
+}
+
+.ffm-mgr-date {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+.ffm-btn-inline {
+    width: auto;
+    min-height: 34px;
+    padding: 6px 14px;
+    font-size: 0.8rem;
+}
+
+.ffm-btn-danger-soft {
+    color: #b91c1c;
+    border-color: #fecaca;
+}
+
+.ffm-btn-danger-soft:hover {
+    background: #fef2f2;
+    border-color: #f87171;
+    color: #991b1b;
+}
+
+.ffm-btn-text {
+    background: none;
+    border: none;
+    color: #0f766e;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 6px;
+    font-family: inherit;
+}
+
+.ffm-btn-text:hover {
+    background: #f0fdfa;
+}
+
+.ffm-btn-text--danger {
+    color: #b91c1c;
+}
+
+.ffm-btn-text--danger:hover {
+    background: #fef2f2;
+}
+
+.ffm-link-sm {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #0f766e;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.ffm-link-sm:hover {
+    text-decoration: underline;
+}
+
+.ffm-empty {
+    text-align: center;
+    padding: 24px 10px;
+    color: #94a3b8;
+    font-size: 0.85rem;
+}
+
+/* Report finder */
+.ffm-report-finder {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+}
+
+@media (min-width: 860px) {
+    .ffm-report-finder {
+        grid-template-columns: minmax(260px, 1fr) 2fr;
+    }
+}
+
+.ffm-finder-block {
+    background: #f8fafc;
+    border: 1px solid #e5eaf1;
+    border-radius: 10px;
+    padding: 14px;
+}
+
+.ffm-finder-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #0f766e;
+    margin-bottom: 10px;
+}
+
+.ffm-filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 12px;
+}
+
+.ffm-finder-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.ffm-finder-actions .ffm-btn {
+    width: auto;
+    padding: 8px 18px;
+}
+
+@media (max-width: 540px) {
+    .ffm-finder-actions .ffm-btn {
+        width: 100%;
+    }
+}
+
+/* Person picker */
+.ffm-picker {
+    position: relative;
+}
+
+.ffm-picker-list {
+    display: none;
+    position: absolute;
+    z-index: 50;
+    left: 0;
+    right: 0;
+    top: calc(100% + 4px);
+    max-height: 280px;
+    overflow-y: auto;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    box-shadow: 0 14px 30px -12px rgba(15, 23, 42, 0.3);
+    padding: 4px;
+}
+
+.ffm-picker-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    background: none;
+    border: none;
+    text-align: left;
+    padding: 8px 10px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.ffm-picker-item:hover {
+    background: #f0fdfa;
+}
+
+.ffm-picker-name {
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.ffm-picker-meta {
+    font-size: 0.72rem;
+    color: #64748b;
+    margin-top: 1px;
+}
+
+.ffm-picker-empty {
+    padding: 10px;
+    font-size: 0.82rem;
+    color: #b91c1c;
+}
+
+/* Checklists (territories / members) */
+.ffm-checklist-filter {
+    min-height: 36px;
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+}
+
+.ffm-checklist {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    max-height: 220px;
+    overflow-y: auto;
+    padding: 2px;
+}
+
+.ffm-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 999px;
+    padding: 5px 11px 5px 8px;
+    font-size: 0.8rem;
+    color: #334155;
+    cursor: pointer;
+    user-select: none;
+}
+
+.ffm-check:hover {
+    border-color: #99f6e4;
+}
+
+.ffm-check input {
+    accent-color: #0d9488;
+    margin: 0;
+}
+
+.ffm-check:has(input:checked) {
+    background: #f0fdfa;
+    border-color: #5eead4;
+    color: #115e59;
+    font-weight: 600;
+}
+
+.ffm-member-cols {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+}
+
+.ffm-member-col {
+    background: #f8fafc;
+    border: 1px solid #e5eaf1;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.ffm-member-col-title {
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+}
+
+.ffm-role-text--rsm { color: #6d28d9; }
+.ffm-role-text--asm { color: #1d4ed8; }
+.ffm-role-text--fp  { color: #047857; }
+
+/* Territory cards */
+.ffm-terr-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+}
+
+.ffm-terr-card {
+    border: 1px solid #e5eaf1;
+    border-radius: 10px;
+    padding: 12px 14px;
+    background:
+        linear-gradient(90deg, #14b8a6, #6366f1) top / 100% 3px no-repeat,
+        #ffffff;
+}
+
+.ffm-terr-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.ffm-terr-name {
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: #0f172a;
+}
+
+.ffm-terr-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.ffm-terr-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.ffm-terr-row-label {
+    flex: 0 0 82px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding-top: 3px;
+}
+
+.ffm-terr-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid #f1f5f9;
+}
+
+.ffm-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.ffm-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.74rem;
+    font-weight: 600;
+    background: #f1f5f9;
+    color: #334155;
+    white-space: nowrap;
+}
+
+.ffm-chip--rsm  { background: #f3e8ff; color: #6b21a8; }
+.ffm-chip--asm  { background: #dbeafe; color: #1e40af; }
+.ffm-chip--fp   { background: #dcfce7; color: #166534; }
+.ffm-chip--terr { background: #ccfbf1; color: #115e59; }
+
+.ffm-chip-empty {
+    font-size: 0.76rem;
+    color: #94a3b8;
+}
+
+/* Reporting tree */
+.ffm-org {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ffm-org-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #ffffff;
+    border: 1px solid #e5eaf1;
+    border-radius: 10px;
+    padding: 9px 12px;
+}
+
+.ffm-org-node--rsm > .ffm-org-row { border-left: 4px solid #8b5cf6; }
+.ffm-org-node--asm > .ffm-org-row { border-left: 4px solid #3b82f6; }
+.ffm-org-node--fp  > .ffm-org-row { border-left: 4px solid #10b981; }
+
+.ffm-org-children {
+    margin: 8px 0 0 18px;
+    padding-left: 12px;
+    border-left: 2px dashed #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ffm-role-pill {
+    flex: 0 0 auto;
+    min-width: 40px;
+    text-align: center;
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    padding: 4px 6px;
+    border-radius: 6px;
+    color: #ffffff;
+    background: #64748b;
+}
+
+.ffm-role-pill--rsm { background: linear-gradient(135deg, #a855f7, #6d28d9); }
+.ffm-role-pill--asm { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+.ffm-role-pill--fp  { background: linear-gradient(135deg, #10b981, #047857); }
+
+.ffm-org-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.ffm-org-name {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.ffm-org-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    margin-top: 3px;
+}
+
+.ffm-org-login {
+    font-size: 0.72rem;
+    color: #64748b;
+    font-family: var(--ffm-mono);
+    margin-left: 4px;
+}
+
+.ffm-org-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+@media (max-width: 540px) {
+    .ffm-org-row {
+        flex-wrap: wrap;
+    }
+    .ffm-org-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+    .ffm-org-children {
+        margin-left: 8px;
+        padding-left: 8px;
+    }
+}
+
+.ffm-details {
+    background: #ffffff;
+    border: 1px solid #e5eaf1;
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 24px;
+    max-width: 780px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.ffm-details > summary {
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #334155;
+}
+
+.ffm-details[open] > summary {
+    margin-bottom: 12px;
+}
+
+/* Manager workspace cards use the full content width (same as the KPI row) */
+.ffm-tab-pane .ffm-form-card,
+.ffm-tab-pane .ffm-details {
+    max-width: none;
+}
+
+.ffm-org-fold > summary {
+    cursor: pointer;
+    list-style: none;
+    margin: 6px 0 0 18px;
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.ffm-org-fold > summary::-webkit-details-marker {
+    display: none;
+}
+
+.ffm-org-fold > summary::before {
+    content: "▸ ";
+}
+
+.ffm-org-fold[open] > summary::before {
+    content: "▾ ";
+}
+
+.ffm-btn-inline {
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* KPI row: two compact columns on phones instead of five tall stacked cards */
+@media (max-width: 540px) {
+    .ffm-kpi-row {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
+    }
+    .ffm-kpi-row .ffm-metric-card {
+        padding: 10px 12px;
+    }
+    .ffm-kpi-row .ffm-metric-value {
+        font-size: 1.05rem;
+    }
+    .ffm-kpi-row .ffm-metric-label {
+        font-size: 0.64rem;
+    }
+}

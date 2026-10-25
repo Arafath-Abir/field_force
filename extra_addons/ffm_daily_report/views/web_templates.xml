@@ -13,7 +13,7 @@
                 <meta name="theme-color" content="#047857"/>
                 <title><t t-esc="app_name or 'Newtec FFM'"/></title>
                 <link rel="manifest" href="/ff/manifest.json"/>
-                                <link rel="stylesheet" href="/ffm_daily_report/static/src/css/ffm_mobile.css?v=2.4.0"/>
+                                <link rel="stylesheet" href="/ffm_daily_report/static/src/css/ffm_mobile.css?v=2.5.0"/>
                 <style>
                     svg {
                         fill: none !important;
@@ -54,7 +54,7 @@
                         padding: 10px 8px !important;
                     }
                 </style>
-                <script src="/ffm_daily_report/static/src/js/ffm_app.js?v=2.4.0"></script>
+                <script src="/ffm_daily_report/static/src/js/ffm_app.js?v=2.5.0"></script>
             </head>
             <body>
                 <!-- Header -->
@@ -1945,6 +1945,7 @@
                             </h2>
                             <div style="font-size: 0.82rem; color: #64748b;">
                                 Period: <strong style="color: #334155;" t-esc="period_label"/>
+                                <t t-if="scope_label and report_type in ('team', 'attendance')"> • <strong style="color: #0f766e;" t-esc="scope_label"/></t>
                             </div>
                         </div>
                         <div style="display: flex; gap: 6px;">
@@ -1996,38 +1997,57 @@
                                 <div class="ffm-form-group" style="margin-bottom: 0;">
                                     <label class="ffm-form-label" style="font-size: 0.82rem; font-weight: 600; color: #334155;">Period:</label>
                                     <select name="period" class="ffm-form-control" style="padding: 8px 10px; font-size: 0.88rem;" onchange="this.form.submit()">
-                                        <option value="current">Current Month</option>
-                                        <option value="last_30_days">Last 30 Days</option>
-                                        <option value="prev">Previous Month</option>
+                                        <option value="current" t-att-selected="'selected' if period == 'current' else None">Current Month</option>
+                                        <option value="last_30_days" t-att-selected="'selected' if period == 'last_30_days' else None">Last 30 Days</option>
+                                        <option value="prev" t-att-selected="'selected' if period == 'prev' else None">Previous Month</option>
                                     </select>
                                 </div>
                             </t>
 
-                            <!-- Subordinate Search Input -->
-                            <div class="ffm-form-group" style="margin-bottom: 0;">
-                                <label class="ffm-form-label" style="font-size: 0.82rem; font-weight: 600; color: #334155;">Search Subordinate:</label>
-                                <div style="display: flex; gap: 4px;">
-                                    <input type="text" name="search" t-att-value="search_query" class="ffm-form-control" placeholder="Search by name, HQ, designation..." style="padding: 8px 10px; font-size: 0.88rem;"/>
-                                    <t t-if="search_query">
-                                        <a t-attf-href="/ff/report/cards?mode=#{mode}&amp;report_type=#{report_type}&amp;date=#{query_date}"
-                                           class="ffm-btn ffm-btn-secondary" style="min-height: 38px; padding: 6px 10px; font-size: 0.8rem; text-decoration: none;" title="Clear search">Clear</a>
-                                    </t>
-                                </div>
-                            </div>
-
-                            <!-- Person Picker (Shown for individual report) -->
-                            <t t-if="report_type == 'individual'">
+                            <!-- Territory / RSM / ASM scope (team overview and attendance) -->
+                            <t t-if="scope_territories">
                                 <div class="ffm-form-group" style="margin-bottom: 0;">
-                                    <label class="ffm-form-label" style="font-size: 0.82rem; font-weight: 600; color: #334155;">Select Subordinate:</label>
-                                    <select name="employee_id" class="ffm-form-control" style="padding: 8px 10px; font-size: 0.88rem;" onchange="this.form.submit()">
-                                        <t t-foreach="filtered_subordinates" t-as="sub">
-                                            <option t-att-value="sub.id" t-att-selected="'selected' if target_employee and target_employee.id == sub.id else None">
-                                                <t t-esc="sub.name"/> (<t t-esc="sub.job_id.name or 'Staff'"/> - <t t-esc="sub.hq or 'HQ'"/>)
-                                            </option>
+                                    <label class="ffm-form-label" style="font-size: 0.82rem; font-weight: 600; color: #334155;">Territory:</label>
+                                    <select name="territory_id" class="ffm-form-control" style="padding: 8px 10px; font-size: 0.88rem;">
+                                        <option value="">All territories</option>
+                                        <t t-foreach="scope_territories" t-as="terr">
+                                            <option t-att-value="terr.id" t-att-selected="'selected' if sel_territory_id == terr.id else None"><t t-esc="terr.name"/></option>
                                         </t>
                                     </select>
                                 </div>
                             </t>
+                            <t t-if="scope_rsms">
+                                <div class="ffm-form-group" style="margin-bottom: 0;">
+                                    <label class="ffm-form-label" style="font-size: 0.82rem; font-weight: 600; color: #334155;">RSM:</label>
+                                    <select name="rsm_id" class="ffm-form-control" style="padding: 8px 10px; font-size: 0.88rem;">
+                                        <option value="">All RSMs</option>
+                                        <t t-foreach="scope_rsms" t-as="r">
+                                            <option t-att-value="r.id" t-att-selected="'selected' if sel_rsm_id == r.id else None"><t t-esc="r.name"/></option>
+                                        </t>
+                                    </select>
+                                </div>
+                            </t>
+                            <t t-if="scope_asms">
+                                <div class="ffm-form-group" style="margin-bottom: 0;">
+                                    <label class="ffm-form-label" style="font-size: 0.82rem; font-weight: 600; color: #334155;">ASM:</label>
+                                    <select name="asm_id" class="ffm-form-control" style="padding: 8px 10px; font-size: 0.88rem;">
+                                        <option value="">All ASMs</option>
+                                        <t t-foreach="scope_asms" t-as="asm">
+                                            <option t-att-value="asm.id" t-att-selected="'selected' if sel_asm_id == asm.id else None"><t t-esc="asm.name"/></option>
+                                        </t>
+                                    </select>
+                                </div>
+                            </t>
+
+                            <!-- Individual: search an existing person by name and open their report -->
+                            <div class="ffm-form-group" style="margin-bottom: 0;">
+                                <label class="ffm-form-label" for="rc_person" style="font-size: 0.82rem; font-weight: 600; color: #334155;">Individual Report (search name):</label>
+                                <div class="ffm-picker" t-att-data-people="people_json" t-att-data-mode="mode" t-att-data-date="query_date" t-att-data-period="period">
+                                    <input type="text" id="rc_person" class="ffm-form-control ffm-picker-input" autocomplete="off" style="padding: 8px 10px; font-size: 0.88rem;"
+                                           t-att-value="target_employee.name if report_type == 'individual' and target_employee else ''"/>
+                                    <div class="ffm-picker-list"></div>
+                                </div>
+                            </div>
                         </div>
 
                         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; padding-top: 10px; border-top: 1px solid #e2e8f0;">
@@ -2834,50 +2854,27 @@
                 <a href="/ff" class="ffm-back-link">← Back to Dashboard</a>
             </t>
 
-            <!-- Manager Profile & Header -->
-            <div class="ffm-status-card" style="margin-bottom: 20px; padding: 16px 20px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="width: 44px; height: 44px; border-radius: 12px; background: #eff6ff; color: #1e40af; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.05rem; border: 1px solid #bfdbfe; flex-shrink: 0;">
-                            <svg class="ffm-icon ffm-icon-lg" width="22" height="22" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-                        </div>
-                        <div>
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <h2 style="font-size: 1.05rem; font-weight: 700; color: #0f172a; margin: 0;">
-                                    <t t-esc="employee.name or user_name"/>
-                                </h2>
-                                <span class="ffm-badge ffm-badge-neutral" style="font-weight: 600;">
-                                    <t t-esc="panel_title or role_badge"/>
-                                </span>
-                            </div>
-                            <div style="font-size: 0.82rem; color: #64748b; margin-top: 3px;">
-                                <t t-if="employee and employee.hq">HQ: <strong style="color: #334155;" t-esc="employee.hq"/> • </t>
-                                Supervising: <strong style="color: #334155;" t-esc="sub_count"/> Field Personnel
-                            </div>
+            <!-- Compact workspace header -->
+            <div class="ffm-status-card ffm-mgr-head">
+                <div class="ffm-mgr-head-main">
+                    <div class="ffm-avatar"><t t-esc="((employee.name if employee else '') or user_name or 'FF')[:2].upper()"/></div>
+                    <div>
+                        <div class="ffm-mgr-name"><t t-esc="employee.name if employee else user_name"/></div>
+                        <div class="ffm-mgr-sub">
+                            <span t-esc="role_badge"/>
+                            <t t-if="is_management"> • <t t-esc="len(team_people)"/> field force • <t t-esc="len(all_territories)"/> territories</t>
+                            <t t-else=""> • <t t-esc="len(team_people)"/> in my team • <t t-esc="len(my_territories)"/> territories</t>
                         </div>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                        <div style="font-size: 0.8rem; color: #64748b; display: flex; align-items: center; gap: 4px;">
-                            <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                            <span t-esc="today_str"/> (<span t-esc="now_time_str"/>)
-                        </div>
-                        <t t-if="has_field_operations">
-                            <a href="/ff" class="ffm-btn ffm-btn-secondary" style="width: auto; min-height: 36px; padding: 6px 14px; font-size: 0.82rem; text-decoration: none;">
-                                ← My Field Activities
-                            </a>
-                        </t>
-                        <t t-else="">
-                            <a href="/ff/report/cards" class="ffm-btn ffm-btn-secondary" style="width: auto; min-height: 36px; padding: 6px 14px; font-size: 0.82rem; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
-                                <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-                                <span>All Field Reports &amp; PDFs</span>
-                            </a>
-                        </t>
-                    </div>
+                </div>
+                <div class="ffm-mgr-date">
+                    <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    <span t-esc="today_str"/>
                 </div>
             </div>
 
             <!-- KPI Summary Cards -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px;">
+            <div class="ffm-kpi-row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px;">
                 <!-- Attendance -->
                 <div class="ffm-metric-card">
                     <div class="ffm-metric-label">Team Attendance</div>
@@ -2919,59 +2916,33 @@
                     <div class="ffm-metric-sub"><t t-esc="len(team_expenses)"/> Submissions</div>
                 </div>
             </div>
-
-            <!-- Navigation Tabs (Sleek Segmented Design) -->
+            <!-- Navigation -->
             <div class="ffm-segmented-nav" id="managerTabsNav">
-                <a href="/ff/manager?tab=approvals" onclick="switchManagerTab('approvals', event)"
-                   t-attf-class="ffm-seg-tab #{'active' if active_tab == 'approvals' else ''}"
-                   data-tab="approvals">
+                <a href="/ff/manager?tab=approvals" onclick="switchManagerTab('approvals', event)" data-tab="approvals"
+                   t-attf-class="ffm-seg-tab #{'active' if active_tab == 'approvals' else ''}">
                     <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
-                    Daily Approvals
-                    <span class="ffm-tab-badge" style="background: #fed7aa; color: #9a3412;"><t t-esc="len(pending_reports)"/></span>
+                    Approvals
+                    <span class="ffm-tab-badge" style="background: #fed7aa; color: #9a3412;"><t t-esc="len(pending_reports) + len(submitted_statements)"/></span>
                 </a>
-                <a href="/ff/manager?tab=attendance" onclick="switchManagerTab('attendance', event)"
-                   t-attf-class="ffm-seg-tab #{'active' if active_tab == 'attendance' else ''}"
-                   data-tab="attendance">
-                    <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                    Team Attendance
-                    <span class="ffm-tab-badge" style="background: #dcfce7; color: #166534;"><t t-esc="present_count"/>/<t t-esc="sub_count"/></span>
+                <a href="/ff/manager?tab=activity" onclick="switchManagerTab('activity', event)" data-tab="activity"
+                   t-attf-class="ffm-seg-tab #{'active' if active_tab == 'activity' else ''}">
+                    <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                    Team Activity
                 </a>
-                <a href="/ff/manager?tab=visits" onclick="switchManagerTab('visits', event)"
-                   t-attf-class="ffm-seg-tab #{'active' if active_tab == 'visits' else ''}"
-                   data-tab="visits">
-                    <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                    Visits Monitor
-                    <span class="ffm-tab-badge" style="background: #e0e7ff; color: #3730a3;"><t t-esc="len(chemist_visits) + len(doctor_visits) + len(farm_visits)"/></span>
-                </a>
-                <a href="/ff/manager?tab=expenses" onclick="switchManagerTab('expenses', event)"
-                   t-attf-class="ffm-seg-tab #{'active' if active_tab == 'expenses' else ''}"
-                   data-tab="expenses">
-                    <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
-                    Team Expenses
-                    <span class="ffm-tab-badge" style="background: #fef08a; color: #854d0e;"><t t-esc="len(team_expenses)"/></span>
-                </a>
-                <a href="/ff/manager?tab=statements" onclick="switchManagerTab('statements', event)"
-                   t-attf-class="ffm-seg-tab #{'active' if active_tab == 'statements' else ''}"
-                   data-tab="statements">
-                    <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
-                    Monthly Statements
-                    <span class="ffm-tab-badge" style="background: #e2e8f0; color: #334155;"><t t-esc="len(submitted_statements)"/></span>
-                </a>
-                <a href="/ff/report/cards" class="ffm-seg-tab" style="color: #4338ca; text-decoration: none;">
+                <a href="/ff/manager?tab=reports" onclick="switchManagerTab('reports', event)" data-tab="reports"
+                   t-attf-class="ffm-seg-tab #{'active' if active_tab == 'reports' else ''}">
                     <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-                    Team Report Cards &amp; PDFs
+                    Reports
                 </a>
-                <t t-if="can_manage_system">
-                    <a href="/ff/manager?tab=team" onclick="switchManagerTab('team', event)"
-                       t-attf-class="ffm-seg-tab #{'active' if active_tab == 'team' else ''}"
-                       data-tab="team">
-                        <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                        Team &amp; Passwords
-                        <span class="ffm-tab-badge" style="background: #dbeafe; color: #1e40af;"><t t-esc="len(all_employees)"/></span>
-                    </a>
-                    <a href="/ff/manager?tab=territories" onclick="switchManagerTab('territories', event)"
-                       t-attf-class="ffm-seg-tab #{'active' if active_tab == 'territories' else ''}"
-                       data-tab="territories">
+                <a href="/ff/manager?tab=team" onclick="switchManagerTab('team', event)" data-tab="team"
+                   t-attf-class="ffm-seg-tab #{'active' if active_tab == 'team' else ''}">
+                    <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    <t t-if="is_management">People &amp; Logins</t><t t-else="">My Team</t>
+                    <span class="ffm-tab-badge" style="background: #dbeafe; color: #1e40af;"><t t-esc="len(team_people)"/></span>
+                </a>
+                <t t-if="is_management">
+                    <a href="/ff/manager?tab=territories" onclick="switchManagerTab('territories', event)" data-tab="territories"
+                       t-attf-class="ffm-seg-tab #{'active' if active_tab == 'territories' else ''}">
                         <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
                         Territories
                         <span class="ffm-tab-badge" style="background: #f3e8ff; color: #6b21a8;"><t t-esc="len(all_territories)"/></span>
@@ -2979,7 +2950,7 @@
                 </t>
             </div>
 
-            <!-- Tab 1: Daily Reports Pending Approval -->
+            <!-- ── Approvals: daily reports and monthly statements waiting on me ── -->
             <div id="tab-approvals" class="ffm-tab-pane" t-attf-style="display: #{'block' if active_tab == 'approvals' else 'none'};">
                 <div class="ffm-form-card" style="margin-bottom: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
@@ -3063,106 +3034,80 @@
                         </div>
                     </t>
                 </div>
-
-                <!-- Today's All Subordinate Reports -->
                 <div class="ffm-form-card" style="margin-bottom: 20px;">
-                    <h3 style="font-size: 1rem; font-weight: 700; color: #1e293b; margin-bottom: 10px;">
-                        Today's Reports Summary (<t t-esc="len(today_reports)"/>)
-                    </h3>
-                    <t t-if="today_reports">
-                        <div class="ffm-table-responsive">
-                            <table style="width: 100%; border-collapse: collapse; font-size: 0.82rem; background: #fff;">
-                                <thead>
-                                    <tr style="background: #f1f5f9; border-bottom: 1.5px solid #cbd5e1; text-align: left;">
-                                        <th style="padding: 8px 10px;">Field Person</th>
-                                        <th style="padding: 8px 10px;">Place</th>
-                                        <th style="padding: 8px 10px; text-align: right;">Order</th>
-                                        <th style="padding: 8px 10px; text-align: right;">Sale</th>
-                                        <th style="padding: 8px 10px; text-align: center;">Status</th>
-                                        <th style="padding: 8px 10px; text-align: center;">Download PDF</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <t t-foreach="today_reports" t-as="tr">
-                                        <tr style="border-bottom: 1px solid #f1f5f9;">
-                                            <td style="padding: 8px 10px; font-weight: 600;"><t t-esc="tr.employee_id.name"/></td>
-                                            <td style="padding: 8px 10px;"><t t-esc="tr.working_place_id.name or '-'"/></td>
-                                            <td style="padding: 8px 10px; text-align: right;">৳<t t-esc="'%.0f' % tr.total_order_tk"/></td>
-                                            <td style="padding: 8px 10px; text-align: right;">৳<t t-esc="'%.0f' % tr.total_sale_tk"/></td>
-                                            <td style="padding: 8px 10px; text-align: center;">
-                                                <span t-attf-class="ffm-badge #{'ffm-badge-success' if tr.state == 'approved' else ('ffm-badge-warning' if tr.state == 'submitted' else ('ffm-badge-danger' if tr.state == 'rejected' else 'ffm-badge-info'))}">
-                                                    <t t-esc="tr.state.upper()"/>
-                                                </span>
-                                            </td>
-                                            <td style="padding: 8px 10px; text-align: center;">
-                                                <a t-attf-href="/ff/report/daily/pdf?report_id=#{tr.id}" target="_blank" class="ffm-badge" style="background: #0284c7; color: #ffffff; text-decoration: none; padding: 4px 10px; display: inline-flex; align-items: center; gap: 4px;">
-                                                    <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg> PDF
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    </t>
-                                </tbody>
-                            </table>
-                        </div>
-                    </t>
-                    <t t-else="">
-                        <div style="font-size: 0.85rem; color: #64748b; font-style: italic;">No daily reports initiated yet today.</div>
-                    </t>
-                </div>
-
-                <!-- Section 3: All Recent Daily Reports History Table -->
-                <div class="ffm-form-card">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                        <h3 style="font-size: 1rem; font-weight: 700; color: #1e293b; margin: 0;">
-                            Team Daily Reports History (<t t-esc="len(all_recent_reports)"/>)
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9;">
+                        <h3 style="font-size: 0.92rem; font-weight: 700; color: #0f172a; margin: 0;">
+                            Submitted Monthly Statements Pending Verification (<t t-esc="len(submitted_statements)"/>)
                         </h3>
                     </div>
-                    <t t-if="all_recent_reports">
-                        <div class="ffm-table-responsive">
-                            <table style="width: 100%; border-collapse: collapse; font-size: 0.82rem; background: #fff;">
-                                <thead>
-                                    <tr style="background: #f1f5f9; border-bottom: 1.5px solid #cbd5e1; text-align: left;">
-                                        <th style="padding: 8px 10px;">Date</th>
-                                        <th style="padding: 8px 10px;">Personnel</th>
-                                        <th style="padding: 8px 10px;">Working Place</th>
-                                        <th style="padding: 8px 10px; text-align: right;">Order</th>
-                                        <th style="padding: 8px 10px; text-align: right;">Sale</th>
-                                        <th style="padding: 8px 10px; text-align: center;">Status</th>
-                                        <th style="padding: 8px 10px; text-align: center;">Download PDF</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <t t-foreach="all_recent_reports" t-as="rep">
-                                        <tr style="border-bottom: 1px solid #f1f5f9;">
-                                            <td style="padding: 8px 10px; font-weight: 600;"><t t-esc="rep.date"/></td>
-                                            <td style="padding: 8px 10px;"><t t-esc="rep.employee_id.name"/></td>
-                                            <td style="padding: 8px 10px;"><t t-esc="rep.working_place_id.name or rep.working_place or '-'"/></td>
-                                            <td style="padding: 8px 10px; text-align: right;">৳<t t-esc="'%.0f' % rep.total_order_tk"/></td>
-                                            <td style="padding: 8px 10px; text-align: right;">৳<t t-esc="'%.0f' % rep.total_sale_tk"/></td>
-                                            <td style="padding: 8px 10px; text-align: center;">
-                                                <span t-attf-class="ffm-badge #{'ffm-badge-success' if rep.state == 'approved' else ('ffm-badge-warning' if rep.state == 'submitted' else ('ffm-badge-danger' if rep.state == 'rejected' else 'ffm-badge-info'))}">
-                                                    <t t-esc="rep.state.upper()"/>
-                                                </span>
-                                            </td>
-                                            <td style="padding: 8px 10px; text-align: center;">
-                                                <a t-attf-href="/ff/report/daily/pdf?report_id=#{rep.id}" target="_blank" class="ffm-badge" style="background: #0284c7; color: #ffffff; text-decoration: none; padding: 4px 10px; display: inline-flex; align-items: center; gap: 4px;">
-                                                    <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg> PDF
-                                                </a>
-                                            </td>
-                                        </tr>
+
+                    <t t-if="submitted_statements">
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <t t-foreach="submitted_statements" t-as="stmt">
+                                <div class="ffm-monitor-item">
+                                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                                        <div>
+                                            <div style="font-weight: 700; font-size: 0.95rem; color: #0f172a;"><t t-esc="stmt.employee_id.name"/></div>
+                                            <div style="font-size: 0.78rem; color: #64748b; margin-top: 2px;">
+                                                Month: <strong><t t-esc="stmt.month"/>/<t t-esc="stmt.year"/></strong>
+                                                <t t-if="stmt.employee_id.hq"> • HQ: <t t-esc="stmt.employee_id.hq"/></t>
+                                            </div>
+                                        </div>
+                                        <div style="text-align: right;">
+                                            <span class="ffm-badge ffm-badge-warning" style="font-size: 0.7rem;">SUBMITTED</span>
+                                            <div style="font-size: 0.95rem; font-weight: 700; color: #047857; margin-top: 3px;">
+                                                ৳<t t-esc="'%.0f' % stmt.grand_total"/>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; text-align: center; font-size: 0.78rem; background: #f8fafc; padding: 8px 10px; border-radius: 6px; margin-bottom: 12px; border: 1px solid #f1f5f9;">
+                                        <div>Daily TA: <strong>৳<t t-esc="'%.0f' % stmt.total_daily_ta"/></strong></div>
+                                        <div>Daily DA: <strong>৳<t t-esc="'%.0f' % stmt.total_daily_da"/></strong></div>
+                                        <div>Other Exp: <strong>৳<t t-esc="'%.0f' % stmt.total_other_expenses"/></strong></div>
+                                    </div>
+
+                                    <t t-if="stmt.remarks">
+                                        <div style="font-size: 0.78rem; color: #64748b; margin-bottom: 10px; font-style: italic;">
+                                            Remarks: <t t-esc="stmt.remarks"/>
+                                        </div>
                                     </t>
-                                </tbody>
-                            </table>
+
+                                    <!-- Action Buttons -->
+                                    <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                                        <a t-attf-href="/ff/statement/pdf?statement_id=#{stmt.id}" target="_blank" class="ffm-btn" style="min-height: 34px; padding: 6px 14px; font-size: 0.8rem; background: #ffffff; color: #334155; border: 1px solid #cbd5e1; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; border-radius: 6px; font-weight: 600;">
+                                            <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                                            <span>View PDF</span>
+                                        </a>
+                                        <button type="button" class="ffm-btn" style="background: #2563eb; color: #ffffff; min-height: 34px; padding: 6px 16px; font-size: 0.8rem; border-radius: 6px; font-weight: 600; border: none; display: inline-flex; align-items: center; gap: 5px;" t-attf-onclick="FFM.checkStatement(#{stmt.id}, this)">
+                                            <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                            <span>Verify &amp; Forward</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </t>
                         </div>
                     </t>
                     <t t-else="">
-                        <div style="font-size: 0.85rem; color: #64748b; font-style: italic;">No reports found in history.</div>
+                        <div style="font-size: 0.84rem; color: #94a3b8; font-style: italic; padding: 12px 0;">No monthly statements currently pending verification.</div>
                     </t>
                 </div>
             </div>
 
-            <!-- Tab 2: Team Attendance Monitor -->
-            <div id="tab-attendance" class="ffm-tab-pane" t-attf-style="display: #{'block' if active_tab == 'attendance' else 'none'};">
+            <!-- ── Team Activity: attendance, visits, expenses ── -->
+            <div id="tab-activity" class="ffm-tab-pane" t-attf-style="display: #{'block' if active_tab == 'activity' else 'none'};">
+                <div class="ffm-tabs-nav" id="activitySubNav">
+                    <a href="#" class="ffm-tab-pill active" data-sub="attendance" onclick="switchActivitySub('attendance', event)">
+                        Attendance <span class="ffm-tab-badge" style="background: #dcfce7; color: #166534;"><t t-esc="present_count"/>/<t t-esc="sub_count"/></span>
+                    </a>
+                    <a href="#" class="ffm-tab-pill" data-sub="visits" onclick="switchActivitySub('visits', event)">
+                        Visits <span class="ffm-tab-badge" style="background: #e0e7ff; color: #3730a3;"><t t-esc="len(chemist_visits) + len(doctor_visits) + len(farm_visits)"/></span>
+                    </a>
+                    <a href="#" class="ffm-tab-pill" data-sub="expenses" onclick="switchActivitySub('expenses', event)">
+                        Expenses <span class="ffm-tab-badge" style="background: #fef08a; color: #854d0e;"><t t-esc="len(team_expenses)"/></span>
+                    </a>
+                </div>
+                <div class="ffm-activity-sub" id="sub-attendance">
                 <!-- Present Employees -->
                 <div class="ffm-form-card" style="margin-bottom: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9;">
@@ -3250,10 +3195,8 @@
                         </div>
                     </t>
                 </div>
-            </div>
-
-            <!-- Tab 3: Visits Monitor (STRICTLY VIEWING - NO ENTRY FORMS) -->
-            <div id="tab-visits" class="ffm-tab-pane" t-attf-style="display: #{'block' if active_tab == 'visits' else 'none'};">
+                </div>
+                <div class="ffm-activity-sub" id="sub-visits" style="display: none;">
                 <!-- Chemist Visits -->
                 <div class="ffm-form-card" style="margin-bottom: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9;">
@@ -3370,10 +3313,8 @@
                         <div style="font-size: 0.84rem; color: #94a3b8; font-style: italic; padding: 12px 0;">No farm visits recorded today.</div>
                     </t>
                 </div>
-            </div>
-
-            <!-- Tab 4: Team Daily Expenses & Vouchers -->
-            <div id="tab-expenses" class="ffm-tab-pane" t-attf-style="display: #{'block' if active_tab == 'expenses' else 'none'};">
+                </div>
+                <div class="ffm-activity-sub" id="sub-expenses" style="display: none;">
                 <div class="ffm-form-card">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9;">
                         <h3 style="font-size: 0.92rem; font-weight: 700; color: #0f172a; margin: 0;">
@@ -3449,69 +3390,189 @@
                         <div style="font-size: 0.84rem; color: #94a3b8; font-style: italic; padding: 12px 0;">No expenses submitted today.</div>
                     </t>
                 </div>
+                </div>
             </div>
 
-            <!-- Tab 5: Monthly Expense Statements Pending Check -->
-            <div id="tab-statements" class="ffm-tab-pane" t-attf-style="display: #{'block' if active_tab == 'statements' else 'none'};">
-                <div class="ffm-form-card" style="margin-bottom: 20px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9;">
-                        <h3 style="font-size: 0.92rem; font-weight: 700; color: #0f172a; margin: 0;">
-                            Submitted Monthly Statements Pending Verification (<t t-esc="len(submitted_statements)"/>)
-                        </h3>
+            <!-- ── Reports: individual search + territory / RSM / ASM team reports ── -->
+            <div id="tab-reports" class="ffm-tab-pane" t-attf-style="display: #{'block' if active_tab == 'reports' else 'none'};">
+                <div class="ffm-form-card">
+                    <div class="ffm-form-header">
+                        <div>
+                            <h3 class="ffm-form-title">Find a Report</h3>
+                            <p class="ffm-form-subtitle">Open one person's daily or monthly report, or a team report filtered by territory, RSM or ASM.</p>
+                        </div>
                     </div>
 
-                    <t t-if="submitted_statements">
-                        <div style="display: flex; flex-direction: column; gap: 12px;">
-                            <t t-foreach="submitted_statements" t-as="stmt">
-                                <div class="ffm-monitor-item">
-                                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
-                                        <div>
-                                            <div style="font-weight: 700; font-size: 0.95rem; color: #0f172a;"><t t-esc="stmt.employee_id.name"/></div>
-                                            <div style="font-size: 0.78rem; color: #64748b; margin-top: 2px;">
-                                                Month: <strong><t t-esc="stmt.month"/>/<t t-esc="stmt.year"/></strong>
-                                                <t t-if="stmt.employee_id.hq"> • HQ: <t t-esc="stmt.employee_id.hq"/></t>
-                                            </div>
-                                        </div>
-                                        <div style="text-align: right;">
-                                            <span class="ffm-badge ffm-badge-warning" style="font-size: 0.7rem;">SUBMITTED</span>
-                                            <div style="font-size: 0.95rem; font-weight: 700; color: #047857; margin-top: 3px;">
-                                                ৳<t t-esc="'%.0f' % stmt.grand_total"/>
-                                            </div>
-                                        </div>
-                                    </div>
+                    <div class="ffm-report-finder">
+                        <div class="ffm-finder-block">
+                            <div class="ffm-finder-title">Individual report</div>
+                            <label class="ffm-form-label" for="finder_person">Search by name</label>
+                            <div class="ffm-picker" id="finderPicker" t-att-data-people="people_json" data-mode="daily" t-att-data-date="today_iso">
+                                <input type="text" id="finder_person" class="ffm-form-control ffm-picker-input" autocomplete="off"/>
+                                <div class="ffm-picker-list"></div>
+                            </div>
+                            <div class="ffm-hint" style="margin-top: 6px;">Type a name and pick the person from the list. Only existing people can be opened.</div>
+                        </div>
 
-                                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; text-align: center; font-size: 0.78rem; background: #f8fafc; padding: 8px 10px; border-radius: 6px; margin-bottom: 12px; border: 1px solid #f1f5f9;">
-                                        <div>Daily TA: <strong>৳<t t-esc="'%.0f' % stmt.total_daily_ta"/></strong></div>
-                                        <div>Daily DA: <strong>৳<t t-esc="'%.0f' % stmt.total_daily_da"/></strong></div>
-                                        <div>Other Exp: <strong>৳<t t-esc="'%.0f' % stmt.total_other_expenses"/></strong></div>
-                                    </div>
-
-                                    <t t-if="stmt.remarks">
-                                        <div style="font-size: 0.78rem; color: #64748b; margin-bottom: 10px; font-style: italic;">
-                                            Remarks: <t t-esc="stmt.remarks"/>
-                                        </div>
-                                    </t>
-
-                                    <!-- Action Buttons -->
-                                    <div style="display: flex; gap: 8px; justify-content: flex-end;">
-                                        <a t-attf-href="/ff/statement/pdf?statement_id=#{stmt.id}" target="_blank" class="ffm-btn" style="min-height: 34px; padding: 6px 14px; font-size: 0.8rem; background: #ffffff; color: #334155; border: 1px solid #cbd5e1; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; border-radius: 6px; font-weight: 600;">
-                                            <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
-                                            <span>View PDF</span>
-                                        </a>
-                                        <button type="button" class="ffm-btn" style="background: #2563eb; color: #ffffff; min-height: 34px; padding: 6px 16px; font-size: 0.8rem; border-radius: 6px; font-weight: 600; border: none; display: inline-flex; align-items: center; gap: 5px;" t-attf-onclick="FFM.checkStatement(#{stmt.id}, this)">
-                                            <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                            <span>Verify &amp; Forward</span>
-                                        </button>
-                                    </div>
+                        <form method="get" action="/ff/report/cards" class="ffm-finder-block" id="teamReportForm">
+                            <div class="ffm-finder-title">Team report</div>
+                            <div class="ffm-filter-grid">
+                                <div>
+                                    <label class="ffm-form-label" for="rf_mode">Report type</label>
+                                    <select name="mode" id="rf_mode" class="ffm-form-control" onchange="toggleReportPeriod(this.value)">
+                                        <option value="daily">Daily</option>
+                                        <option value="monthly">Monthly</option>
+                                    </select>
                                 </div>
-                            </t>
+                                <div id="rf_date_wrap">
+                                    <label class="ffm-form-label" for="rf_date">Date</label>
+                                    <input type="date" name="date" id="rf_date" class="ffm-form-control" t-att-value="today_iso"/>
+                                </div>
+                                <div id="rf_period_wrap" style="display: none;">
+                                    <label class="ffm-form-label" for="rf_period">Month</label>
+                                    <select name="period" id="rf_period" class="ffm-form-control" disabled="disabled">
+                                        <option value="current">Current Month</option>
+                                        <option value="prev">Previous Month</option>
+                                        <option value="last_30_days">Last 30 Days</option>
+                                    </select>
+                                </div>
+                                <t t-if="scope_territories">
+                                    <div>
+                                        <label class="ffm-form-label" for="rf_territory">Territory</label>
+                                        <select name="territory_id" id="rf_territory" class="ffm-form-control">
+                                            <option value="">All territories</option>
+                                            <t t-foreach="scope_territories" t-as="terr">
+                                                <option t-att-value="terr.id"><t t-esc="terr.name"/></option>
+                                            </t>
+                                        </select>
+                                    </div>
+                                </t>
+                                <t t-if="scope_rsms">
+                                    <div>
+                                        <label class="ffm-form-label" for="rf_rsm">RSM</label>
+                                        <select name="rsm_id" id="rf_rsm" class="ffm-form-control">
+                                            <option value="">All RSMs</option>
+                                            <t t-foreach="scope_rsms" t-as="r">
+                                                <option t-att-value="r.id"><t t-esc="r.name"/></option>
+                                            </t>
+                                        </select>
+                                    </div>
+                                </t>
+                                <t t-if="scope_asms">
+                                    <div>
+                                        <label class="ffm-form-label" for="rf_asm">ASM</label>
+                                        <select name="asm_id" id="rf_asm" class="ffm-form-control">
+                                            <option value="">All ASMs</option>
+                                            <t t-foreach="scope_asms" t-as="asm">
+                                                <option t-att-value="asm.id"><t t-esc="asm.name"/></option>
+                                            </t>
+                                        </select>
+                                    </div>
+                                </t>
+                            </div>
+                            <div class="ffm-finder-actions">
+                                <button type="submit" name="report_type" value="team" class="ffm-btn ffm-btn-primary">View Team Report</button>
+                                <button type="submit" name="report_type" value="attendance" class="ffm-btn ffm-btn-secondary">Team Attendance</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Today's All Subordinate Reports -->
+                <div class="ffm-form-card" style="margin-bottom: 20px;">
+                    <h3 style="font-size: 1rem; font-weight: 700; color: #1e293b; margin-bottom: 10px;">
+                        Today's Reports Summary (<t t-esc="len(today_reports)"/>)
+                    </h3>
+                    <t t-if="today_reports">
+                        <div class="ffm-table-responsive">
+                            <table style="width: 100%; border-collapse: collapse; font-size: 0.82rem; background: #fff;">
+                                <thead>
+                                    <tr style="background: #f1f5f9; border-bottom: 1.5px solid #cbd5e1; text-align: left;">
+                                        <th style="padding: 8px 10px;">Field Person</th>
+                                        <th style="padding: 8px 10px;">Place</th>
+                                        <th style="padding: 8px 10px; text-align: right;">Order</th>
+                                        <th style="padding: 8px 10px; text-align: right;">Sale</th>
+                                        <th style="padding: 8px 10px; text-align: center;">Status</th>
+                                        <th style="padding: 8px 10px; text-align: center;">Download PDF</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="today_reports" t-as="tr">
+                                        <tr style="border-bottom: 1px solid #f1f5f9;">
+                                            <td style="padding: 8px 10px; font-weight: 600;"><t t-esc="tr.employee_id.name"/></td>
+                                            <td style="padding: 8px 10px;"><t t-esc="tr.working_place_id.name or '-'"/></td>
+                                            <td style="padding: 8px 10px; text-align: right;">৳<t t-esc="'%.0f' % tr.total_order_tk"/></td>
+                                            <td style="padding: 8px 10px; text-align: right;">৳<t t-esc="'%.0f' % tr.total_sale_tk"/></td>
+                                            <td style="padding: 8px 10px; text-align: center;">
+                                                <span t-attf-class="ffm-badge #{'ffm-badge-success' if tr.state == 'approved' else ('ffm-badge-warning' if tr.state == 'submitted' else ('ffm-badge-danger' if tr.state == 'rejected' else 'ffm-badge-info'))}">
+                                                    <t t-esc="tr.state.upper()"/>
+                                                </span>
+                                            </td>
+                                            <td style="padding: 8px 10px; text-align: center;">
+                                                <a t-attf-href="/ff/report/daily/pdf?report_id=#{tr.id}" target="_blank" class="ffm-badge" style="background: #0284c7; color: #ffffff; text-decoration: none; padding: 4px 10px; display: inline-flex; align-items: center; gap: 4px;">
+                                                    <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg> PDF
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
                         </div>
                     </t>
                     <t t-else="">
-                        <div style="font-size: 0.84rem; color: #94a3b8; font-style: italic; padding: 12px 0;">No monthly statements currently pending verification.</div>
+                        <div style="font-size: 0.85rem; color: #64748b; font-style: italic;">No daily reports initiated yet today.</div>
                     </t>
                 </div>
 
+                <!-- Section 3: All Recent Daily Reports History Table -->
+                <div class="ffm-form-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3 style="font-size: 1rem; font-weight: 700; color: #1e293b; margin: 0;">
+                            Team Daily Reports History (<t t-esc="len(all_recent_reports)"/>)
+                        </h3>
+                    </div>
+                    <t t-if="all_recent_reports">
+                        <div class="ffm-table-responsive">
+                            <table style="width: 100%; border-collapse: collapse; font-size: 0.82rem; background: #fff;">
+                                <thead>
+                                    <tr style="background: #f1f5f9; border-bottom: 1.5px solid #cbd5e1; text-align: left;">
+                                        <th style="padding: 8px 10px;">Date</th>
+                                        <th style="padding: 8px 10px;">Personnel</th>
+                                        <th style="padding: 8px 10px;">Working Place</th>
+                                        <th style="padding: 8px 10px; text-align: right;">Order</th>
+                                        <th style="padding: 8px 10px; text-align: right;">Sale</th>
+                                        <th style="padding: 8px 10px; text-align: center;">Status</th>
+                                        <th style="padding: 8px 10px; text-align: center;">Download PDF</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="all_recent_reports" t-as="rep">
+                                        <tr style="border-bottom: 1px solid #f1f5f9;">
+                                            <td style="padding: 8px 10px; font-weight: 600;"><t t-esc="rep.date"/></td>
+                                            <td style="padding: 8px 10px;"><t t-esc="rep.employee_id.name"/></td>
+                                            <td style="padding: 8px 10px;"><t t-esc="rep.working_place_id.name or rep.working_place or '-'"/></td>
+                                            <td style="padding: 8px 10px; text-align: right;">৳<t t-esc="'%.0f' % rep.total_order_tk"/></td>
+                                            <td style="padding: 8px 10px; text-align: right;">৳<t t-esc="'%.0f' % rep.total_sale_tk"/></td>
+                                            <td style="padding: 8px 10px; text-align: center;">
+                                                <span t-attf-class="ffm-badge #{'ffm-badge-success' if rep.state == 'approved' else ('ffm-badge-warning' if rep.state == 'submitted' else ('ffm-badge-danger' if rep.state == 'rejected' else 'ffm-badge-info'))}">
+                                                    <t t-esc="rep.state.upper()"/>
+                                                </span>
+                                            </td>
+                                            <td style="padding: 8px 10px; text-align: center;">
+                                                <a t-attf-href="/ff/report/daily/pdf?report_id=#{rep.id}" target="_blank" class="ffm-badge" style="background: #0284c7; color: #ffffff; text-decoration: none; padding: 4px 10px; display: inline-flex; align-items: center; gap: 4px;">
+                                                    <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg> PDF
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+                    <t t-else="">
+                        <div style="font-size: 0.85rem; color: #64748b; font-style: italic;">No reports found in history.</div>
+                    </t>
+                </div>
                 <!-- All Team Monthly Statements Table -->
                 <div class="ffm-form-card">
                     <h3 style="font-size: 1rem; font-weight: 700; color: #1e293b; margin-bottom: 12px;">
@@ -3563,264 +3624,234 @@
                 </div>
             </div>
 
-            <!-- ADMIN-ONLY TAB 6: Team CRUD (RSM, ASM, Field Person) & Password Reset -->
-            <t t-if="can_manage_system">
-                <div id="tab-team" class="ffm-tab-pane" t-attf-style="display: #{'block' if active_tab == 'team' else 'none'};">
-                    <!-- Add / Edit Personnel Form Card -->
-                    <div class="ffm-form-card" id="adminEmployeeFormCard" style="margin-bottom: 18px; border-left: 4px solid #107c41;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                            <h3 id="adm_emp_form_title" style="font-size: 0.88rem; font-weight: 700; color: #1e293b; margin: 0;">
-                                <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px; max-width: 12px; max-height: 12px; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Add New Personnel (RSM / ASM / Field Person)
-                            </h3>
-                            <button type="button" onclick="FFM.resetEmployeeForm()" class="ffm-btn ffm-btn-secondary" style="width: auto; min-height: 30px; padding: 4px 10px; font-size: 0.76rem;">
-                                Clear Form
-                            </button>
+            <!-- ── Team: territories, reporting structure, people & logins ── -->
+            <div id="tab-team" class="ffm-tab-pane" t-attf-style="display: #{'block' if active_tab == 'team' else 'none'};">
+                <t t-if="is_management">
+                    <div class="ffm-form-card" id="personFormCard">
+                        <div class="ffm-form-header">
+                            <div>
+                                <h3 class="ffm-form-title" id="pf_title">Add Person</h3>
+                                <p class="ffm-form-subtitle">Creates the RSM / ASM / Field Person and the login (email + password) they sign in with.</p>
+                            </div>
+                            <button type="button" class="ffm-btn ffm-btn-secondary ffm-btn-inline" onclick="FFM.resetPersonForm()">+ New</button>
                         </div>
-                        <input type="hidden" id="adm_emp_id" value=""/>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; margin-bottom: 12px;">
+                        <input type="hidden" id="pf_id" value=""/>
+                        <input type="hidden" id="pf_branch" value=""/>
+                        <div class="ffm-filter-grid">
                             <div>
-                                <label style="display: block; font-size: 0.78rem; font-weight: 600; color: #334155; margin-bottom: 4px;">Full Name *</label>
-                                <input type="text" id="adm_emp_name" class="ffm-input" placeholder="e.g. Md. Tanvir Ahmed" style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.85rem;"/>
+                                <label class="ffm-form-label" for="pf_name"><span>Full Name <span class="ffm-req">*</span></span></label>
+                                <input type="text" id="pf_name" class="ffm-form-control"/>
                             </div>
                             <div>
-                                <label style="display: block; font-size: 0.78rem; font-weight: 600; color: #334155; margin-bottom: 4px;">Role / Designation *</label>
-                                <select id="adm_emp_role" class="ffm-input" style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.85rem; background: #fff;">
-                                    <option value="fp">Field Person (Marketer)</option>
-                                    <option value="asm">Area Sales Manager (ASM)</option>
-                                    <option value="rsm">Regional Sales Manager (RSM)</option>
+                                <label class="ffm-form-label" for="pf_role"><span>Role <span class="ffm-req">*</span></span></label>
+                                <select id="pf_role" class="ffm-form-control" onchange="FFM.onPersonRoleChange()">
+                                    <option value="fp">Field Person</option>
+                                    <option value="asm">ASM</option>
+                                    <option value="rsm">RSM</option>
                                 </select>
                             </div>
                             <div>
-                                <label style="display: block; font-size: 0.78rem; font-weight: 600; color: #334155; margin-bottom: 4px;">Login Username *</label>
-                                <input type="text" id="adm_emp_login" class="ffm-input" placeholder="e.g. ffm_fp_tanvir" style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.85rem;"/>
-                            </div>
-                            <div>
-                                <label style="display: block; font-size: 0.78rem; font-weight: 600; color: #334155; margin-bottom: 4px;">Password (Set / Override)</label>
-                                <input type="text" id="adm_emp_password" class="ffm-input" placeholder="Default 123456 for new user" style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.85rem;"/>
-                            </div>
-                            <div>
-                                <label style="display: block; font-size: 0.78rem; font-weight: 600; color: #334155; margin-bottom: 4px;">Supervisor (ASM / RSM)</label>
-                                <select id="adm_emp_parent_id" class="ffm-input" style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.85rem; background: #fff;">
-                                    <option value="">-- No Supervisor (Top Level) --</option>
-                                    <t t-foreach="manager_employees" t-as="mgr">
-                                        <option t-att-value="mgr.id">
-                                            <t t-esc="mgr.name"/> (<t t-esc="emp_role_map.get(mgr.id, {}).get('label', 'Manager')"/>)
-                                        </option>
-                                    </t>
+                                <label class="ffm-form-label" for="pf_parent">Reports To</label>
+                                <select id="pf_parent" class="ffm-form-control">
+                                    <option value="">— None —</option>
+                                    <optgroup label="RSM">
+                                        <t t-foreach="rsm_options" t-as="r">
+                                            <option t-att-value="r.id" data-role="rsm"><t t-esc="r.name"/></option>
+                                        </t>
+                                    </optgroup>
+                                    <optgroup label="ASM">
+                                        <t t-foreach="asm_options" t-as="asm">
+                                            <option t-att-value="asm.id" data-role="asm"><t t-esc="asm.name"/></option>
+                                        </t>
+                                    </optgroup>
                                 </select>
                             </div>
                             <div>
-                                <label style="display: block; font-size: 0.78rem; font-weight: 600; color: #334155; margin-bottom: 4px;">Branch</label>
-                                <select id="adm_emp_branch_id" class="ffm-input" style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.85rem; background: #fff;">
-                                    <option value="">-- Select Branch --</option>
-                                    <t t-foreach="all_branches" t-as="br">
-                                        <option t-att-value="br.id"><t t-esc="br.name"/></option>
-                                    </t>
-                                </select>
+                                <label class="ffm-form-label" for="pf_email"><span>Email (Login) <span class="ffm-req">*</span></span></label>
+                                <input type="email" id="pf_email" class="ffm-form-control" autocomplete="off"/>
                             </div>
                             <div>
-                                <label style="display: block; font-size: 0.78rem; font-weight: 600; color: #334155; margin-bottom: 4px;">Headquarters (HQ)</label>
-                                <input type="text" id="adm_emp_hq" class="ffm-input" placeholder="e.g. Bogura HQ" style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.85rem;"/>
+                                <label class="ffm-form-label" for="pf_password"><span>Password <span class="ffm-req" id="pf_password_req">*</span></span></label>
+                                <input type="password" id="pf_password" class="ffm-form-control" autocomplete="new-password"/>
+                                <div class="ffm-hint" id="pf_password_hint" style="margin-top: 4px;">At least 6 characters.</div>
                             </div>
                             <div>
-                                <label style="display: block; font-size: 0.78rem; font-weight: 600; color: #334155; margin-bottom: 4px;">Mobile Phone</label>
-                                <input type="text" id="adm_emp_phone" class="ffm-input" placeholder="e.g. 01711-000000" style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.85rem;"/>
+                                <label class="ffm-form-label" for="pf_phone">Phone</label>
+                                <input type="text" id="pf_phone" class="ffm-form-control"/>
+                            </div>
+                            <div>
+                                <label class="ffm-form-label" for="pf_hq">HQ / Base Station</label>
+                                <input type="text" id="pf_hq" class="ffm-form-control"/>
                             </div>
                         </div>
-                        <button type="button" onclick="FFM.saveEmployee(this)" class="ffm-btn" style="background: #107c41; color: #ffffff; min-height: 40px; font-size: 0.9rem;">
-                            <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px; max-width: 12px; max-height: 12px; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Save Personnel Record
-                        </button>
-                    </div>
 
-                    <!-- Quick Set / Reset Password Card -->
-                    <div class="ffm-form-card" id="adminPasswordResetCard" style="margin-bottom: 18px; border-left: 4px solid #d97706; background: #fffbeb;">
-                        <h3 style="font-size: 1rem; font-weight: 700; color: #92400e; margin: 0 0 10px 0;">
-                            <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px; max-width: 12px; max-height: 12px; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor;"><path d="m21 2-2 2m-1.5 1.5L14 9l-2-2-4 4-2-2-4 4v5h5l4-4-2-2 3.5-3.5"></path><circle cx="7.5" cy="16.5" r="1.5"></circle></svg> Set / Reset User Password
-                        </h3>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; align-items: end;">
-                            <div>
-                                <label style="display: block; font-size: 0.78rem; font-weight: 600; color: #78350f; margin-bottom: 4px;">Select Personnel *</label>
-                                <select id="adm_pwd_emp_id" class="ffm-input" style="width: 100%; padding: 8px 10px; border: 1px solid #fcd34d; border-radius: 6px; font-size: 0.85rem; background: #fff;">
-                                    <option value="">-- Choose Personnel --</option>
-                                    <t t-foreach="all_employees" t-as="emp">
-                                        <option t-att-value="emp.id">
-                                            <t t-esc="emp.name"/> (<t t-esc="emp.user_id.login if emp.user_id else 'No Login'"/> - <t t-esc="emp_role_map.get(emp.id, {}).get('label', 'FP')"/>)
-                                        </option>
-                                    </t>
-                                </select>
-                            </div>
-                            <div>
-                                <label style="display: block; font-size: 0.78rem; font-weight: 600; color: #78350f; margin-bottom: 4px;">New Password *</label>
-                                <input type="text" id="adm_pwd_new" class="ffm-input" placeholder="Enter new password" style="width: 100%; padding: 8px 10px; border: 1px solid #fcd34d; border-radius: 6px; font-size: 0.85rem; background: #fff;"/>
-                            </div>
-                            <div>
-                                <button type="button" onclick="FFM.submitPasswordReset(this)" class="ffm-btn" style="background: #d97706; color: #ffffff; min-height: 38px; font-size: 0.86rem;">
-                                    <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px; max-width: 12px; max-height: 12px; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor;"><polyline points="20 6 9 17 4 12"></polyline></svg> Update Password Now
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Active Personnel Directory (RSM, ASM, Field Person) -->
-                    <div class="ffm-form-card">
-                        <h3 style="font-size: 0.88rem; font-weight: 700; color: #1e293b; margin-bottom: 12px;">
-                            Active Field Force Roster (<t t-esc="len(all_employees)"/>)
-                        </h3>
-                        <t t-if="all_employees">
-                            <div style="display: flex; flex-direction: column; gap: 10px;">
-                                <t t-foreach="all_employees" t-as="emp">
-                                    <t t-set="r_info" t-value="emp_role_map.get(emp.id, {'code': 'fp', 'label': 'Field Person'})"/>
-                                    <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; background: #ffffff; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                                        <div>
-                                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                                                <strong style="font-size: 0.96rem; color: #0f172a;"><t t-esc="emp.name"/></strong>
-                                                <span class="ffm-badge" t-attf-style="background: #{'#dbeafe' if r_info['code'] == 'rsm' else ('#fef3c7' if r_info['code'] == 'asm' else '#dcfce7')}; color: #{'#1e40af' if r_info['code'] == 'rsm' else ('#92400e' if r_info['code'] == 'asm' else '#166534')};">
-                                                    <t t-esc="r_info['label']"/>
-                                                </span>
-                                                <t t-if="emp.user_id">
-                                                    <span style="font-size: 0.78rem; color: #475569; background: #f1f5f9; padding: 2px 8px; border-radius: 4px;">
-                                                        Login: <strong><t t-esc="emp.user_id.login"/></strong>
-                                                    </span>
-                                                </t>
-                                            </div>
-                                            <div style="font-size: 0.78rem; color: #64748b; margin-top: 4px;">
-                                                Supervisor: <strong><t t-esc="emp.parent_id.name or 'Top Level'"/></strong>
-                                                • Branch: <strong><t t-esc="emp.branch_id.name or '-'"/></strong>
-                                                <t t-if="emp.hq"> • HQ: <strong><t t-esc="emp.hq"/></strong></t>
-                                                <t t-if="emp.mobile_phone or emp.ffm_phone"> • Phone: <t t-esc="emp.mobile_phone or emp.ffm_phone"/></t>
-                                            </div>
-                                        </div>
-                                        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                                            <button type="button" class="ffm-btn ffm-btn-secondary"
-                                                    style="min-height: 32px; padding: 4px 10px; font-size: 0.78rem; width: auto; background: #e0f2fe; color: #0369a1;"
-                                                    t-att-data-id="emp.id"
-                                                    t-att-data-name="emp.name or ''"
-                                                    t-att-data-role="r_info['code']"
-                                                    t-att-data-login="emp.user_id.login if emp.user_id else ''"
-                                                    t-att-data-parent="emp.parent_id.id if emp.parent_id else ''"
-                                                    t-att-data-branch="emp.branch_id.id if emp.branch_id else ''"
-                                                    t-att-data-hq="emp.hq or ''"
-                                                    t-att-data-phone="emp.mobile_phone or emp.ffm_phone or ''"
-                                                    onclick="FFM.editEmployeeFromBtn(this)">
-                                                <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px; max-width: 12px; max-height: 12px; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg> Edit
-                                            </button>
-                                            <button type="button" class="ffm-btn ffm-btn-secondary"
-                                                    style="min-height: 32px; padding: 4px 10px; font-size: 0.78rem; width: auto; background: #fef3c7; color: #92400e;"
-                                                    t-att-data-id="emp.id"
-                                                    t-att-data-name="emp.name or ''"
-                                                    onclick="FFM.openPasswordResetFromBtn(this)">
-                                                <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px; max-width: 12px; max-height: 12px; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor;"><path d="m21 2-2 2m-1.5 1.5L14 9l-2-2-4 4-2-2-4 4v5h5l4-4-2-2 3.5-3.5"></path><circle cx="7.5" cy="16.5" r="1.5"></circle></svg> Reset Password
-                                            </button>
-                                            <button type="button" class="ffm-btn ffm-btn-secondary"
-                                                    style="min-height: 32px; padding: 4px 10px; font-size: 0.78rem; width: auto; background: #fee2e2; color: #991b1b;"
-                                                    t-attf-onclick="FFM.deleteEmployee(#{emp.id}, this)">
-                                                <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px; max-width: 12px; max-height: 12px; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Remove
-                                            </button>
-                                        </div>
-                                    </div>
-                                </t>
-                            </div>
-                        </t>
-                        <t t-else="">
-                            <div style="font-size: 0.85rem; color: #64748b; font-style: italic;">No field personnel found. Add personnel above.</div>
-                        </t>
-                    </div>
-                </div>
-
-                <!-- ADMIN-ONLY TAB 7: Territories & Branches CRUD -->
-                <div id="tab-territories" class="ffm-tab-pane" t-attf-style="display: #{'block' if active_tab == 'territories' else 'none'};">
-                    <!-- Add / Edit Territory Card -->
-                    <div class="ffm-form-card" id="adminTerritoryFormCard" style="margin-bottom: 18px; border-left: 4px solid #6b21a8;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                            <h3 id="adm_terr_form_title" style="font-size: 0.88rem; font-weight: 700; color: #1e293b; margin: 0;">
-                                Add / Edit Territory
-                            </h3>
-                            <button type="button" onclick="FFM.resetTerritoryForm()" class="ffm-btn ffm-btn-secondary" style="width: auto; min-height: 30px; padding: 4px 10px; font-size: 0.76rem;">
-                                Clear Form
-                            </button>
-                        </div>
-                        <input type="hidden" id="adm_terr_id" value=""/>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 12px;">
-                            <div>
-                                <label style="display: block; font-size: 0.78rem; font-weight: 600; color: #334155; margin-bottom: 4px;">Territory Name *</label>
-                                <input type="text" id="adm_terr_name" class="ffm-input" placeholder="e.g. Bogura Sadar Territory" style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.85rem;"/>
-                            </div>
-                            <div>
-                                <label style="display: block; font-size: 0.78rem; font-weight: 600; color: #334155; margin-bottom: 4px;">Branch</label>
-                                <select id="adm_terr_branch_id" class="ffm-input" style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.85rem; background: #fff;">
-                                    <option value="">-- Select Branch --</option>
-                                    <t t-foreach="all_branches" t-as="br">
-                                        <option t-att-value="br.id"><t t-esc="br.name"/></option>
-                                    </t>
-                                </select>
-                            </div>
-                            <div>
-                                <label style="display: block; font-size: 0.78rem; font-weight: 600; color: #334155; margin-bottom: 4px;">Territory Manager (ASM / RSM)</label>
-                                <select id="adm_terr_manager_id" class="ffm-input" style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.85rem; background: #fff;">
-                                    <option value="">-- Select Manager --</option>
-                                    <t t-foreach="manager_employees" t-as="mgr">
-                                        <option t-att-value="mgr.id"><t t-esc="mgr.name"/> (<t t-esc="emp_role_map.get(mgr.id, {}).get('label', 'Manager')"/>)</option>
-                                    </t>
-                                </select>
-                            </div>
-                            <div>
-                                <label style="display: block; font-size: 0.78rem; font-weight: 600; color: #334155; margin-bottom: 4px;">Assigned Field Person</label>
-                                <select id="adm_terr_fp_id" class="ffm-input" style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.85rem; background: #fff;">
-                                    <option value="">-- Select Field Person --</option>
-                                    <t t-foreach="all_employees" t-as="emp">
-                                        <option t-att-value="emp.id"><t t-esc="emp.name"/> (<t t-esc="emp_role_map.get(emp.id, {}).get('label', 'FP')"/>)</option>
-                                    </t>
-                                </select>
-                            </div>
-                        </div>
-                        <button type="button" onclick="FFM.saveTerritory(this)" class="ffm-btn" style="background: #6b21a8; color: #ffffff; min-height: 40px; font-size: 0.9rem;">
-                            <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px; max-width: 12px; max-height: 12px; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Save Territory
-                        </button>
-                    </div>
-
-                    <!-- Existing Territories List -->
-                    <div class="ffm-form-card" style="margin-bottom: 20px;">
-                        <h3 style="font-size: 0.88rem; font-weight: 700; color: #1e293b; margin-bottom: 12px;">
-                            Configured Territories (<t t-esc="len(all_territories)"/>)
-                        </h3>
-                        <t t-if="all_territories">
-                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <div class="ffm-form-group" style="margin-top: 14px;">
+                            <label class="ffm-form-label" for="pf_terr_filter">
+                                <span>Territories</span>
+                                <span class="ffm-hint">A person can belong to several territories</span>
+                            </label>
+                            <input type="text" id="pf_terr_filter" class="ffm-form-control ffm-checklist-filter" oninput="FFM.filterChecklist(this, 'pf_territories')"/>
+                            <div class="ffm-checklist" id="pf_territories">
                                 <t t-foreach="all_territories" t-as="terr">
-                                    <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; background: #ffffff; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-                                        <div>
-                                            <strong style="font-size: 0.95rem; color: #0f172a;"><t t-esc="terr.name"/></strong>
-                                            <div style="font-size: 0.78rem; color: #64748b; margin-top: 2px;">
-                                                Branch: <strong><t t-esc="terr.branch_id.name or '-'"/></strong>
-                                                • Manager: <strong><t t-esc="terr.manager_id.name or '-'"/></strong>
-                                                • Field Person: <strong><t t-esc="terr.field_person_id.name or '-'"/></strong>
-                                            </div>
+                                    <label class="ffm-check">
+                                        <input type="checkbox" t-att-value="terr.id"/>
+                                        <span><t t-esc="terr.name"/></span>
+                                    </label>
+                                </t>
+                                <t t-if="not all_territories">
+                                    <div class="ffm-hint">No territories yet. Create one in the Territories tab.</div>
+                                </t>
+                            </div>
+                        </div>
+
+                        <div class="ffm-finder-actions">
+                            <button type="button" id="pf_save" class="ffm-btn ffm-btn-primary" onclick="FFM.savePerson(this)">Save Person</button>
+                            <button type="button" id="pf_deactivate" class="ffm-btn ffm-btn-secondary ffm-btn-danger-soft" style="display: none;" onclick="FFM.deactivatePerson(this)">Deactivate</button>
+                        </div>
+                    </div>
+                </t>
+
+                <t t-if="not is_management">
+                    <div class="ffm-form-card">
+                        <div class="ffm-form-header">
+                            <div>
+                                <h3 class="ffm-form-title">My Territories (<t t-esc="len(my_territories)"/>)</h3>
+                                <p class="ffm-form-subtitle">Territories covered by you and your team, with the people assigned to each.</p>
+                            </div>
+                        </div>
+                        <t t-if="my_territories">
+                            <div class="ffm-terr-grid">
+                                <t t-foreach="my_territories" t-as="terr">
+                                    <div class="ffm-terr-card">
+                                        <div class="ffm-terr-card-head">
+                                            <span class="ffm-terr-name"><t t-esc="terr.name"/></span>
+                                            <a class="ffm-link-sm" t-attf-href="/ff/report/cards?report_type=team&amp;territory_id=#{terr.id}">Report →</a>
                                         </div>
-                                        <div style="display: flex; gap: 6px;">
-                                            <button type="button" class="ffm-btn ffm-btn-secondary"
-                                                    style="min-height: 32px; padding: 4px 10px; font-size: 0.78rem; width: auto; background: #e0f2fe; color: #0369a1;"
-                                                    t-att-data-id="terr.id"
-                                                    t-att-data-name="terr.name or ''"
-                                                    t-att-data-branch="terr.branch_id.id if terr.branch_id else ''"
-                                                    t-att-data-manager="terr.manager_id.id if terr.manager_id else ''"
-                                                    t-att-data-fp="terr.field_person_id.id if terr.field_person_id else ''"
-                                                    onclick="FFM.editTerritoryFromBtn(this)">
-                                                <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px; max-width: 12px; max-height: 12px; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg> Edit
-                                            </button>
-                                            <button type="button" class="ffm-btn ffm-btn-secondary"
-                                                    style="min-height: 32px; padding: 4px 10px; font-size: 0.78rem; width: auto; background: #fee2e2; color: #991b1b;"
-                                                    t-attf-onclick="FFM.deleteTerritory(#{terr.id}, this)">
-                                                <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px; max-width: 12px; max-height: 12px; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Delete
-                                            </button>
+                                        <t t-call="ffm_daily_report.ff_territory_members"/>
+                                    </div>
+                                </t>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <div class="ffm-empty">No territories assigned to you or your team yet.</div>
+                        </t>
+                    </div>
+                </t>
+
+                <div class="ffm-form-card">
+                    <div class="ffm-form-header">
+                        <div>
+                            <h3 class="ffm-form-title">Reporting Structure</h3>
+                            <p class="ffm-form-subtitle">
+                                <t t-if="is_management">Who reports to whom: RSM → ASM → Field Person. Use Edit to change a person's role, manager, territories or login.</t>
+                                <t t-else="">Your ASMs and Field Persons and the territories they cover.</t>
+                            </p>
+                        </div>
+                    </div>
+                    <t t-if="org_roots">
+                        <div class="ffm-org">
+                            <t t-foreach="org_roots" t-as="node">
+                                <t t-call="ffm_daily_report.ff_org_node"/>
+                            </t>
+                        </div>
+                    </t>
+                    <t t-else="">
+                        <div class="ffm-empty">No team members yet.</div>
+                    </t>
+                </div>
+            </div>
+
+            <!-- ── Territories (management): create / edit / assign people ── -->
+            <t t-if="is_management">
+                <div id="tab-territories" class="ffm-tab-pane" t-attf-style="display: #{'block' if active_tab == 'territories' else 'none'};">
+                    <div class="ffm-form-card" id="territoryFormCard">
+                        <div class="ffm-form-header">
+                            <div>
+                                <h3 class="ffm-form-title" id="tf_title">Add Territory</h3>
+                                <p class="ffm-form-subtitle">Assign any number of RSMs, ASMs and Field Persons to a territory.</p>
+                            </div>
+                            <button type="button" class="ffm-btn ffm-btn-secondary ffm-btn-inline" onclick="FFM.resetTerritoryForm()">+ New</button>
+                        </div>
+                        <input type="hidden" id="tf_id" value=""/>
+                        <div class="ffm-filter-grid">
+                            <div>
+                                <label class="ffm-form-label" for="tf_name"><span>Territory Name <span class="ffm-req">*</span></span></label>
+                                <input type="text" id="tf_name" class="ffm-form-control"/>
+                            </div>
+                            <div>
+                                <label class="ffm-form-label" for="tf_branch">Branch</label>
+                                <select id="tf_branch" class="ffm-form-control">
+                                    <option value="">— None —</option>
+                                    <t t-foreach="all_branches" t-as="br">
+                                        <option t-att-value="br.id"><t t-esc="br.name"/></option>
+                                    </t>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="ffm-form-group" style="margin-top: 14px;">
+                            <label class="ffm-form-label" for="tf_filter">Assign People</label>
+                            <input type="text" id="tf_filter" class="ffm-form-control ffm-checklist-filter" oninput="FFM.filterChecklist(this, 'tf_members')"/>
+                            <div class="ffm-member-cols" id="tf_members">
+                                <t t-foreach="[('rsm', 'RSM'), ('asm', 'ASM'), ('fp', 'Field Persons')]" t-as="col">
+                                    <div class="ffm-member-col">
+                                        <div t-attf-class="ffm-member-col-title ffm-role-text--#{col[0]}"><t t-esc="col[1]"/></div>
+                                        <div class="ffm-checklist">
+                                            <t t-foreach="team_people.filtered(lambda e: e.ffm_role == col[0])" t-as="person">
+                                                <label class="ffm-check">
+                                                    <input type="checkbox" t-att-value="person.id"/>
+                                                    <span><t t-esc="person.name"/></span>
+                                                </label>
+                                            </t>
+                                        </div>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+
+                        <div class="ffm-finder-actions">
+                            <button type="button" class="ffm-btn ffm-btn-primary" onclick="FFM.saveTerritory(this)">Save Territory</button>
+                        </div>
+                    </div>
+
+                    <div class="ffm-form-card">
+                        <div class="ffm-form-header">
+                            <div>
+                                <h3 class="ffm-form-title">All Territories (<t t-esc="len(all_territories)"/>)</h3>
+                            </div>
+                        </div>
+                        <t t-if="all_territories">
+                            <div class="ffm-terr-grid">
+                                <t t-foreach="all_territories" t-as="terr">
+                                    <div class="ffm-terr-card">
+                                        <div class="ffm-terr-card-head">
+                                            <span class="ffm-terr-name"><t t-esc="terr.name"/></span>
+                                            <t t-if="terr.branch_id"><span class="ffm-monitor-pill"><t t-esc="terr.branch_id.name"/></span></t>
+                                        </div>
+                                        <t t-call="ffm_daily_report.ff_territory_members"/>
+                                        <div class="ffm-terr-actions">
+                                            <a class="ffm-link-sm" t-attf-href="/ff/report/cards?report_type=team&amp;territory_id=#{terr.id}">Team report →</a>
+                                            <span class="ffm-terr-actions-right">
+                                                <button type="button" class="ffm-btn-text"
+                                                        t-att-data-id="terr.id" t-att-data-name="terr.name"
+                                                        t-att-data-branch="terr.branch_id.id or ''"
+                                                        t-att-data-members="','.join(str(i) for i in terr.member_ids.ids)"
+                                                        onclick="FFM.editTerritoryFromBtn(this)">Edit</button>
+                                                <button type="button" class="ffm-btn-text ffm-btn-text--danger"
+                                                        t-attf-onclick="FFM.deleteTerritory(#{terr.id}, this)">Delete</button>
+                                            </span>
                                         </div>
                                     </div>
                                 </t>
                             </div>
                         </t>
                         <t t-else="">
-                            <div style="font-size: 0.85rem; color: #64748b; font-style: italic;">No territories configured yet.</div>
+                            <div class="ffm-empty">No territories yet. Create the first one above.</div>
                         </t>
                     </div>
 
+                    <details class="ffm-details">
+                        <summary>Branches (<t t-esc="len(all_branches)"/>)</summary>
                     <!-- Branches CRUD Card -->
                     <div class="ffm-form-card" id="adminBranchFormCard" style="border-left: 4px solid #0284c7;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
@@ -3878,45 +3909,129 @@
                             </div>
                         </t>
                     </div>
+                    </details>
                 </div>
             </t>
-
-            <style>
-                .ffm-manager-tab-btn {
-                    color: #64748b;
-                    background: transparent;
-                    border: 1px solid transparent;
-                }
-                .ffm-manager-tab-btn.active {
-                    color: #107c41 !important;
-                    background: #ffffff !important;
-                    border: 1px solid #e2e8f0 !important;
-                    border-bottom: 2px solid #107c41 !important;
-                }
-            </style>
 
             <script>
                 function switchManagerTab(tabName, event) {
                     if (event) event.preventDefault();
                     document.querySelectorAll('.ffm-tab-pane').forEach(function(el) {
-                        el.style.display = 'none';
+                        el.style.display = (el.id === 'tab-' + tabName) ? 'block' : 'none';
                     });
-                    var target = document.getElementById('tab-' + tabName);
-                    if (target) target.style.display = 'block';
-
-                    document.querySelectorAll('#managerTabsNav .ffm-manager-tab-btn').forEach(function(btn) {
-                        btn.classList.remove('active');
-                        if (btn.getAttribute('data-tab') === tabName) {
-                            btn.classList.add('active');
-                        }
+                    document.querySelectorAll('#managerTabsNav .ffm-seg-tab').forEach(function(btn) {
+                        btn.classList.toggle('active', btn.getAttribute('data-tab') === tabName);
                     });
-
                     if (window.history &amp;&amp; window.history.replaceState) {
                         window.history.replaceState(null, '', '/ff/manager?tab=' + tabName);
                     }
                 }
+
+                function switchActivitySub(subName, event) {
+                    if (event) event.preventDefault();
+                    document.querySelectorAll('.ffm-activity-sub').forEach(function(el) {
+                        el.style.display = (el.id === 'sub-' + subName) ? 'block' : 'none';
+                    });
+                    document.querySelectorAll('#activitySubNav .ffm-tab-pill').forEach(function(btn) {
+                        btn.classList.toggle('active', btn.getAttribute('data-sub') === subName);
+                    });
+                }
+
+                function toggleReportPeriod(mode) {
+                    var monthly = mode === 'monthly';
+                    document.getElementById('rf_date_wrap').style.display = monthly ? 'none' : '';
+                    document.getElementById('rf_period_wrap').style.display = monthly ? '' : 'none';
+                    document.getElementById('rf_date').disabled = monthly;
+                    document.getElementById('rf_period').disabled = !monthly;
+                }
+
+                document.addEventListener('DOMContentLoaded', function() {
+                    var params = new URLSearchParams(window.location.search);
+                    var sub = params.get('tab');
+                    if (sub === 'attendance' || sub === 'visits' || sub === 'expenses') {
+                        switchActivitySub(sub);
+                    }
+                    FFM.onPersonRoleChange &amp;&amp; document.getElementById('pf_role') &amp;&amp; FFM.onPersonRoleChange();
+                    var activeTab = document.querySelector('#managerTabsNav .ffm-seg-tab.active');
+                    if (activeTab &amp;&amp; activeTab.scrollIntoView) {
+                        activeTab.scrollIntoView({inline: 'center', block: 'nearest'});
+                        window.scrollTo(0, 0);
+                    }
+                });
             </script>
         </t>
+    </template>
+
+    <!-- Territory members grouped by role (expects `terr`) -->
+    <template id="ff_territory_members" name="FFM Territory Members">
+        <div class="ffm-terr-rows">
+            <t t-foreach="[('rsm', 'RSM', terr.rsm_ids), ('asm', 'ASM', terr.asm_ids), ('fp', 'Field Persons', terr.fp_ids)]" t-as="row_all">
+                <t t-set="row" t-value="(row_all[0], row_all[1], row_all[2].filtered(lambda e: e.id in visible_member_ids) if visible_member_ids is not None else row_all[2])"/>
+                <div class="ffm-terr-row">
+                    <span t-attf-class="ffm-terr-row-label ffm-role-text--#{row[0]}"><t t-esc="row[1]"/></span>
+                    <span class="ffm-chips">
+                        <t t-foreach="row[2]" t-as="person">
+                            <span t-attf-class="ffm-chip ffm-chip--#{row[0]}"><t t-esc="person.name"/></span>
+                        </t>
+                        <t t-if="not row[2]"><span class="ffm-chip-empty">—</span></t>
+                    </span>
+                </div>
+            </t>
+        </div>
+    </template>
+
+    <!-- One person in the reporting tree, with their reports nested below (expects `node`) -->
+    <template id="ff_org_node" name="FFM Org Tree Node">
+        <t t-set="person" t-value="node['emp']"/>
+        <div t-attf-class="ffm-org-node ffm-org-node--#{person.ffm_role}">
+            <div class="ffm-org-row">
+                <span t-attf-class="ffm-role-pill ffm-role-pill--#{person.ffm_role}">
+                    <t t-esc="{'rsm': 'RSM', 'asm': 'ASM', 'fp': 'FP', 'manager': 'MGR'}.get(person.ffm_role, '')"/>
+                </span>
+                <div class="ffm-org-main">
+                    <div class="ffm-org-name"><t t-esc="person.name"/></div>
+                    <div class="ffm-org-meta">
+                        <t t-if="person.ffm_territory_ids">
+                            <t t-foreach="person.ffm_territory_ids" t-as="pt">
+                                <span class="ffm-chip ffm-chip--terr"><t t-esc="pt.name"/></span>
+                            </t>
+                        </t>
+                        <t t-else=""><span class="ffm-chip-empty">No territory</span></t>
+                        <t t-if="is_management and person.user_id">
+                            <span class="ffm-org-login"><t t-esc="person.user_id.login"/></span>
+                        </t>
+                    </div>
+                </div>
+                <div class="ffm-org-actions">
+                    <a class="ffm-link-sm" t-attf-href="/ff/report/cards?report_type=individual&amp;employee_id=#{person.id}">Report</a>
+                    <t t-if="is_management and person.ffm_role in ('rsm', 'asm', 'fp')">
+                        <button type="button" class="ffm-btn-text"
+                                t-att-data-id="person.id"
+                                t-att-data-name="person.name"
+                                t-att-data-role="person.ffm_role"
+                                t-att-data-email="person.user_id.login or ''"
+                                t-att-data-parent="person.parent_id.id or ''"
+                                t-att-data-territories="','.join(str(i) for i in person.ffm_territory_ids.ids)"
+                                t-att-data-phone="person.ffm_phone or person.mobile_phone or ''"
+                                t-att-data-hq="person.hq or ''"
+                                t-att-data-branch="person.branch_id.id or ''"
+                                onclick="FFM.editPersonFromBtn(this)">Edit</button>
+                    </t>
+                </div>
+            </div>
+            <t t-if="node['children']">
+                <details class="ffm-org-fold" t-att-open="'open' if len(node['children']) &lt;= 12 else None">
+                    <summary><t t-esc="len(node['children'])"/> reporting to <t t-esc="person.name"/></summary>
+                    <div class="ffm-org-children">
+                        <t t-foreach="node['children']" t-as="child">
+                            <t t-call="ffm_daily_report.ff_org_node">
+                                <t t-set="node" t-value="child"/>
+                            </t>
+                        </t>
+                    </div>
+                </details>
+            </t>
+        </div>
     </template>
 
 </odoo>
