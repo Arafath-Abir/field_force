@@ -2457,3 +2457,220 @@ body {
     outline: 2px solid var(--ffm-primary-focus);
     outline-offset: 2px;
 }
+
+/* ==========================================================================
+   Report card tables (daily + monthly)
+   Regular table on wide screens; each row becomes a labelled card on phones.
+   ========================================================================== */
+
+.ffm-report-section {
+    background: #ffffff;
+    border: 1px solid var(--ffm-border);
+    border-radius: 8px;
+    margin-bottom: 18px;
+    overflow: hidden;
+}
+
+.ffm-report-section-head {
+    background: var(--ffm-surface-muted);
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--ffm-border);
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--ffm-text);
+}
+
+.ffm-rtable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+}
+
+.ffm-rtable th {
+    background: var(--ffm-surface-muted);
+    color: var(--ffm-text-muted);
+    font-weight: 600;
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--ffm-border);
+    white-space: nowrap;
+}
+
+.ffm-rtable td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #f1f3f6;
+    vertical-align: top;
+}
+
+.ffm-rtable .ffm-num {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.ffm-rtable-sub {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--ffm-text-muted);
+    font-weight: 400;
+    white-space: normal;
+}
+
+.ffm-rtable-muted td {
+    color: #9aa3af;
+}
+
+.ffm-rtable-action {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.ffm-rtable-action a {
+    color: var(--ffm-primary);
+    font-weight: 600;
+    font-size: 0.78rem;
+    text-decoration: none;
+}
+
+@media (max-width: 640px) {
+    .ffm-rtable thead {
+        display: none;
+    }
+
+    .ffm-rtable,
+    .ffm-rtable tbody,
+    .ffm-rtable tfoot,
+    .ffm-rtable tr {
+        display: block;
+        width: 100%;
+    }
+
+    .ffm-rtable tr {
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--ffm-border);
+    }
+
+    .ffm-rtable td {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 12px;
+        padding: 3px 0 !important;
+        border: none !important;
+        text-align: right !important;
+        background: transparent !important;
+    }
+
+    .ffm-rtable td::before {
+        content: attr(data-label);
+        flex-shrink: 0;
+        color: var(--ffm-text-muted);
+        font-weight: 500;
+        text-align: left;
+    }
+
+    .ffm-rtable td.ffm-rtable-title {
+        display: block;
+        text-align: left !important;
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--ffm-text);
+        padding-bottom: 6px !important;
+    }
+
+    .ffm-rtable td.ffm-rtable-title::before,
+    .ffm-rtable td.ffm-rtable-index,
+    .ffm-rtable td.ffm-rtable-foot-label::before,
+    .ffm-rtable td.ffm-rtable-action::before {
+        display: none;
+    }
+
+    .ffm-rtable td.ffm-rtable-index {
+        display: none;
+    }
+
+    .ffm-rtable td.ffm-rtable-foot-label {
+        display: block;
+        text-align: left !important;
+        font-weight: 700;
+        color: var(--ffm-text);
+    }
+
+    .ffm-rtable tfoot tr {
+        background: var(--ffm-surface-muted);
+    }
+
+    .ffm-rtable td.ffm-rtable-action {
+        justify-content: flex-end;
+        padding-top: 6px !important;
+    }
+
+    .ffm-rtable-sub {
+        display: inline;
+        margin-left: 6px;
+    }
+}
+
+/* Day-by-Day summary: dates and status chips stay on one line */
+.ffm-rtable--days td.ffm-rtable-title,
+.ffm-rtable--days td.ffm-rtable-status,
+.ffm-rtable--days .ffm-badge {
+    white-space: nowrap;
+}
+
+/* Day-by-Day summary: compact two-column day cards on phones */
+@media (max-width: 640px) {
+    .ffm-rtable.ffm-rtable--days tbody tr {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        column-gap: 18px;
+        align-items: center;
+    }
+
+    .ffm-rtable--days td.ffm-rtable-title {
+        padding-bottom: 4px !important;
+    }
+
+    .ffm-rtable--days td.ffm-rtable-status {
+        justify-content: flex-end;
+        padding-bottom: 4px !important;
+    }
+
+    .ffm-rtable--days td.ffm-rtable-status::before {
+        display: none;
+    }
+
+    .ffm-rtable--days td.ffm-rtable-wide {
+        grid-column: 1 / -1;
+    }
+
+    /* Absent days with no activity collapse to a single line */
+    .ffm-rtable--days tr.ffm-rtable-muted td:not(.ffm-rtable-title):not(.ffm-rtable-status) {
+        display: none;
+    }
+
+    .ffm-rtable--days tr.ffm-rtable-muted td.ffm-rtable-title {
+        font-weight: 600;
+        color: #9aa3af;
+        padding-bottom: 0 !important;
+    }
+
+    .ffm-rtable--days tr.ffm-rtable-muted td.ffm-rtable-status {
+        padding-bottom: 0 !important;
+    }
+}
+
+/* Visit cards on phones: name first, then date and amounts */
+@media (max-width: 640px) {
+    .ffm-rtable tbody tr {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .ffm-rtable tbody td.ffm-rtable-title {
+        order: -1;
+    }
+
+    .ffm-rtable td.ffm-rtable-title div {
+        font-weight: 400;
+    }
+}

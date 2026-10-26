@@ -13,7 +13,7 @@
                 <meta name="theme-color" content="#047857"/>
                 <title><t t-esc="app_name or 'Newtec FFM'"/></title>
                 <link rel="manifest" href="/ff/manifest.json"/>
-                                <link rel="stylesheet" href="/ffm_daily_report/static/src/css/ffm_mobile.css?v=2.6.2"/>
+                                <link rel="stylesheet" href="/ffm_daily_report/static/src/css/ffm_mobile.css?v=2.7.6"/>
                 <style>
                     svg {
                         fill: none !important;
@@ -2038,7 +2038,7 @@
                                     </a>
                                 </t>
                                 <t t-if="report_type in ('personal', 'individual') and mode == 'monthly'">
-                                    <a t-attf-href="/ff/statement/pdf?employee_id=#{target_employee.id if target_employee else ''}"
+                                    <a t-attf-href="/ff/statement/pdf?employee_id=#{target_employee.id if target_employee else ''}&amp;month=#{period_month}&amp;year=#{period_year}"
                                        class="ffm-btn ffm-btn-secondary" style="min-height: 36px; padding: 6px 14px; font-size: 0.82rem; width: auto; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
                                         <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                                         Download Statement PDF
@@ -2182,7 +2182,12 @@
                                             </div>
                                         </div>
                                         <div style="display: flex; align-items: center; gap: 6px;">
-                                            <t t-if="m['attendance']">
+                                            <t t-if="mode == 'monthly'">
+                                                <span class="ffm-badge ffm-badge-neutral" style="font-size: 0.75rem; padding: 3px 8px;">
+                                                    Present <t t-esc="m['present_days']"/> / <t t-esc="period_days"/> days
+                                                </span>
+                                            </t>
+                                            <t t-elif="m['attendance']">
                                                 <span style="font-size: 0.75rem; padding: 3px 8px; border-radius: 4px; background: #dcfce7; color: #15803d; font-weight: 600; border: 1px solid #bbf7d0;">
                                                     Present (<t t-esc="m['attendance'].get_reporting_time_bd() if m['attendance'].reporting_time else 'Marked'"/>)
                                                 </span>
@@ -2215,15 +2220,19 @@
 
                                     <div style="display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 8px; padding-top: 6px; border-top: 1px solid #f1f5f9;">
                                         <a t-attf-href="/ff/report/cards?mode=daily&amp;report_type=individual&amp;employee_id=#{m['employee'].id}&amp;date=#{query_date}"
-                                           class="ffm-btn ffm-btn-secondary" style="min-height: 30px; padding: 3px 10px; font-size: 0.78rem; text-decoration: none;">
-                                            View Daily Card
+                                           class="ffm-btn ffm-btn-secondary" style="min-height: 30px; padding: 3px 10px; font-size: 0.78rem; text-decoration: none; width: auto; white-space: nowrap;">
+                                            Daily
                                         </a>
-                                        <a t-attf-href="/ff/report/cards?mode=monthly&amp;report_type=individual&amp;employee_id=#{m['employee'].id}"
-                                           class="ffm-btn ffm-btn-secondary" style="min-height: 30px; padding: 3px 10px; font-size: 0.78rem; text-decoration: none;">
-                                            View Monthly Card
+                                        <a t-attf-href="/ff/report/cards?mode=monthly&amp;report_type=individual&amp;employee_id=#{m['employee'].id}&amp;period=#{period}"
+                                           class="ffm-btn ffm-btn-secondary" style="min-height: 30px; padding: 3px 10px; font-size: 0.78rem; text-decoration: none; width: auto; white-space: nowrap;">
+                                            Monthly
                                         </a>
-                                        <a t-attf-href="/ff/report/daily/pdf?date=#{query_date}&amp;employee_id=#{m['employee'].id}"
-                                           class="ffm-btn ffm-btn-primary" style="min-height: 30px; padding: 3px 10px; font-size: 0.78rem; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                                        <a t-if="mode == 'monthly'" t-attf-href="/ff/statement/pdf?employee_id=#{m['employee'].id}&amp;month=#{period_month}&amp;year=#{period_year}"
+                                           class="ffm-btn ffm-btn-primary" style="min-height: 30px; padding: 3px 10px; font-size: 0.78rem; text-decoration: none; width: auto; display: inline-flex; align-items: center; gap: 4px;">
+                                            PDF
+                                        </a>
+                                        <a t-else="" t-attf-href="/ff/report/daily/pdf?date=#{query_date}&amp;employee_id=#{m['employee'].id}"
+                                           class="ffm-btn ffm-btn-primary" style="min-height: 30px; padding: 3px 10px; font-size: 0.78rem; text-decoration: none; width: auto; display: inline-flex; align-items: center; gap: 4px;">
                                             PDF
                                         </a>
                                     </div>
@@ -2241,7 +2250,7 @@
                     <t t-if="total_pages &gt; 1">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px;">
                             <t t-if="has_prev">
-                                <a t-attf-href="/ff/report/cards?mode=#{mode}&amp;report_type=#{report_type}&amp;date=#{query_date}&amp;search=#{search_query}&amp;page=#{page - 1}"
+                                <a t-attf-href="/ff/report/cards?mode=#{mode}&amp;report_type=#{report_type}&amp;date=#{query_date}&amp;period=#{period}&amp;territory_id=#{sel_territory_id or ''}&amp;rsm_id=#{sel_rsm_id or ''}&amp;asm_id=#{sel_asm_id or ''}&amp;search=#{search_query}&amp;page=#{page - 1}"
                                    class="ffm-btn ffm-btn-secondary" style="min-height: 34px; padding: 4px 12px; font-size: 0.8rem; width: auto;">
                                     Previous
                                 </a>
@@ -2249,7 +2258,7 @@
                             <t t-else=""><span/></t>
                             <span style="font-size: 0.82rem; color: var(--ffm-text-muted);">Page <t t-esc="page"/> of <t t-esc="total_pages"/></span>
                             <t t-if="has_next">
-                                <a t-attf-href="/ff/report/cards?mode=#{mode}&amp;report_type=#{report_type}&amp;date=#{query_date}&amp;search=#{search_query}&amp;page=#{page + 1}"
+                                <a t-attf-href="/ff/report/cards?mode=#{mode}&amp;report_type=#{report_type}&amp;date=#{query_date}&amp;period=#{period}&amp;territory_id=#{sel_territory_id or ''}&amp;rsm_id=#{sel_rsm_id or ''}&amp;asm_id=#{sel_asm_id or ''}&amp;search=#{search_query}&amp;page=#{page + 1}"
                                    class="ffm-btn ffm-btn-secondary" style="min-height: 34px; padding: 4px 12px; font-size: 0.8rem; width: auto;">
                                     Next
                                 </a>
@@ -2327,8 +2336,58 @@
                             <span>Doctor Visits: <strong style="color: #0f172a;"><t t-esc="total_doctors_count"/></strong> (A+: <t t-esc="grade_counts['a_plus']"/>, A: <t t-esc="grade_counts['a']"/>)</span>
                             <span>Farm Visits: <strong style="color: #0f172a;"><t t-esc="total_farms_count"/></strong></span>
                             <span>Journey: <strong style="color: #0f172a;">৳<t t-esc="'%.0f' % total_fare"/></strong></span>
+                            <span t-if="mode == 'monthly'">Days Present: <strong style="color: #0f172a;"><t t-esc="present_days"/> / <t t-esc="period_days"/></strong></span>
                         </div>
                     </div>
+
+                    <!-- Day-by-Day Summary (monthly mode): one row per day, newest first -->
+                    <t t-if="mode == 'monthly' and day_rows">
+                        <div class="ffm-report-section">
+                            <div class="ffm-report-section-head">Day-by-Day Summary</div>
+                            <div style="overflow-x: auto;">
+                                <table class="ffm-rtable ffm-rtable--days">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Attendance</th>
+                                            <th class="ffm-num">Visits</th>
+                                            <th class="ffm-num">Order</th>
+                                            <th class="ffm-num">Sale</th>
+                                            <th class="ffm-num">Collection</th>
+                                            <th class="ffm-num">Expense</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="day_rows" t-as="dr">
+                                            <tr t-att-class="'ffm-rtable-muted' if not dr['attendance'] and not (dr['chemists'] or dr['doctors'] or dr['farms'] or dr['expense']) else None">
+                                                <td data-label="Date" class="ffm-rtable-title"><t t-esc="dr['date'].strftime('%d %b, %a')"/></td>
+                                                <td data-label="Attendance" class="ffm-rtable-status">
+                                                    <t t-if="dr['attendance']">
+                                                        <span class="ffm-badge ffm-badge-success">Present <t t-esc="dr['attendance'].get_reporting_time_bd() if dr['attendance'].reporting_time else ''"/></span>
+                                                    </t>
+                                                    <t t-else=""><span class="ffm-badge ffm-badge-neutral">Absent</span></t>
+                                                </td>
+                                                <td data-label="Visits" class="ffm-num ffm-rtable-wide">
+                                                    <span>
+                                                        <t t-esc="dr['chemists'] + dr['doctors'] + dr['farms']"/>
+                                                        <span class="ffm-rtable-sub">Chemist <t t-esc="dr['chemists']"/> • Doctor <t t-esc="dr['doctors']"/> • Farm <t t-esc="dr['farms']"/></span>
+                                                    </span>
+                                                </td>
+                                                <td data-label="Order" class="ffm-num">৳<t t-esc="'%.0f' % dr['order']"/></td>
+                                                <td data-label="Sale" class="ffm-num">৳<t t-esc="'%.0f' % dr['sale']"/></td>
+                                                <td data-label="Collection" class="ffm-num">৳<t t-esc="'%.0f' % dr['coll']"/></td>
+                                                <td data-label="Expense" class="ffm-num">৳<t t-esc="'%.0f' % dr['expense']"/></td>
+                                                <td class="ffm-rtable-action ffm-rtable-wide">
+                                                    <a t-attf-href="/ff/report/cards?mode=daily&amp;report_type=individual&amp;employee_id=#{target_employee.id}&amp;date=#{dr['date']}">Daily card →</a>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </t>
 
                     <!-- Single Day Attendance Snapshot (if daily mode) -->
                     <t t-if="mode == 'daily'">
@@ -2364,10 +2423,11 @@
                         </div>
                         <t t-if="chemist_visits">
                             <div style="overflow-x: auto;">
-                                <table style="width: 100%; border-collapse: collapse; font-size: 0.82rem;">
+                                <table class="ffm-rtable">
                                     <thead>
                                         <tr style="background: #f1f5f9; color: #475569; text-align: left; border-bottom: 1px solid #cbd5e1;">
                                             <th style="padding: 8px 10px; width: 36px; text-align: center;">#</th>
+                                            <th t-if="mode == 'monthly'" style="padding: 8px 10px; width: 90px;">Date</th>
                                             <th style="padding: 8px 10px;">Chemist / Pharmacy Name</th>
                                             <th style="padding: 8px 10px; text-align: right; width: 110px;">Order</th>
                                             <th style="padding: 8px 10px; text-align: right; width: 110px;">Sale</th>
@@ -2377,25 +2437,26 @@
                                     <tbody>
                                         <t t-foreach="chemist_visits" t-as="c">
                                             <tr style="border-bottom: 1px solid #f1f5f9;">
-                                                <td style="padding: 8px 10px; text-align: center; color: #94a3b8;"><t t-esc="c_index + 1"/></td>
-                                                <td style="padding: 8px 10px;">
+                                                <td data-label="#" class="ffm-rtable-index" style="padding: 8px 10px; text-align: center; color: #94a3b8;"><t t-esc="c_index + 1"/></td>
+                                                <td t-if="mode == 'monthly'" data-label="Date" style="padding: 8px 10px; color: #64748b; white-space: nowrap;"><t t-esc="c.report_id.date.strftime('%d %b') if c.report_id.date else ''"/></td>
+                                                <td data-label="Chemist / Pharmacy Name" class="ffm-rtable-title" style="padding: 8px 10px;">
                                                     <strong style="color: #0f172a;"><t t-esc="c.chemist_id.name or c.chemist_name_manual"/></strong>
                                                     <t t-if="c.address">
                                                         <div style="font-size: 0.75rem; color: #64748b; margin-top: 1px;"><t t-esc="c.address"/></div>
                                                     </t>
                                                 </td>
-                                                <td style="padding: 8px 10px; text-align: right; font-weight: 700; color: #047857;">৳<t t-esc="'%.0f' % c.order_tk"/></td>
-                                                <td style="padding: 8px 10px; text-align: right; color: #1f2937;">৳<t t-esc="'%.0f' % c.sale_tk"/></td>
-                                                <td style="padding: 8px 10px; text-align: right; color: #854d0e;">৳<t t-esc="'%.0f' % c.coll_tk"/></td>
+                                                <td data-label="Order" style="padding: 8px 10px; text-align: right; font-weight: 700; color: #047857;">৳<t t-esc="'%.0f' % c.order_tk"/></td>
+                                                <td data-label="Sale" style="padding: 8px 10px; text-align: right; color: #1f2937;">৳<t t-esc="'%.0f' % c.sale_tk"/></td>
+                                                <td data-label="Collection" style="padding: 8px 10px; text-align: right; color: #854d0e;">৳<t t-esc="'%.0f' % c.coll_tk"/></td>
                                             </tr>
                                         </t>
                                     </tbody>
                                     <tfoot>
                                         <tr style="background: #f8fafc; font-weight: 700; border-top: 2px solid #cbd5e1;">
-                                            <td colspan="2" style="padding: 8px 10px; text-align: right; color: #334155;">Subtotal:</td>
-                                            <td style="padding: 8px 10px; text-align: right; color: #047857;">৳<t t-esc="'%.0f' % total_order"/></td>
-                                            <td style="padding: 8px 10px; text-align: right; color: #1f2937;">৳<t t-esc="'%.0f' % total_sale"/></td>
-                                            <td style="padding: 8px 10px; text-align: right; color: #854d0e;">৳<t t-esc="'%.0f' % total_coll"/></td>
+                                            <td t-att-colspan="3 if mode == 'monthly' else 2" class="ffm-rtable-foot-label" style="padding: 8px 10px; text-align: right; color: #334155;">Subtotal:</td>
+                                            <td data-label="Order" style="padding: 8px 10px; text-align: right; color: #047857;">৳<t t-esc="'%.0f' % total_order"/></td>
+                                            <td data-label="Sale" style="padding: 8px 10px; text-align: right; color: #1f2937;">৳<t t-esc="'%.0f' % total_sale"/></td>
+                                            <td data-label="Collection" style="padding: 8px 10px; text-align: right; color: #854d0e;">৳<t t-esc="'%.0f' % total_coll"/></td>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -2415,10 +2476,11 @@
                         </div>
                         <t t-if="doctor_visits">
                             <div style="overflow-x: auto;">
-                                <table style="width: 100%; border-collapse: collapse; font-size: 0.82rem;">
+                                <table class="ffm-rtable">
                                     <thead>
                                         <tr style="background: #f1f5f9; color: #475569; text-align: left; border-bottom: 1px solid #cbd5e1;">
                                             <th style="padding: 8px 10px; width: 36px; text-align: center;">#</th>
+                                            <th t-if="mode == 'monthly'" style="padding: 8px 10px; width: 90px;">Date</th>
                                             <th style="padding: 8px 10px; width: 220px;">Doctor / Prescriber</th>
                                             <th style="padding: 8px 10px; width: 80px; text-align: center;">Grade</th>
                                             <th style="padding: 8px 10px;">Discussion &amp; Literature</th>
@@ -2428,19 +2490,20 @@
                                     <tbody>
                                         <t t-foreach="doctor_visits" t-as="d">
                                             <tr style="border-bottom: 1px solid #f1f5f9;">
-                                                <td style="padding: 8px 10px; text-align: center; color: #94a3b8;"><t t-esc="d_index + 1"/></td>
-                                                <td style="padding: 8px 10px;">
+                                                <td data-label="#" class="ffm-rtable-index" style="padding: 8px 10px; text-align: center; color: #94a3b8;"><t t-esc="d_index + 1"/></td>
+                                                <td t-if="mode == 'monthly'" data-label="Date" style="padding: 8px 10px; color: #64748b; white-space: nowrap;"><t t-esc="d.report_id.date.strftime('%d %b') if d.report_id.date else ''"/></td>
+                                                <td data-label="Doctor / Prescriber" class="ffm-rtable-title" style="padding: 8px 10px;">
                                                     <strong style="color: #0f172a;"><t t-esc="d.prescriber_id.name or d.prescriber_name_manual"/></strong>
                                                 </td>
-                                                <td style="padding: 8px 10px; text-align: center;">
+                                                <td data-label="Grade" style="padding: 8px 10px; text-align: center;">
                                                     <span class="ffm-badge" style="background: #f3f4f6; color: #1f2937; padding: 2px 6px; border-radius: 4px; font-size: 0.72rem; font-weight: 600;">
                                                         Grade <t t-esc="d.grade.upper() if d.grade else 'A'"/>
                                                     </span>
                                                 </td>
-                                                <td style="padding: 8px 10px; color: #334155;">
+                                                <td data-label="Discussion &amp; Literature" style="padding: 8px 10px; color: #334155;">
                                                     <t t-esc="d.product_discussion or 'General Discussion'"/>
                                                 </td>
-                                                <td style="padding: 8px 10px; color: #64748b;">
+                                                <td data-label="Sample / Item" style="padding: 8px 10px; color: #64748b;">
                                                     <t t-esc="d.sample or 'None'"/>
                                                 </td>
                                             </tr>
@@ -2463,10 +2526,11 @@
                         </div>
                         <t t-if="farm_visits">
                             <div style="overflow-x: auto;">
-                                <table style="width: 100%; border-collapse: collapse; font-size: 0.82rem;">
+                                <table class="ffm-rtable">
                                     <thead>
                                         <tr style="background: #f1f5f9; color: #475569; text-align: left; border-bottom: 1px solid #cbd5e1;">
                                             <th style="padding: 8px 10px; width: 36px; text-align: center;">#</th>
+                                            <th t-if="mode == 'monthly'" style="padding: 8px 10px; width: 90px;">Date</th>
                                             <th style="padding: 8px 10px; width: 220px;">Farm / Client Name</th>
                                             <th style="padding: 8px 10px; width: 140px;">Flock / Animals</th>
                                             <th style="padding: 8px 10px;">Discussion &amp; Recommendations</th>
@@ -2475,14 +2539,15 @@
                                     <tbody>
                                         <t t-foreach="farm_visits" t-as="f">
                                             <tr style="border-bottom: 1px solid #f1f5f9;">
-                                                <td style="padding: 8px 10px; text-align: center; color: #94a3b8;"><t t-esc="f_index + 1"/></td>
-                                                <td style="padding: 8px 10px;">
+                                                <td data-label="#" class="ffm-rtable-index" style="padding: 8px 10px; text-align: center; color: #94a3b8;"><t t-esc="f_index + 1"/></td>
+                                                <td t-if="mode == 'monthly'" data-label="Date" style="padding: 8px 10px; color: #64748b; white-space: nowrap;"><t t-esc="f.report_id.date.strftime('%d %b') if f.report_id.date else ''"/></td>
+                                                <td data-label="Farm / Client Name" class="ffm-rtable-title" style="padding: 8px 10px;">
                                                     <strong style="color: #0f172a;"><t t-esc="f.farm_name"/></strong>
                                                     <t t-if="f.address">
                                                         <div style="font-size: 0.75rem; color: #64748b; margin-top: 1px;"><t t-esc="f.address"/></div>
                                                     </t>
                                                 </td>
-                                                <td style="padding: 8px 10px;">
+                                                <td data-label="Flock / Animals" style="padding: 8px 10px;">
                                                     <t t-if="f.bird_count">
                                                         <span class="ffm-badge" style="background: #fef3c7; color: #92400e; padding: 2px 6px; border-radius: 4px; font-size: 0.72rem; font-weight: 600;">
                                                             <t t-esc="f.bird_count"/> Birds/Animals
@@ -2494,7 +2559,7 @@
                                                         <t t-if="f.cattle">Cattle: <t t-esc="f.cattle"/></t>
                                                     </div>
                                                 </td>
-                                                <td style="padding: 8px 10px; color: #334155;">
+                                                <td data-label="Discussion &amp; Recommendations" style="padding: 8px 10px; color: #334155;">
                                                     <t t-esc="f.note or 'Farm visit conducted'"/>
                                                 </td>
                                             </tr>
@@ -2517,10 +2582,11 @@
                         </div>
                         <t t-if="journey_legs">
                             <div style="overflow-x: auto;">
-                                <table style="width: 100%; border-collapse: collapse; font-size: 0.82rem;">
+                                <table class="ffm-rtable">
                                     <thead>
                                         <tr style="background: #f1f5f9; color: #475569; text-align: left; border-bottom: 1px solid #cbd5e1;">
                                             <th style="padding: 8px 10px; width: 36px; text-align: center;">#</th>
+                                            <th t-if="mode == 'monthly'" style="padding: 8px 10px; width: 90px;">Date</th>
                                             <th style="padding: 8px 10px;">Visit</th>
                                             <th style="padding: 8px 10px; width: 120px;">Mode</th>
                                             <th style="padding: 8px 10px; text-align: right; width: 110px;">T.A. Bill</th>
@@ -2529,14 +2595,15 @@
                                     <tbody>
                                         <t t-foreach="journey_legs" t-as="j">
                                             <tr style="border-bottom: 1px solid #f1f5f9;">
-                                                <td style="padding: 8px 10px; text-align: center; color: #94a3b8;"><t t-esc="j_index + 1"/></td>
-                                                <td style="padding: 8px 10px; font-weight: 600; color: #0f172a;">
+                                                <td data-label="#" class="ffm-rtable-index" style="padding: 8px 10px; text-align: center; color: #94a3b8;"><t t-esc="j_index + 1"/></td>
+                                                <td t-if="mode == 'monthly'" data-label="Date" style="padding: 8px 10px; color: #64748b; white-space: nowrap;"><t t-esc="j.travel_log_id.date.strftime('%d %b') if j.travel_log_id.date else ''"/></td>
+                                                <td data-label="Visit" class="ffm-rtable-title" style="padding: 8px 10px; font-weight: 600; color: #0f172a;">
                                                     <t t-if="j.chemist_visit_id">Chemist: <t t-esc="j.chemist_visit_id.chemist_name_manual or j.chemist_visit_id.chemist_id.name"/></t><t t-elif="j.prescriber_visit_id">Doctor: <t t-esc="j.prescriber_visit_id.prescriber_name_manual or j.prescriber_visit_id.prescriber_id.name"/></t><t t-elif="j.farm_visit_id">Farm / Others: <t t-esc="j.farm_visit_id.farm_name"/></t><t t-else=""><t t-esc="j.place_from_id.name"/> → <t t-esc="j.place_to_id.name"/></t>
                                                 </td>
-                                                <td style="padding: 8px 10px; color: #64748b; text-transform: capitalize;">
+                                                <td data-label="Mode" style="padding: 8px 10px; color: #64748b; text-transform: capitalize;">
                                                     <t t-esc="j.mode"/>
                                                 </td>
-                                                <td style="padding: 8px 10px; text-align: right; font-weight: 700; color: #b45309;">
+                                                <td data-label="T.A. Bill" style="padding: 8px 10px; text-align: right; font-weight: 700; color: #b45309;">
                                                     ৳<t t-esc="'%.0f' % j.fare_tk"/>
                                                 </td>
                                             </tr>
@@ -2544,8 +2611,8 @@
                                     </tbody>
                                     <tfoot>
                                         <tr style="background: #f8fafc; font-weight: 700; border-top: 2px solid #cbd5e1;">
-                                            <td colspan="3" style="padding: 8px 10px; text-align: right; color: #334155;">Subtotal:</td>
-                                            <td style="padding: 8px 10px; text-align: right; color: #b45309;">৳<t t-esc="'%.0f' % total_fare"/></td>
+                                            <td t-att-colspan="4 if mode == 'monthly' else 3" class="ffm-rtable-foot-label" style="padding: 8px 10px; text-align: right; color: #334155;">Subtotal:</td>
+                                            <td data-label="T.A. Bill" style="padding: 8px 10px; text-align: right; color: #b45309;">৳<t t-esc="'%.0f' % total_fare"/></td>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -2565,7 +2632,7 @@
                         </div>
                         <t t-if="daily_expenses">
                             <div style="overflow-x: auto;">
-                                <table style="width: 100%; border-collapse: collapse; font-size: 0.82rem;">
+                                <table class="ffm-rtable">
                                     <thead>
                                         <tr style="background: #f1f5f9; color: #475569; text-align: left; border-bottom: 1px solid #cbd5e1;">
                                             <th style="padding: 8px 10px; width: 36px; text-align: center;">#</th>
@@ -2577,8 +2644,8 @@
                                     <tbody>
                                         <t t-foreach="daily_expenses" t-as="exp">
                                             <tr style="border-bottom: 1px solid #f1f5f9;">
-                                                <td style="padding: 8px 10px; text-align: center; color: #94a3b8;"><t t-esc="exp_index + 1"/></td>
-                                                <td style="padding: 8px 10px; color: #334155;">
+                                                <td data-label="#" class="ffm-rtable-index" style="padding: 8px 10px; text-align: center; color: #94a3b8;"><t t-esc="exp_index + 1"/></td>
+                                                <td data-label="Expense Item Breakdown" class="ffm-rtable-title" style="padding: 8px 10px; color: #334155;">
                                                     <span style="font-weight: 600; color: #0f172a;">Entry #<t t-esc="exp.id"/>:</span>
                                                     <t t-if="exp.entertainment"> Entertainment: ৳<t t-esc="'%.0f' % exp.entertainment"/> • </t>
                                                     <t t-if="exp.courier"> Courier: ৳<t t-esc="'%.0f' % exp.courier"/> • </t>
@@ -2587,10 +2654,10 @@
                                                     <t t-if="exp.bike"> Bike: ৳<t t-esc="'%.0f' % exp.bike"/> • </t>
                                                     <t t-if="exp.promotion"> Promotion: ৳<t t-esc="'%.0f' % exp.promotion"/></t>
                                                 </td>
-                                                <td style="padding: 8px 10px; text-align: center; color: #64748b;">
+                                                <td data-label="Date" style="padding: 8px 10px; text-align: center; color: #64748b;">
                                                     <t t-esc="exp.date"/>
                                                 </td>
-                                                <td style="padding: 8px 10px; text-align: right; font-weight: 700; color: #047857;">
+                                                <td data-label="Amount" style="padding: 8px 10px; text-align: right; font-weight: 700; color: #047857;">
                                                     ৳<t t-esc="'%.0f' % exp.total_amount"/>
                                                 </td>
                                             </tr>
@@ -2598,8 +2665,8 @@
                                     </tbody>
                                     <tfoot>
                                         <tr style="background: #f8fafc; font-weight: 700; border-top: 2px solid #cbd5e1;">
-                                            <td colspan="3" style="padding: 8px 10px; text-align: right; color: #334155;">Total Expenses:</td>
-                                            <td style="padding: 8px 10px; text-align: right; color: #047857;">৳<t t-esc="'%.0f' % total_expense"/></td>
+                                            <td colspan="3" class="ffm-rtable-foot-label" style="padding: 8px 10px; text-align: right; color: #334155;">Total Expenses:</td>
+                                            <td data-label="Amount" style="padding: 8px 10px; text-align: right; color: #047857;">৳<t t-esc="'%.0f' % total_expense"/></td>
                                         </tr>
                                     </tfoot>
                                 </table>

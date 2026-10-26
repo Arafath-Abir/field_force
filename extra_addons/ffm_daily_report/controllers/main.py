@@ -1016,6 +1016,7 @@ class FFMController(http.Controller):
         else:
             # Field Person: No subordinates
             subordinates = request.env['hr.employee'].sudo().browse([])
+        subordinates = subordinates.filtered(lambda e: e.ffm_role in ('rsm', 'asm', 'fp'))
 
         # Filter subordinates by search query if present
         filtered_subordinates = subordinates
@@ -1108,6 +1109,9 @@ class FFMController(http.Controller):
         journey_legs = []
         daily_expenses = []
         team_members_data = []
+        day_rows = []
+        present_days = 0
+        period_days = (date_end - date_start).days + 1
 
         total_order = 0.0
         total_sale = 0.0
@@ -1130,12 +1134,19 @@ class FFMController(http.Controller):
                 ('date', '<=', date_end),
             ], order='date desc')
 
-            # Pre-fetch attendance for date_start
+            # Attendance: today's record in daily mode, present-day count in monthly mode
             attendances = request.env['ffm.attendance'].sudo().search([
                 ('employee_id', 'in', emp_ids),
-                ('date', '=', date_start)
+                ('date', '>=', date_start),
+                ('date', '<=', date_end),
             ])
-            att_map = {att.employee_id.id: att for att in attendances}
+            att_map = {}
+            present_days_map = {}
+            for att in attendances:
+                eid = att.employee_id.id
+                present_days_map[eid] = present_days_map.get(eid, 0) + 1
+                if att.date == date_start:
+                    att_map[eid] = att
 
             # Map metrics per subordinate
             emp_metrics = {}
@@ -1143,6 +1154,7 @@ class FFMController(http.Controller):
                 emp_metrics[emp.id] = {
                     'employee': emp,
                     'attendance': att_map.get(emp.id, False),
+                    'present_days': present_days_map.get(emp.id, 0),
                     'reports_count': 0,
                     'order': 0.0,
                     'sale': 0.0,
@@ -1283,6 +1295,35 @@ class FFMController(http.Controller):
                     ], order='date desc, id desc'))
                     total_expense = sum(e.total_amount for e in daily_expenses)
 
+                    # Day-by-day summary (newest first) so the month reads like a set of daily cards
+                    month_att = request.env['ffm.attendance'].sudo().search([
+                        ('employee_id', '=', target_employee.id),
+                        ('date', '>=', date_start),
+                        ('date', '<=', date_end),
+                    ])
+                    att_by_day = {a.date: a for a in month_att}
+                    present_days = len(att_by_day)
+                    rep_by_day = {r.date: r for r in monthly_reports}
+                    exp_by_day = {}
+                    for e in daily_expenses:
+                        exp_by_day[e.date] = exp_by_day.get(e.date, 0.0) + e.total_amount
+                    day = date_end
+                    while day >= date_start:
+                        r = rep_by_day.get(day)
+                        chem = r.chemist_visit_ids if r else []
+                        day_rows.append({
+                            'date': day,
+                            'attendance': att_by_day.get(day, False),
+                            'chemists': len(chem),
+                            'doctors': len(r.prescriber_visit_ids) if r else 0,
+                            'farms': len(r.farm_visit_ids) if r else 0,
+                            'order': sum(c.order_tk for c in chem),
+                            'sale': sum(c.sale_tk for c in chem),
+                            'coll': sum(c.coll_tk for c in chem),
+                            'expense': exp_by_day.get(day, 0.0),
+                        })
+                        day -= timedelta(days=1)
+
                 total_chemists_count = len(chemist_visits)
                 total_doctors_count = len(doctor_visits)
                 total_farms_count = len(farm_visits)
@@ -1328,6 +1369,11 @@ class FFMController(http.Controller):
             'people_json': self._ffm_people_json(ff_team),
             'mode': mode,
             'report_type': report_type,
+            'day_rows': day_rows,
+            'period_month': '%02d' % date_start.month,
+            'period_year': date_start.year,
+            'present_days': present_days,
+            'period_days': period_days,
             'query_date': str(date_start),
             'period_label': period_label,
             'allowed_subordinates': subordinates,
