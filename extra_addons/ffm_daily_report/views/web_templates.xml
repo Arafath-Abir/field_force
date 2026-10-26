@@ -13,7 +13,7 @@
                 <meta name="theme-color" content="#047857"/>
                 <title><t t-esc="app_name or 'Newtec FFM'"/></title>
                 <link rel="manifest" href="/ff/manifest.json"/>
-                                <link rel="stylesheet" href="/ffm_daily_report/static/src/css/ffm_mobile.css?v=2.5.0"/>
+                                <link rel="stylesheet" href="/ffm_daily_report/static/src/css/ffm_mobile.css?v=2.6.2"/>
                 <style>
                     svg {
                         fill: none !important;
@@ -54,7 +54,7 @@
                         padding: 10px 8px !important;
                     }
                 </style>
-                <script src="/ffm_daily_report/static/src/js/ffm_app.js?v=2.5.0"></script>
+                <script src="/ffm_daily_report/static/src/js/ffm_app.js?v=2.6.0"></script>
             </head>
             <body>
                 <!-- Header -->
@@ -269,14 +269,14 @@
     <template id="ff_attendance" name="FFM Marketer Attendance">
         <t t-call="ffm_daily_report.ff_layout">
             <a href="/ff" class="ffm-back-link">
-                <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Back to Dashboard
+                <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Home
             </a>
 
             <div class="ffm-form-card">
                 <div class="ffm-form-header">
                     <div>
                         <h2 class="ffm-form-title">
-                            <svg class="ffm-icon ffm-icon-sm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 6px; color: #107c41;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> Daily Field Attendance
+                            <svg class="ffm-icon ffm-icon-sm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 6px; color: #0f5132;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> Daily Field Attendance
                         </h2>
                         <p class="ffm-form-subtitle">Tap submit to record your reporting time with live location.</p>
                     </div>
@@ -287,7 +287,7 @@
 
                 <!-- Case A: Already submitted today -->
                 <t t-if="attendance">
-                    <div style="background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%); border: 1.5px solid #86efac; border-radius: 12px; padding: 18px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(16, 124, 65, 0.06);">
+                    <div style="background: #ffffff; border: 1px solid #e4e7ec; border-radius: 12px; padding: 18px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(16, 124, 65, 0.06);">
                         <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: #15803d; font-size: 0.95rem; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #dcfce7;">
                             <svg class="ffm-icon ffm-icon-sm" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                             Today's Attendance Recorded Successfully
@@ -314,7 +314,7 @@
 
                     <div style="text-align: center;">
                         <a href="/ff" class="ffm-btn ffm-btn-secondary" style="max-width: 240px; margin: 0 auto;">
-                            Return to Dashboard
+                            Back to Home
                         </a>
                     </div>
                 </t>
@@ -378,10 +378,7 @@
                                     if (res.status === 'success') {
                                         FFM.clearDraft('attendance');
                                         FFM.resetUUID('ffm_attendance_uuid');
-                                        FFM.showToast(res.message || 'Attendance submitted successfully!', 'success');
-                                        setTimeout(function() {
-                                            window.location.reload();
-                                        }, 1200);
+                                        FFM.goHome(res.message || 'Attendance submitted successfully!');
                                     } else {
                                         release();
                                         FFM.showToast(res.message || 'Failed to submit attendance.', 'error');
@@ -405,7 +402,7 @@
     <template id="ff_daily_report" name="FFM Daily Report Header">
         <t t-call="ffm_daily_report.ff_layout">
             <a href="/ff" class="ffm-back-link">
-                <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Back to Dashboard
+                <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Home
             </a>
 
             <div class="ffm-form-card">
@@ -449,11 +446,11 @@
                     <div class="ffm-kpi-grid">
                         <div class="ffm-kpi-card">
                             <div style="font-size: 0.72rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;">Chemists</div>
-                            <div style="font-size: 1.35rem; font-weight: 800; color: #107c41; margin-top: 3px; line-height: 1.2;"><t t-esc="report.total_chemist_visited"/></div>
+                            <div style="font-size: 1.35rem; font-weight: 800; color: #0f5132; margin-top: 3px; line-height: 1.2;"><t t-esc="report.total_chemist_visited"/></div>
                         </div>
                         <div class="ffm-kpi-card">
                             <div style="font-size: 0.72rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;">Doctors</div>
-                            <div style="font-size: 1.35rem; font-weight: 800; color: #0284c7; margin-top: 3px; line-height: 1.2;"><t t-esc="report.total_prescriber_visited"/></div>
+                            <div style="font-size: 1.35rem; font-weight: 800; color: #0f5132; margin-top: 3px; line-height: 1.2;"><t t-esc="report.total_prescriber_visited"/></div>
                         </div>
                         <div class="ffm-kpi-card">
                             <div style="font-size: 0.72rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;">Farms</div>
@@ -468,7 +465,7 @@
                             <div style="font-size: 1.15rem; font-weight: 800; color: #14532d; margin-top: 3px; line-height: 1.2;">Tk <t t-esc="'%.0f' % report.total_order_tk"/></div>
                         </div>
                         <div class="ffm-fin-card ffm-fin-card--sale" style="text-align: center;">
-                            <div style="font-size: 0.72rem; color: #1e40af; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;">Sale Total</div>
+                            <div style="font-size: 0.72rem; color: #1f2937; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;">Sale Total</div>
                             <div style="font-size: 1.15rem; font-weight: 800; color: #1e3a8a; margin-top: 3px; line-height: 1.2;">Tk <t t-esc="'%.0f' % report.total_sale_tk"/></div>
                         </div>
                         <div class="ffm-fin-card ffm-fin-card--coll" style="text-align: center;">
@@ -479,7 +476,7 @@
 
                     <!-- Quick Visit Entry Action Tiles (2-Col Desktop Grid) -->
                     <div class="ffm-action-grid">
-                        <a href="/ff/visit/chemist" class="ffm-action-tile" style="border-left: 3.5px solid #107c41;">
+                        <a href="/ff/visit/chemist" class="ffm-action-tile" style="border-left: 3.5px solid #0f5132;">
                             <div class="ffm-action-tile-icon" style="background: #ecfdf5; color: #059669;">
                                 <svg class="ffm-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"></path><path d="m8.5 8.5 7 7"></path></svg>
                             </div>
@@ -492,8 +489,8 @@
                             </div>
                         </a>
 
-                        <a href="/ff/visit/doctor" class="ffm-action-tile" style="border-left: 3.5px solid #0284c7;">
-                            <div class="ffm-action-tile-icon" style="background: #eff6ff; color: #0284c7;">
+                        <a href="/ff/visit/doctor" class="ffm-action-tile" style="border-left: 3.5px solid #0f5132;">
+                            <div class="ffm-action-tile-icon" style="background: #f3f4f6; color: #0f5132;">
                                 <svg class="ffm-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 3v5a4.5 4.5 0 0 0 9 0V3"></path><path d="M9 12.5V17a4 4 0 0 0 4 4h1a4 4 0 0 0 4-4v-3.5"></path><circle cx="18" cy="11.5" r="2"></circle><circle cx="4.5" cy="3" r="1.5"></circle><circle cx="13.5" cy="3" r="1.5"></circle></svg>
                             </div>
                             <div class="ffm-action-tile-content">
@@ -518,8 +515,8 @@
                             </div>
                         </a>
 
-                        <a href="/ff/report/cards" class="ffm-action-tile" style="border-left: 3.5px solid #4f46e5;">
-                            <div class="ffm-action-tile-icon" style="background: #eef2ff; color: #4f46e5;">
+                        <a href="/ff/report/cards" class="ffm-action-tile" style="border-left: 3.5px solid #0f5132;">
+                            <div class="ffm-action-tile-icon" style="background: #f3f4f6; color: #0f5132;">
                                 <svg class="ffm-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                             </div>
                             <div class="ffm-action-tile-content">
@@ -538,7 +535,7 @@
                             <button t-if="approval_enabled" type="button" id="btnSubmitReport" class="ffm-btn ffm-btn-primary" onclick="submitDailyReport()" style="flex: 2; min-width: 180px;">
                                 <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Finalize &amp; Submit Report
                             </button>
-                            <a t-attf-href="/ff/report/daily/pdf?report_id=#{report.id}" target="_blank" class="ffm-btn ffm-btn-secondary" style="flex: 1; min-width: 140px; text-decoration: none; background: #eef2ff; color: #3730a3; border-color: #c7d2fe;">
+                            <a t-attf-href="/ff/report/daily/pdf?report_id=#{report.id}" target="_blank" class="ffm-btn ffm-btn-secondary" style="flex: 1; min-width: 140px; text-decoration: none; background: #f3f4f6; color: #1f2937; border-color: #f3f4f6;">
                                 <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Download PDF
                             </a>
                         </div>
@@ -548,7 +545,7 @@
                             <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 4px;"><polyline points="20 6 9 17 4 12"></polyline></svg> Today's report has already been submitted for management review.
                         </div>
                         <div style="text-align: center;">
-                            <a t-attf-href="/ff/report/daily/pdf?report_id=#{report.id}" target="_blank" class="ffm-btn ffm-btn-secondary" style="text-decoration: none; background: #eef2ff; color: #3730a3; border-color: #c7d2fe; padding: 10px 18px; font-size: 0.90rem; max-width: 320px; margin: 0 auto;">
+                            <a t-attf-href="/ff/report/daily/pdf?report_id=#{report.id}" target="_blank" class="ffm-btn ffm-btn-secondary" style="text-decoration: none; background: #f3f4f6; color: #1f2937; border-color: #f3f4f6; padding: 10px 18px; font-size: 0.90rem; max-width: 320px; margin: 0 auto;">
                                 <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Download Today's Report PDF
                             </a>
                         </div>
@@ -571,8 +568,7 @@
                             .then(function(data) {
                                 var res = data.result || data;
                                 if (res.status === 'success') {
-                                    FFM.showToast(res.message, 'success');
-                                    setTimeout(function() { window.location.reload(); }, 1200);
+                                    FFM.goHome(res.message);
                                 } else {
                                     release();
                                     FFM.showToast(res.message, 'error');
@@ -654,7 +650,7 @@
     <template id="ff_visit_chemist" name="FFM Chemist Visit Form">
         <t t-call="ffm_daily_report.ff_layout">
             <a href="/ff" class="ffm-back-link">
-                <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Back to Dashboard
+                <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Home
             </a>
 
             <div class="ffm-form-card">
@@ -746,7 +742,7 @@
                                 </label>
                                 <div class="ffm-currency-wrap">
                                     <span class="ffm-currency-prefix">Tk</span>
-                                    <input type="number" id="fare_tk" class="ffm-form-control" min="0" step="1" value="0" required="required" style="color: #1e40af;"/>
+                                    <input type="number" id="fare_tk" class="ffm-form-control" min="0" step="1" value="0" required="required" style="color: #1f2937;"/>
                                 </div>
                             </div>
                         </div>
@@ -818,8 +814,7 @@
                             var res = data.result || data;
                             if (res.status === 'success') {
                                 FFM.resetUUID('ffm_chemist_visit_uuid');
-                                FFM.showToast(res.message, 'success');
-                                setTimeout(function() { window.location.href = '/ff/report/cards'; }, 1000);
+                                FFM.goHome(res.message);
                             } else {
                                 release();
                                 FFM.showToast(res.message, 'error');
@@ -841,7 +836,7 @@
     <template id="ff_visit_doctor" name="FFM Doctor Visit Form">
         <t t-call="ffm_daily_report.ff_layout">
             <a href="/ff" class="ffm-back-link">
-                <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Back to Dashboard
+                <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Home
             </a>
 
             <div class="ffm-form-card">
@@ -935,7 +930,7 @@
                                 </label>
                                 <div class="ffm-currency-wrap">
                                     <span class="ffm-currency-prefix">Tk</span>
-                                    <input type="number" id="doc_fare_tk" class="ffm-form-control" min="0" step="1" value="0" required="required" style="color: #1e40af;"/>
+                                    <input type="number" id="doc_fare_tk" class="ffm-form-control" min="0" step="1" value="0" required="required" style="color: #1f2937;"/>
                                 </div>
                             </div>
                         </div>
@@ -990,8 +985,7 @@
                             var res = data.result || data;
                             if (res.status === 'success') {
                                 FFM.resetUUID('ffm_doctor_visit_uuid');
-                                FFM.showToast(res.message, 'success');
-                                setTimeout(function() { window.location.href = '/ff/report/cards'; }, 1000);
+                                FFM.goHome(res.message);
                             } else {
                                 release();
                                 FFM.showToast(res.message, 'error');
@@ -1013,7 +1007,7 @@
     <template id="ff_visit_farm" name="FFM Farm Visit Form">
         <t t-call="ffm_daily_report.ff_layout">
             <a href="/ff" class="ffm-back-link">
-                <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Back to Dashboard
+                <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Home
             </a>
 
             <div class="ffm-form-card">
@@ -1112,7 +1106,7 @@
                                 </label>
                                 <div class="ffm-currency-wrap">
                                     <span class="ffm-currency-prefix">Tk</span>
-                                    <input type="number" id="farm_fare_tk" class="ffm-form-control" min="0" step="1" value="0" required="required" style="color: #1e40af;"/>
+                                    <input type="number" id="farm_fare_tk" class="ffm-form-control" min="0" step="1" value="0" required="required" style="color: #1f2937;"/>
                                 </div>
                             </div>
                         </div>
@@ -1168,8 +1162,7 @@
                             var res = data.result || data;
                             if (res.status === 'success') {
                                 FFM.resetUUID('ffm_farm_visit_uuid');
-                                FFM.showToast(res.message, 'success');
-                                setTimeout(function() { window.location.href = '/ff/report/cards'; }, 1000);
+                                FFM.goHome(res.message);
                             } else {
                                 release();
                                 FFM.showToast(res.message, 'error');
@@ -1191,14 +1184,14 @@
     <template id="ff_entries_today" name="FFM Today Entries and Summary">
         <t t-call="ffm_daily_report.ff_layout">
             <a href="/ff" class="ffm-back-link">
-                <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Back to Dashboard
+                <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Home
             </a>
 
             <div class="ffm-form-card">
                 <div class="ffm-form-header">
                     <div>
                         <h2 class="ffm-form-title">
-                            <svg class="ffm-icon ffm-icon-sm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 6px; color: #4f46e5;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg> Daily Field Entries &amp; Summary
+                            <svg class="ffm-icon ffm-icon-sm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 6px; color: #0f5132;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg> Daily Field Entries &amp; Summary
                         </h2>
                         <p class="ffm-form-subtitle">Real-time log of customer visits, journey legs, and recorded expenses.</p>
                     </div>
@@ -1217,7 +1210,7 @@
                 </div>
 
                 <!-- Day Performance Summary Card -->
-                <div style="background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%); border: 1.5px solid #cbd5e1; border-radius: 10px; padding: 16px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+                <div style="background: #ffffff; border: 1px solid #e4e7ec; border-radius: 10px; padding: 16px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #f1f5f9;">
                         <span style="font-size: 0.88rem; font-weight: 700; color: #1e293b;">Daily Field Performance</span>
                         <span class="ffm-badge ffm-badge-neutral" style="font-size: 0.74rem;">Date: <t t-esc="today_str"/></span>
@@ -1228,9 +1221,9 @@
                             <div style="font-size: 0.72rem; color: #047857; font-weight: 600; text-transform: uppercase;">Order (Tk)</div>
                             <div style="font-size: 1.10rem; font-weight: 800; color: #065f46; margin-top: 2px;">Tk <t t-esc="'%.0f' % (report.total_order_tk if report else 0)"/></div>
                         </div>
-                        <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 10px; border-radius: 8px;">
-                            <div style="font-size: 0.72rem; color: #1d4ed8; font-weight: 600; text-transform: uppercase;">Sale (Tk)</div>
-                            <div style="font-size: 1.10rem; font-weight: 800; color: #1e40af; margin-top: 2px;">Tk <t t-esc="'%.0f' % (report.total_sale_tk if report else 0)"/></div>
+                        <div style="background: #f3f4f6; border: 1px solid #f3f4f6; padding: 10px; border-radius: 8px;">
+                            <div style="font-size: 0.72rem; color: #0f5132; font-weight: 600; text-transform: uppercase;">Sale (Tk)</div>
+                            <div style="font-size: 1.10rem; font-weight: 800; color: #1f2937; margin-top: 2px;">Tk <t t-esc="'%.0f' % (report.total_sale_tk if report else 0)"/></div>
                         </div>
                         <div style="background: #fefce8; border: 1px solid #fef08a; padding: 10px; border-radius: 8px;">
                             <div style="font-size: 0.72rem; color: #a16207; font-weight: 600; text-transform: uppercase;">Collection (Tk)</div>
@@ -1244,8 +1237,8 @@
                     </div>
 
                     <div style="display: flex; justify-content: space-between; font-size: 0.82rem; color: #475569; padding-top: 8px; border-top: 1px solid #e2e8f0; flex-wrap: wrap; gap: 8px;">
-                        <span>Chemists: <strong style="color: #107c41;"><t t-esc="len(chemist_visits)"/></strong></span>
-                        <span>Doctors: <strong style="color: #0284c7;"><t t-esc="len(doctor_visits)"/></strong> (A+: <t t-esc="grade_counts['a_plus']"/>, A: <t t-esc="grade_counts['a']"/>, B: <t t-esc="grade_counts['b']"/>)</span>
+                        <span>Chemists: <strong style="color: #0f5132;"><t t-esc="len(chemist_visits)"/></strong></span>
+                        <span>Doctors: <strong style="color: #0f5132;"><t t-esc="len(doctor_visits)"/></strong> (A+: <t t-esc="grade_counts['a_plus']"/>, A: <t t-esc="grade_counts['a']"/>, B: <t t-esc="grade_counts['b']"/>)</span>
                         <span>Farms: <strong style="color: #d97706;"><t t-esc="len(farm_visits)"/></strong></span>
                         <span>Travel Legs: <strong style="color: #6366f1;"><t t-esc="len(journey_legs)"/></strong></span>
                     </div>
@@ -1278,10 +1271,10 @@
                             <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; font-size: 0.85rem; background: #ffffff; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
                                 <div style="display: flex; justify-content: space-between; align-items: center; font-weight: 700; margin-bottom: 4px;">
                                     <span style="color: #0f172a;"><t t-esc="c.chemist_id.name or c.chemist_name_manual"/></span>
-                                    <span style="color: #107c41; font-size: 0.92rem;">Tk <t t-esc="'%.0f' % c.order_tk"/> <span style="font-size: 0.72rem; font-weight: 600; color: #64748b;">(Order)</span></span>
+                                    <span style="color: #0f5132; font-size: 0.92rem;">Tk <t t-esc="'%.0f' % c.order_tk"/> <span style="font-size: 0.72rem; font-weight: 600; color: #64748b;">(Order)</span></span>
                                 </div>
                                 <div style="color: #64748b; font-size: 0.80rem;">
-                                    Sale: <strong style="color: #1e40af;">Tk <t t-esc="'%.0f' % c.sale_tk"/></strong> | Collection: <strong style="color: #854d0e;">Tk <t t-esc="'%.0f' % c.coll_tk"/></strong>
+                                    Sale: <strong style="color: #1f2937;">Tk <t t-esc="'%.0f' % c.sale_tk"/></strong> | Collection: <strong style="color: #854d0e;">Tk <t t-esc="'%.0f' % c.coll_tk"/></strong>
                                     <t t-if="c.address"> | <t t-esc="c.address"/></t>
                                 </div>
                                 <t t-if="c.note">
@@ -1308,7 +1301,7 @@
                             <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; font-size: 0.85rem; background: #ffffff; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
                                 <div style="display: flex; justify-content: space-between; align-items: center; font-weight: 700; margin-bottom: 4px;">
                                     <span style="color: #0f172a;"><t t-esc="d.prescriber_id.name or d.prescriber_name_manual"/></span>
-                                    <span class="ffm-badge" style="background: #e0e7ff; color: #3730a3; font-weight: 700;">Grade <t t-esc="d.grade.upper() if d.grade else ''"/></span>
+                                    <span class="ffm-badge" style="background: #f3f4f6; color: #1f2937; font-weight: 700;">Grade <t t-esc="d.grade.upper() if d.grade else ''"/></span>
                                 </div>
                                 <div style="color: #64748b; font-size: 0.80rem;">
                                     Phone: <t t-esc="d.mobile or 'N/A'"/> | Chamber: <t t-esc="d.mailing_address or 'N/A'"/>
@@ -1422,7 +1415,7 @@
     <template id="ff_daily_expense" name="FFM Marketer Daily Expense">
         <t t-call="ffm_daily_report.ff_layout">
             <a href="/ff" class="ffm-back-link">
-                <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Back to Dashboard
+                <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Home
             </a>
 
             <div class="ffm-form-card">
@@ -1443,8 +1436,8 @@
                     </div>
                 </div>
 
-                <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-left: 4px solid #2563eb; padding: 12px 16px; border-radius: 8px; font-size: 0.82rem; color: #1e40af; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
-                    <svg class="ffm-icon ffm-icon-sm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #2563eb; flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                <div style="background: #f3f4f6; border: 1px solid #f3f4f6; border-left: 4px solid #0f5132; padding: 12px 16px; border-radius: 8px; font-size: 0.82rem; color: #1f2937; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                    <svg class="ffm-icon ffm-icon-sm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #0f5132; flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                     <span>At least one category is required (>0). You can attach a receipt/voucher for <strong>Entertainment, Courier, Photocopy, and Hotel Rent</strong> (optional).</span>
                 </div>
 
@@ -1452,7 +1445,7 @@
                     <!-- 4 Voucher-Supported Expenses in Responsive 2-Col Grid -->
                     <div class="ffm-expense-grid">
                         <!-- 1. Entertainment -->
-                        <div class="ffm-expense-card" style="border-top-color: #0284c7;">
+                        <div class="ffm-expense-card">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                                 <label class="ffm-form-label" for="entertainment" style="margin-bottom: 0; font-weight: 700; color: #1e293b;">
                                     <span>Entertainment (Tk)</span>
@@ -1466,7 +1459,7 @@
                             
                             <div id="voucher_box_entertainment" class="ffm-upload-box">
                                 <label for="file_entertainment" style="display: flex; align-items: center; justify-content: center; gap: 7px; padding: 8px 12px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.80rem; font-weight: 600; color: #334155; cursor: pointer; margin-bottom: 0; transition: all 0.15s ease;">
-                                    <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #0284c7;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                                    <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #0f5132;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
                                     <span>Camera / Upload Voucher</span>
                                 </label>
                                 <input type="file" id="file_entertainment" accept="image/*" style="display: none;" onchange="onFileSelected(this, 'preview_ent', 'hidden_v_ent')"/>
@@ -1481,7 +1474,7 @@
                         </div>
 
                         <!-- 2. Courier -->
-                        <div class="ffm-expense-card" style="border-top-color: #107c41;">
+                        <div class="ffm-expense-card">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                                 <label class="ffm-form-label" for="courier" style="margin-bottom: 0; font-weight: 700; color: #1e293b;">
                                     <span>Courier (Tk)</span>
@@ -1495,7 +1488,7 @@
                             
                             <div id="voucher_box_courier" class="ffm-upload-box">
                                 <label for="file_courier" style="display: flex; align-items: center; justify-content: center; gap: 7px; padding: 8px 12px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.80rem; font-weight: 600; color: #334155; cursor: pointer; margin-bottom: 0; transition: all 0.15s ease;">
-                                    <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #107c41;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                                    <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #0f5132;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
                                     <span>Camera / Upload Voucher</span>
                                 </label>
                                 <input type="file" id="file_courier" accept="image/*" style="display: none;" onchange="onFileSelected(this, 'preview_cou', 'hidden_v_cou')"/>
@@ -1510,7 +1503,7 @@
                         </div>
 
                         <!-- 3. Photocopy -->
-                        <div class="ffm-expense-card" style="border-top-color: #7c3aed;">
+                        <div class="ffm-expense-card">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                                 <label class="ffm-form-label" for="photocopy" style="margin-bottom: 0; font-weight: 700; color: #1e293b;">
                                     <span>Photocopy (Tk)</span>
@@ -1524,7 +1517,7 @@
                             
                             <div id="voucher_box_photocopy" class="ffm-upload-box">
                                 <label for="file_photocopy" style="display: flex; align-items: center; justify-content: center; gap: 7px; padding: 8px 12px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.80rem; font-weight: 600; color: #334155; cursor: pointer; margin-bottom: 0; transition: all 0.15s ease;">
-                                    <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #7c3aed;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                                    <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #0f5132;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
                                     <span>Camera / Upload Voucher</span>
                                 </label>
                                 <input type="file" id="file_photocopy" accept="image/*" style="display: none;" onchange="onFileSelected(this, 'preview_pho', 'hidden_v_pho')"/>
@@ -1539,7 +1532,7 @@
                         </div>
 
                         <!-- 4. Hotel Rent -->
-                        <div class="ffm-expense-card" style="border-top-color: #d97706;">
+                        <div class="ffm-expense-card">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                                 <label class="ffm-form-label" for="hotel_rent" style="margin-bottom: 0; font-weight: 700; color: #1e293b;">
                                     <span>Hotel Rent (Tk)</span>
@@ -1806,10 +1799,7 @@
                             var res = data.result || data;
                             if (res.status === 'success') {
                                 FFM.resetUUID('ffm_expense_uuid');
-                                FFM.showToast(res.message || 'Daily expense submitted successfully.', 'success');
-                                setTimeout(function() {
-                                    window.location.reload();
-                                }, 800);
+                                FFM.goHome(res.message || 'Daily expense submitted successfully.');
                             } else {
                                 release();
                                 FFM.showToast(res.message || 'Failed to save expense.', 'error');
@@ -1831,7 +1821,7 @@
     <template id="ff_report_cards" name="FFM Marketer Report Cards">
         <t t-call="ffm_daily_report.ff_layout">
             <a href="/ff" class="ffm-back-link">
-                <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Back to Dashboard
+                <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Home
             </a>
 
             <!-- Today's own report: submit for approval -->
@@ -1912,7 +1902,7 @@
                                     </span>
                                 </t>
                                 <a t-attf-href="/ff/report/daily/pdf?date=#{query_date}"
-                                   class="ffm-btn ffm-btn-primary" style="min-height: 36px; padding: 6px 14px; font-size: 0.82rem; width: auto; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; background: #107c41; border-color: #0d6836;">
+                                   class="ffm-btn ffm-btn-primary" style="min-height: 36px; padding: 6px 14px; font-size: 0.82rem; width: auto; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; background: #0f5132; border-color: #0d6836;">
                                     <svg class="ffm-icon ffm-icon-sm" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="stroke: #ffffff;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                                     Download PDF
                                 </a>
@@ -1930,7 +1920,7 @@
                             </h2>
                             <div style="font-size: 0.82rem; color: #64748b;">
                                 Period: <strong style="color: #334155;" t-esc="period_label"/>
-                                <t t-if="scope_label and report_type in ('team', 'attendance')"> • <strong style="color: #0f766e;" t-esc="scope_label"/></t>
+                                <t t-if="scope_label and report_type in ('team', 'attendance')"> • <strong style="color: #0f5132;" t-esc="scope_label"/></t>
                             </div>
                         </div>
                         <div style="display: flex; gap: 6px;">
@@ -2148,17 +2138,17 @@
                             Team Performance Summary (<t t-esc="period_label"/>)
                         </h3>
                         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; margin-bottom: 12px;">
-                            <div style="background: #ecfdf5; border: 1px solid #a7f3d0; padding: 10px; border-radius: 6px;">
-                                <div style="font-size: 0.72rem; color: #047857; font-weight: 600;">Total Order</div>
-                                <div style="font-size: 1.05rem; font-weight: 700; color: #065f46; margin-top: 2px;">৳<t t-esc="'%.0f' % total_order"/></div>
+                            <div style="background: #f8f9fb; border: 1px solid #e4e7ec; padding: 10px; border-radius: 6px;">
+                                <div style="font-size: 0.72rem; color: #64748b; font-weight: 600;">Total Order</div>
+                                <div style="font-size: 1.05rem; font-weight: 700; color: #0f172a; margin-top: 2px;">৳<t t-esc="'%.0f' % total_order"/></div>
                             </div>
-                            <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 10px; border-radius: 6px;">
-                                <div style="font-size: 0.72rem; color: #1d4ed8; font-weight: 600;">Total Sale</div>
-                                <div style="font-size: 1.05rem; font-weight: 700; color: #1e40af; margin-top: 2px;">৳<t t-esc="'%.0f' % total_sale"/></div>
+                            <div style="background: #f8f9fb; border: 1px solid #e4e7ec; padding: 10px; border-radius: 6px;">
+                                <div style="font-size: 0.72rem; color: #64748b; font-weight: 600;">Total Sale</div>
+                                <div style="font-size: 1.05rem; font-weight: 700; color: #0f172a; margin-top: 2px;">৳<t t-esc="'%.0f' % total_sale"/></div>
                             </div>
-                            <div style="background: #fefce8; border: 1px solid #fef08a; padding: 10px; border-radius: 6px;">
-                                <div style="font-size: 0.72rem; color: #a16207; font-weight: 600;">Total Collection</div>
-                                <div style="font-size: 1.05rem; font-weight: 700; color: #854d0e; margin-top: 2px;">৳<t t-esc="'%.0f' % total_coll"/></div>
+                            <div style="background: #f8f9fb; border: 1px solid #e4e7ec; padding: 10px; border-radius: 6px;">
+                                <div style="font-size: 0.72rem; color: #64748b; font-weight: 600;">Total Collection</div>
+                                <div style="font-size: 1.05rem; font-weight: 700; color: #0f172a; margin-top: 2px;">৳<t t-esc="'%.0f' % total_coll"/></div>
                             </div>
                         </div>
 
@@ -2217,7 +2207,7 @@
 
                                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 6px; background: #f8fafc; padding: 8px 10px; border-radius: 6px; font-size: 0.78rem; margin: 8px 0;">
                                         <div>Order: <strong style="color: #065f46;">৳<t t-esc="'%.0f' % m['order']"/></strong></div>
-                                        <div>Sale: <strong style="color: #1e40af;">৳<t t-esc="'%.0f' % m['sale']"/></strong></div>
+                                        <div>Sale: <strong style="color: #1f2937;">৳<t t-esc="'%.0f' % m['sale']"/></strong></div>
                                         <div>Coll: <strong style="color: #854d0e;">৳<t t-esc="'%.0f' % m['coll']"/></strong></div>
                                         <div>Expense: <strong style="color: #475569;">৳<t t-esc="'%.0f' % m['expense']"/></strong></div>
                                         <div>Visits: <strong style="color: #0f172a;"><t t-esc="m['chemists'] + m['doctors'] + m['farms']"/></strong></div>
@@ -2314,21 +2304,21 @@
                             Performance Overview (<t t-esc="period_label"/>)
                         </div>
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 12px;">
-                            <div style="background: #ecfdf5; border: 1px solid #a7f3d0; padding: 10px; border-radius: 6px; text-align: center;">
-                                <div style="font-size: 0.74rem; color: #047857; font-weight: 600; text-transform: uppercase;">Total Order</div>
-                                <div style="font-size: 1.15rem; font-weight: 700; color: #065f46; margin-top: 2px;">৳<t t-esc="'%.0f' % total_order"/></div>
+                            <div style="background: #f8f9fb; border: 1px solid #e4e7ec; padding: 10px; border-radius: 6px; text-align: center;">
+                                <div style="font-size: 0.74rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Total Order</div>
+                                <div style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin-top: 2px;">৳<t t-esc="'%.0f' % total_order"/></div>
                             </div>
-                            <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 10px; border-radius: 6px; text-align: center;">
-                                <div style="font-size: 0.74rem; color: #1d4ed8; font-weight: 600; text-transform: uppercase;">Total Sale</div>
-                                <div style="font-size: 1.15rem; font-weight: 700; color: #1e40af; margin-top: 2px;">৳<t t-esc="'%.0f' % total_sale"/></div>
+                            <div style="background: #f8f9fb; border: 1px solid #e4e7ec; padding: 10px; border-radius: 6px; text-align: center;">
+                                <div style="font-size: 0.74rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Total Sale</div>
+                                <div style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin-top: 2px;">৳<t t-esc="'%.0f' % total_sale"/></div>
                             </div>
-                            <div style="background: #fefce8; border: 1px solid #fef08a; padding: 10px; border-radius: 6px; text-align: center;">
-                                <div style="font-size: 0.74rem; color: #a16207; font-weight: 600; text-transform: uppercase;">Total Collection</div>
-                                <div style="font-size: 1.15rem; font-weight: 700; color: #854d0e; margin-top: 2px;">৳<t t-esc="'%.0f' % total_coll"/></div>
+                            <div style="background: #f8f9fb; border: 1px solid #e4e7ec; padding: 10px; border-radius: 6px; text-align: center;">
+                                <div style="font-size: 0.74rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Total Collection</div>
+                                <div style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin-top: 2px;">৳<t t-esc="'%.0f' % total_coll"/></div>
                             </div>
-                            <div style="background: #f8fafc; border: 1px solid #cbd5e1; padding: 10px; border-radius: 6px; text-align: center;">
-                                <div style="font-size: 0.74rem; color: #475569; font-weight: 600; text-transform: uppercase;">Total Expenses</div>
-                                <div style="font-size: 1.15rem; font-weight: 700; color: #334155; margin-top: 2px;">৳<t t-esc="'%.0f' % total_expense"/></div>
+                            <div style="background: #f8f9fb; border: 1px solid #e4e7ec; padding: 10px; border-radius: 6px; text-align: center;">
+                                <div style="font-size: 0.74rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Total Expenses</div>
+                                <div style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin-top: 2px;">৳<t t-esc="'%.0f' % total_expense"/></div>
                             </div>
                         </div>
 
@@ -2395,7 +2385,7 @@
                                                     </t>
                                                 </td>
                                                 <td style="padding: 8px 10px; text-align: right; font-weight: 700; color: #047857;">৳<t t-esc="'%.0f' % c.order_tk"/></td>
-                                                <td style="padding: 8px 10px; text-align: right; color: #1e40af;">৳<t t-esc="'%.0f' % c.sale_tk"/></td>
+                                                <td style="padding: 8px 10px; text-align: right; color: #1f2937;">৳<t t-esc="'%.0f' % c.sale_tk"/></td>
                                                 <td style="padding: 8px 10px; text-align: right; color: #854d0e;">৳<t t-esc="'%.0f' % c.coll_tk"/></td>
                                             </tr>
                                         </t>
@@ -2404,7 +2394,7 @@
                                         <tr style="background: #f8fafc; font-weight: 700; border-top: 2px solid #cbd5e1;">
                                             <td colspan="2" style="padding: 8px 10px; text-align: right; color: #334155;">Subtotal:</td>
                                             <td style="padding: 8px 10px; text-align: right; color: #047857;">৳<t t-esc="'%.0f' % total_order"/></td>
-                                            <td style="padding: 8px 10px; text-align: right; color: #1e40af;">৳<t t-esc="'%.0f' % total_sale"/></td>
+                                            <td style="padding: 8px 10px; text-align: right; color: #1f2937;">৳<t t-esc="'%.0f' % total_sale"/></td>
                                             <td style="padding: 8px 10px; text-align: right; color: #854d0e;">৳<t t-esc="'%.0f' % total_coll"/></td>
                                         </tr>
                                     </tfoot>
@@ -2443,7 +2433,7 @@
                                                     <strong style="color: #0f172a;"><t t-esc="d.prescriber_id.name or d.prescriber_name_manual"/></strong>
                                                 </td>
                                                 <td style="padding: 8px 10px; text-align: center;">
-                                                    <span class="ffm-badge" style="background: #e0e7ff; color: #3730a3; padding: 2px 6px; border-radius: 4px; font-size: 0.72rem; font-weight: 600;">
+                                                    <span class="ffm-badge" style="background: #f3f4f6; color: #1f2937; padding: 2px 6px; border-radius: 4px; font-size: 0.72rem; font-weight: 600;">
                                                         Grade <t t-esc="d.grade.upper() if d.grade else 'A'"/>
                                                     </span>
                                                 </td>
@@ -2627,7 +2617,7 @@
     <!-- Monthly Expense Statement Portal Screen -->
     <template id="ff_statement" name="FFM Monthly Statement">
         <t t-call="ffm_daily_report.ff_layout">
-            <a href="/ff" class="ffm-back-link">← Back to Dashboard</a>
+            <a href="/ff" class="ffm-back-link">← Home</a>
 
             <div class="ffm-form-card" style="margin-bottom: 16px;">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
@@ -2685,15 +2675,15 @@
                         <div style="font-size: 0.72rem; color: #166534; font-weight: 600;">Daily T.A. Total</div>
                         <div style="font-size: 0.90rem; font-weight: 700; color: #15803d;">৳<t t-esc="'%.0f' % (statement.total_daily_ta if statement else 0)"/></div>
                     </div>
-                    <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 10px;">
-                        <div style="font-size: 0.72rem; color: #1e40af; font-weight: 600;">Daily D.A. Total</div>
-                        <div style="font-size: 0.90rem; font-weight: 700; color: #1d4ed8;">৳<t t-esc="'%.0f' % (statement.total_daily_da if statement else 0)"/></div>
+                    <div style="background: #f3f4f6; border: 1px solid #f3f4f6; border-radius: 8px; padding: 10px;">
+                        <div style="font-size: 0.72rem; color: #1f2937; font-weight: 600;">Daily D.A. Total</div>
+                        <div style="font-size: 0.90rem; font-weight: 700; color: #0f5132;">৳<t t-esc="'%.0f' % (statement.total_daily_da if statement else 0)"/></div>
                     </div>
                     <div style="background: #fefce8; border: 1px solid #fef08a; border-radius: 8px; padding: 10px;">
                         <div style="font-size: 0.72rem; color: #854d0e; font-weight: 600;">Other Expenses Total</div>
                         <div style="font-size: 0.90rem; font-weight: 700; color: #a16207;">৳<t t-esc="'%.0f' % (statement.total_other_expenses if statement else 0)"/></div>
                     </div>
-                    <div style="background: #ecfdf5; border: 2px solid #107c41; border-radius: 8px; padding: 10px;">
+                    <div style="background: #ecfdf5; border: 2px solid #0f5132; border-radius: 8px; padding: 10px;">
                         <div style="font-size: 0.72rem; color: #065f46; font-weight: 700;">Grand Total Claim</div>
                         <div style="font-size: 0.96rem; font-weight: 700; color: #047857;">৳<t t-esc="'%.0f' % (statement.grand_total if statement else 0)"/></div>
                     </div>
@@ -2712,7 +2702,7 @@
                     </form>
                     <t t-if="statement">
                         <a t-attf-href="/ff/statement/pdf?statement_id=#{statement.id}"
-                           target="_blank" class="ffm-btn ffm-btn-secondary" style="flex: 1; min-width: 140px; font-size: 0.88rem; background: #e0e7ff; color: #3730a3;">
+                           target="_blank" class="ffm-btn ffm-btn-secondary" style="flex: 1; min-width: 140px; font-size: 0.88rem; background: #f3f4f6; color: #1f2937;">
                             <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px; max-width: 12px; max-height: 12px; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Download PDF
                         </a>
                     </t>
@@ -2720,7 +2710,7 @@
 
                 <!-- Submission Form (when draft or rejected) -->
                 <t t-if="approval_enabled and statement and statement.state in ('draft', 'rejected') and (statement.line_ids or statement.total_other_expenses &gt; 0)">
-                    <form method="post" action="/ff/statement/submit" style="background: #fff; border: 1.5px solid #107c41; border-radius: 8px; padding: 14px; margin-bottom: 20px;">
+                    <form method="post" action="/ff/statement/submit" style="background: #fff; border: 1.5px solid #0f5132; border-radius: 8px; padding: 14px; margin-bottom: 20px;">
                         <input type="hidden" name="statement_id" t-att-value="statement.id"/>
                         <div class="ffm-form-group">
                             <label class="ffm-form-label">Your Comments / Justification (Optional):</label>
@@ -2837,7 +2827,7 @@
     <template id="ff_manager_dashboard" name="FFM Manager Monitoring &amp; Approval Dashboard">
         <t t-call="ffm_daily_report.ff_layout">
             <t t-if="has_field_operations">
-                <a href="/ff" class="ffm-back-link">← Back to Dashboard</a>
+                <a href="/ff" class="ffm-back-link">← Home</a>
             </t>
 
             <!-- Compact workspace header -->
@@ -2880,7 +2870,7 @@
                 <!-- Attendance -->
                 <div class="ffm-metric-card">
                     <div class="ffm-metric-label">Team Attendance</div>
-                    <div class="ffm-metric-value" style="color: #107c41;">
+                    <div class="ffm-metric-value" style="color: #0f5132;">
                         <t t-esc="present_count"/> / <t t-esc="sub_count"/>
                     </div>
                     <div class="ffm-metric-sub" style="color: #dc2626;"><t t-esc="absent_count"/> Absent Today</div>
@@ -2904,7 +2894,7 @@
                 <!-- Today Sales -->
                 <div class="ffm-metric-card">
                     <div class="ffm-metric-label">Today Sales</div>
-                    <div class="ffm-metric-value" style="color: #2563eb;">
+                    <div class="ffm-metric-value" style="color: #0f5132;">
                         ৳<t t-esc="'%.0f' % total_sale_today"/>
                     </div>
                     <div class="ffm-metric-sub">Coll: ৳<t t-esc="'%.0f' % total_coll_today"/></div>
@@ -2940,14 +2930,14 @@
                    t-attf-class="ffm-seg-tab #{'active' if active_tab == 'team' else ''}">
                     <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                     <t t-if="is_management">People &amp; Logins</t><t t-else="">My Team</t>
-                    <span class="ffm-tab-badge" style="background: #dbeafe; color: #1e40af;"><t t-esc="len(team_people)"/></span>
+                    <span class="ffm-tab-badge" style="background: #f3f4f6; color: #1f2937;"><t t-esc="len(team_people)"/></span>
                 </a>
                 <t t-if="is_management">
                     <a href="/ff/manager?tab=territories" onclick="switchManagerTab('territories', event)" data-tab="territories"
                        t-attf-class="ffm-seg-tab #{'active' if active_tab == 'territories' else ''}">
                         <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
                         Territories
-                        <span class="ffm-tab-badge" style="background: #f3e8ff; color: #6b21a8;"><t t-esc="len(all_territories)"/></span>
+                        <span class="ffm-tab-badge" style="background: #f3f4f6; color: #1f2937;"><t t-esc="len(all_territories)"/></span>
                     </a>
                 </t>
             </div>
@@ -2988,7 +2978,7 @@
                                         </div>
                                         <div>
                                             <div style="font-size: 0.7rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Sale</div>
-                                            <div style="font-size: 1rem; font-weight: 700; color: #1d4ed8;">৳<t t-esc="'%.0f' % r.total_sale_tk"/></div>
+                                            <div style="font-size: 1rem; font-weight: 700; color: #0f5132;">৳<t t-esc="'%.0f' % r.total_sale_tk"/></div>
                                         </div>
                                         <div>
                                             <div style="font-size: 0.7rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Collection</div>
@@ -3019,7 +3009,7 @@
                                         </button>
                                         <button type="button"
                                                 class="ffm-btn ffm-btn-primary"
-                                                style="width: auto; min-height: 34px; padding: 6px 18px; font-size: 0.82rem; background: #107c41; border-color: #0d6334; display: inline-flex; align-items: center; gap: 5px;"
+                                                style="width: auto; min-height: 34px; padding: 6px 18px; font-size: 0.82rem; background: #0f5132; border-color: #0f5132; display: inline-flex; align-items: center; gap: 5px;"
                                                 t-attf-onclick="FFM.approveReport(#{r.id}, this)">
                                             <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px;"><polyline points="20 6 9 17 4 12"></polyline></svg>
                                             Approve Report
@@ -3031,7 +3021,7 @@
                     </t>
                     <t t-else="">
                         <div style="text-align: center; padding: 30px 10px; color: #64748b; font-size: 0.9rem;">
-                            <svg class="ffm-icon ffm-icon-sm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #107c41; margin-right: 6px;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <svg class="ffm-icon ffm-icon-sm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #0f5132; margin-right: 6px;"><polyline points="20 6 9 17 4 12"></polyline></svg>
                             All daily reports are approved or up to date. No pending approvals.
                         </div>
                     </t>
@@ -3081,7 +3071,7 @@
                                             <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
                                             <span>View PDF</span>
                                         </a>
-                                        <button type="button" class="ffm-btn" style="background: #2563eb; color: #ffffff; min-height: 34px; padding: 6px 16px; font-size: 0.8rem; border-radius: 6px; font-weight: 600; border: none; display: inline-flex; align-items: center; gap: 5px;" t-attf-onclick="FFM.checkStatement(#{stmt.id}, this)">
+                                        <button type="button" class="ffm-btn" style="background: #0f5132; color: #ffffff; min-height: 34px; padding: 6px 16px; font-size: 0.8rem; border-radius: 6px; font-weight: 600; border: none; display: inline-flex; align-items: center; gap: 5px;" t-attf-onclick="FFM.checkStatement(#{stmt.id}, this)">
                                             <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                                             <span>Verify &amp; Forward</span>
                                         </button>
@@ -3103,7 +3093,7 @@
                         Attendance <span class="ffm-tab-badge" style="background: #dcfce7; color: #166534;"><t t-esc="present_count"/>/<t t-esc="sub_count"/></span>
                     </a>
                     <a href="#" class="ffm-tab-pill" data-sub="visits" onclick="switchActivitySub('visits', event)">
-                        Visits <span class="ffm-tab-badge" style="background: #e0e7ff; color: #3730a3;"><t t-esc="len(chemist_visits) + len(doctor_visits) + len(farm_visits)"/></span>
+                        Visits <span class="ffm-tab-badge" style="background: #f3f4f6; color: #1f2937;"><t t-esc="len(chemist_visits) + len(doctor_visits) + len(farm_visits)"/></span>
                     </a>
                     <a href="#" class="ffm-tab-pill" data-sub="expenses" onclick="switchActivitySub('expenses', event)">
                         Expenses <span class="ffm-tab-badge" style="background: #fef08a; color: #854d0e;"><t t-esc="len(team_expenses)"/></span>
@@ -3139,7 +3129,7 @@
                                     </div>
                                     <t t-if="att.latitude and att.longitude">
                                         <div style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed #e2e8f0; font-size: 0.76rem;">
-                                            <a t-attf-href="https://www.google.com/maps?q=#{att.latitude},#{att.longitude}" target="_blank" style="color: #2563eb; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                                            <a t-attf-href="https://www.google.com/maps?q=#{att.latitude},#{att.longitude}" target="_blank" style="color: #0f5132; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
                                                 <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
                                                 <span>View GPS Location (<t t-esc="'%.4f' % att.latitude"/>, <t t-esc="'%.4f' % att.longitude"/>) →</span>
                                             </a>
@@ -3220,7 +3210,7 @@
                                             </div>
                                         </div>
                                         <div style="text-align: right;">
-                                            <span style="font-size: 0.88rem; font-weight: 700; color: #2563eb; background: #eff6ff; padding: 3px 8px; border-radius: 6px; border: 1px solid #dbeafe;">
+                                            <span style="font-size: 0.88rem; font-weight: 700; color: #0f5132; background: #f3f4f6; padding: 3px 8px; border-radius: 6px; border: 1px solid #f3f4f6;">
                                                 ৳<t t-esc="'%.0f' % c.order_tk"/>
                                             </span>
                                         </div>
@@ -3259,7 +3249,7 @@
                                             </div>
                                         </div>
                                         <div>
-                                            <span class="ffm-badge" style="background: #e0e7ff; color: #3730a3; font-weight: 600; font-size: 0.7rem;">Grade <t t-esc="d.grade.upper() if d.grade else 'A'"/></span>
+                                            <span class="ffm-badge" style="background: #f3f4f6; color: #1f2937; font-weight: 600; font-size: 0.7rem;">Grade <t t-esc="d.grade.upper() if d.grade else 'A'"/></span>
                                         </div>
                                     </div>
                                     <t t-if="d.product_discussion or d.sample">
@@ -3511,7 +3501,7 @@
                                                 </span>
                                             </td>
                                             <td style="padding: 8px 10px; text-align: center;">
-                                                <a t-attf-href="/ff/report/daily/pdf?report_id=#{tr.id}" target="_blank" class="ffm-badge" style="background: #0284c7; color: #ffffff; text-decoration: none; padding: 4px 10px; display: inline-flex; align-items: center; gap: 4px;">
+                                                <a t-attf-href="/ff/report/daily/pdf?report_id=#{tr.id}" target="_blank" class="ffm-badge" style="background: #0f5132; color: #ffffff; text-decoration: none; padding: 4px 10px; display: inline-flex; align-items: center; gap: 4px;">
                                                     <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg> PDF
                                                 </a>
                                             </td>
@@ -3561,7 +3551,7 @@
                                                 </span>
                                             </td>
                                             <td style="padding: 8px 10px; text-align: center;">
-                                                <a t-attf-href="/ff/report/daily/pdf?report_id=#{rep.id}" target="_blank" class="ffm-badge" style="background: #0284c7; color: #ffffff; text-decoration: none; padding: 4px 10px; display: inline-flex; align-items: center; gap: 4px;">
+                                                <a t-attf-href="/ff/report/daily/pdf?report_id=#{rep.id}" target="_blank" class="ffm-badge" style="background: #0f5132; color: #ffffff; text-decoration: none; padding: 4px 10px; display: inline-flex; align-items: center; gap: 4px;">
                                                     <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg> PDF
                                                 </a>
                                             </td>
@@ -3610,7 +3600,7 @@
                                                 </span>
                                             </td>
                                             <td style="padding: 8px 10px; text-align: center;">
-                                                <a t-attf-href="/ff/statement/pdf?statement_id=#{st.id}" target="_blank" class="ffm-badge" style="background: #107c41; color: #ffffff; text-decoration: none; padding: 4px 10px; display: inline-flex; align-items: center; gap: 4px;">
+                                                <a t-attf-href="/ff/statement/pdf?statement_id=#{st.id}" target="_blank" class="ffm-badge" style="background: #0f5132; color: #ffffff; text-decoration: none; padding: 4px 10px; display: inline-flex; align-items: center; gap: 4px;">
                                                     <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg> PDF
                                                 </a>
                                             </td>
@@ -3855,7 +3845,7 @@
                     <details class="ffm-details">
                         <summary>Branches (<t t-esc="len(all_branches)"/>)</summary>
                     <!-- Branches CRUD Card -->
-                    <div class="ffm-form-card" id="adminBranchFormCard" style="border-left: 4px solid #0284c7;">
+                    <div class="ffm-form-card" id="adminBranchFormCard" style="border-left: 4px solid #0f5132;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                             <h3 id="adm_branch_form_title" style="font-size: 0.88rem; font-weight: 700; color: #1e293b; margin: 0;">
                                 Branches Management (<t t-esc="len(all_branches)"/>)
@@ -3875,7 +3865,7 @@
                                 <input type="text" id="adm_branch_code" class="ffm-input" placeholder="e.g. BOG" style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.85rem;"/>
                             </div>
                             <div>
-                                <button type="button" onclick="FFM.saveBranch(this)" class="ffm-btn" style="background: #0284c7; color: #ffffff; min-height: 38px; font-size: 0.86rem;">
+                                <button type="button" onclick="FFM.saveBranch(this)" class="ffm-btn" style="background: #0f5132; color: #ffffff; min-height: 38px; font-size: 0.86rem;">
                                     <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px; max-width: 12px; max-height: 12px; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Save Branch
                                 </button>
                             </div>
@@ -3893,7 +3883,7 @@
                                         </div>
                                         <div style="display: flex; gap: 6px;">
                                             <button type="button" class="ffm-btn ffm-btn-secondary"
-                                                    style="min-height: 28px; padding: 2px 8px; font-size: 0.75rem; width: auto; background: #e0f2fe; color: #0369a1;"
+                                                    style="min-height: 28px; padding: 2px 8px; font-size: 0.75rem; width: auto; background: #f3f4f6; color: #0f5132;"
                                                     t-att-data-id="br.id"
                                                     t-att-data-name="br.name or ''"
                                                     t-att-data-code="br.code or ''"

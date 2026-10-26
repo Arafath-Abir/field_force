@@ -96,6 +96,21 @@
         }, 4000);
     };
 
+    // After a form is saved, go back to the home page and show the message there
+    FFM.goHome = function(message) {
+        try { sessionStorage.setItem('ffm_flash', message || ''); } catch (e) {}
+        window.location.href = '/ff';
+    };
+
+    FFM.showFlash = function() {
+        var message = null;
+        try {
+            message = sessionStorage.getItem('ffm_flash');
+            sessionStorage.removeItem('ffm_flash');
+        } catch (e) {}
+        if (message) FFM.showToast(message, 'success');
+    };
+
     // 5. Geolocation Capture Helper
     FFM.captureGPS = function(onSuccess, onError) {
         if (!navigator.geolocation) {
@@ -637,6 +652,7 @@
     };
 
     document.addEventListener('DOMContentLoaded', FFM.initPersonPickers);
+    document.addEventListener('DOMContentLoaded', FFM.showFlash);
 
     window.FFM = FFM;
 })(window);
