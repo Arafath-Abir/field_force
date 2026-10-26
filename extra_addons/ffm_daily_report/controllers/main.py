@@ -228,6 +228,12 @@ class FFMController(http.Controller):
             pisa.CreatePDF(cleaned, dest=out)
             return out.getvalue()
 
+    APPROVAL_PARAM = 'ffm_daily_report.approval_enabled'
+
+    def _approval_enabled(self):
+        """Approval workflow switch (Manager Panel). Off unless explicitly turned on."""
+        return request.env['ir.config_parameter'].sudo().get_param(self.APPROVAL_PARAM, default='0') == '1'
+
     def _get_app_context(self):
         user = request.env.user
         employee = user.employee_id or request.env['hr.employee'].sudo().search([('user_id', '=', user.id)], limit=1)
@@ -274,6 +280,7 @@ class FFMController(http.Controller):
             'has_field_operations': has_field_operations,
             'panel_title': panel_title,
             'role_badge': role_badge,
+            'approval_enabled': self._approval_enabled(),
         }
 
     # ── 1. Dashboard ────────────────────────────────────────────────────────
@@ -461,6 +468,8 @@ class FFMController(http.Controller):
             ], limit=1)
             if not report:
                 return {'status': 'error', 'message': _('No daily report found for today.')}
+            if not self._approval_enabled():
+                return {'status': 'error', 'message': _('Approval system is turned off.')}
             if report.state != 'draft':
                 return {'status': 'error', 'message': _('Report has already been submitted.')}
             report.action_submit()
@@ -855,30 +864,22 @@ class FFMController(http.Controller):
             if sum(amounts) <= 0:
                 return {'status': 'error', 'message': _('At least one expense category must be greater than zero.')}
 
-            # Clean and validate vouchers
+            # Clean vouchers; they are optional but validated when attached
             v_entertainment = _clean_base64_image(payload.get('voucher_entertainment'))
             v_courier = _clean_base64_image(payload.get('voucher_courier'))
             v_photocopy = _clean_base64_image(payload.get('voucher_photocopy'))
             v_hotel_rent = _clean_base64_image(payload.get('voucher_hotel_rent'))
 
-            if entertainment > 0:
-                if not v_entertainment:
-                    return {'status': 'error', 'message': _('Entertainment voucher image is required.')}
+            if entertainment > 0 and v_entertainment:
                 _check_and_validate_voucher(v_entertainment, _('Entertainment Voucher'))
 
-            if courier > 0:
-                if not v_courier:
-                    return {'status': 'error', 'message': _('Courier voucher image is required.')}
+            if courier > 0 and v_courier:
                 _check_and_validate_voucher(v_courier, _('Courier Voucher'))
 
-            if photocopy > 0:
-                if not v_photocopy:
-                    return {'status': 'error', 'message': _('Photocopy voucher image is required.')}
+            if photocopy > 0 and v_photocopy:
                 _check_and_validate_voucher(v_photocopy, _('Photocopy Voucher'))
 
-            if hotel_rent > 0:
-                if not v_hotel_rent:
-                    return {'status': 'error', 'message': _('Hotel rent voucher image is required.')}
+            if hotel_rent > 0 and v_hotel_rent:
                 _check_and_validate_voucher(v_hotel_rent, _('Hotel Rent Voucher'))
 
             # Search today's report if any
@@ -1533,6 +1534,8 @@ class FFMController(http.Controller):
         ctx = self._get_app_context()
         if ctx.get('is_fp'):
             return werkzeug.utils.redirect('/ff')
+        if not ctx['approval_enabled']:
+            return werkzeug.utils.redirect('/ff/statement')
 
         employee = ctx['employee']
         statement_id = kw.get('statement_id')
@@ -1857,14 +1860,15 @@ class FFMController(http.Controller):
         else:
             my_territories = (team | (employee or team.browse([]))).mapped('ffm_territory_ids').sorted('name')
 
-        tab = kw.get('tab', 'approvals')
-        valid_tabs = ['approvals', 'activity', 'reports', 'team'] + (['territories'] if is_management else [])
+        default_tab = 'approvals' if ctx['approval_enabled'] else 'activity'
+        tab = kw.get('tab', default_tab)
+        valid_tabs = (['approvals'] if ctx['approval_enabled'] else []) + ['activity', 'reports', 'team'] + (['territories'] if is_management else [])
         if tab in ('attendance', 'visits', 'expenses'):
             tab = 'activity'
         elif tab == 'statements':
-            tab = 'approvals'
+            tab = default_tab
         elif tab not in valid_tabs:
-            tab = 'approvals'
+            tab = default_tab
 
         ctx.update({
             'today_str': today_date.strftime('%d %B, %Y'),
@@ -1919,6 +1923,8 @@ class FFMController(http.Controller):
 
     @http.route('/ff/manager/report/approve', type='json', auth='user', methods=['POST'])
     def ff_manager_report_approve(self, report_id, **kw):
+        if not self._approval_enabled():
+            return {'status': 'error', 'message': _('Approval system is turned off.')}
         user = request.env.user
         report = request.env['ffm.daily.report'].sudo().browse(int(report_id))
         if not report.exists():
@@ -1933,6 +1939,8 @@ class FFMController(http.Controller):
 
     @http.route('/ff/manager/report/reject', type='json', auth='user', methods=['POST'])
     def ff_manager_report_reject(self, report_id, reason=None, **kw):
+        if not self._approval_enabled():
+            return {'status': 'error', 'message': _('Approval system is turned off.')}
         user = request.env.user
         report = request.env['ffm.daily.report'].sudo().browse(int(report_id))
         if not report.exists():
@@ -1949,6 +1957,8 @@ class FFMController(http.Controller):
 
     @http.route('/ff/manager/statement/check', type='json', auth='user', methods=['POST'])
     def ff_manager_statement_check(self, statement_id, **kw):
+        if not self._approval_enabled():
+            return {'status': 'error', 'message': _('Approval system is turned off.')}
         user = request.env.user
         stmt = request.env['ffm.expense.statement'].sudo().browse(int(statement_id))
         if not stmt.exists():
@@ -1958,6 +1968,17 @@ class FFMController(http.Controller):
             return {'status': 'success', 'message': _('Monthly statement verified and checked.')}
         except Exception as exc:
             return {'status': 'error', 'message': str(exc)}
+
+    @http.route('/ff/manager/approval/toggle', type='json', auth='user', methods=['POST'])
+    def ff_manager_approval_toggle(self, enabled=False, **kw):
+        if not self._is_ffm_admin_user():
+            return {'status': 'error', 'message': _('Only Manager or Super Admin can change the approval setting.')}
+        request.env['ir.config_parameter'].sudo().set_param(self.APPROVAL_PARAM, '1' if enabled else '0')
+        return {
+            'status': 'success',
+            'enabled': bool(enabled),
+            'message': _('Approval system turned on.') if enabled else _('Approval system turned off.'),
+        }
 
     # ── 8d. System Admin CRUD, Password Reset & Demo Seeding ─────────────────
     def _is_ffm_admin_user(self):

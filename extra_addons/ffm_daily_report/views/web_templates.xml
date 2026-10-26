@@ -79,10 +79,10 @@
                             <t t-if="has_field_operations">
                                 <t t-if="is_rsm or is_asm">
                                     <t t-if="request.httprequest.path == '/ff'">
-                                        <a href="/ff/manager" class="ffm-header-btn-action" title="Team Approvals">
+                                        <a href="/ff/manager" class="ffm-header-btn-action" t-att-title="'Team Approvals' if approval_enabled else 'My Team'">
                                             <svg class="ffm-icon ffm-icon-sm" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
-                                            <span class="ffm-action-text">Approvals</span>
-                                            <t t-if="pending_reports_count and pending_reports_count &gt; 0">
+                                            <span class="ffm-action-text"><t t-if="approval_enabled">Approvals</t><t t-else="">My Team</t></span>
+                                            <t t-if="approval_enabled and pending_reports_count and pending_reports_count &gt; 0">
                                                 <span class="ffm-header-count-badge"><t t-esc="pending_reports_count"/></span>
                                             </t>
                                         </a>
@@ -250,12 +250,12 @@
                     <t t-if="is_supervisor">
                         <a href="/ff/manager" class="ffm-tile ffm-tile-featured ffm-tile--blue">
                             <div class="ffm-icon-box ffm-icon-box--blue"><svg class="ffm-icon ffm-icon-lg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg></div>
-                            <div class="ffm-tile-title">Team Approvals</div>
-                            <div class="ffm-tile-subtitle">Review &amp; approve reports</div>
-                            <t t-if="pending_reports_count and pending_reports_count &gt; 0">
+                            <div class="ffm-tile-title"><t t-if="approval_enabled">Team Approvals</t><t t-else="">My Team</t></div>
+                            <div class="ffm-tile-subtitle"><t t-if="approval_enabled">Review &amp; approve reports</t><t t-else="">Team activity &amp; reports</t></div>
+                            <t t-if="approval_enabled and pending_reports_count and pending_reports_count &gt; 0">
                                 <span class="ffm-badge ffm-badge-warning" style="margin-top: 6px;"><t t-esc="pending_reports_count"/> Pending</span>
                             </t>
-                            <t t-else="">
+                            <t t-elif="approval_enabled">
                                 <span class="ffm-badge ffm-badge-neutral" style="margin-top: 6px;">0 Pending</span>
                             </t>
                         </a>
@@ -432,7 +432,7 @@
                             <span style="font-size: 0.88rem; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 6px;">
                                 <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #64748b;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> Field Marketer Info
                             </span>
-                            <span t-attf-class="ffm-badge #{'ffm-badge-success' if report.state == 'approved' else ('ffm-badge-warning' if report.state == 'submitted' else 'ffm-badge-info')}" style="font-size: 0.74rem; font-weight: 700; text-transform: uppercase; padding: 3px 9px;">
+                            <span t-if="approval_enabled" t-attf-class="ffm-badge #{'ffm-badge-success' if report.state == 'approved' else ('ffm-badge-warning' if report.state == 'submitted' else 'ffm-badge-info')}" style="font-size: 0.74rem; font-weight: 700; text-transform: uppercase; padding: 3px 9px;">
                                 <t t-esc="report.state"/>
                             </span>
                         </div>
@@ -533,9 +533,9 @@
                     </div>
 
                     <!-- Action Toolbar -->
-                    <t t-if="report.state == 'draft'">
+                    <t t-if="report.state == 'draft' or not approval_enabled">
                         <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                            <button type="button" id="btnSubmitReport" class="ffm-btn ffm-btn-primary" onclick="submitDailyReport()" style="flex: 2; min-width: 180px;">
+                            <button t-if="approval_enabled" type="button" id="btnSubmitReport" class="ffm-btn ffm-btn-primary" onclick="submitDailyReport()" style="flex: 2; min-width: 180px;">
                                 <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Finalize &amp; Submit Report
                             </button>
                             <a t-attf-href="/ff/report/daily/pdf?report_id=#{report.id}" target="_blank" class="ffm-btn ffm-btn-secondary" style="flex: 1; min-width: 140px; text-decoration: none; background: #eef2ff; color: #3730a3; border-color: #c7d2fe;">
@@ -1394,10 +1394,10 @@
                                     <span style="color: #047857; font-size: 0.95rem;">Tk <t t-esc="'%.0f' % exp.total_amount"/></span>
                                 </div>
                                 <div style="color: #4b5563; font-size: 0.78rem; margin-top: 6px; line-height: 1.8;">
-                                    <t t-if="exp.entertainment"><div><span class="ffm-badge ffm-badge-neutral">Entertainment</span> <strong>Tk <t t-esc="'%.0f' % exp.entertainment"/></strong> (Voucher Attached)</div></t>
-                                    <t t-if="exp.courier"><div><span class="ffm-badge ffm-badge-neutral">Courier</span> <strong>Tk <t t-esc="'%.0f' % exp.courier"/></strong> (Voucher Attached)</div></t>
-                                    <t t-if="exp.photocopy"><div><span class="ffm-badge ffm-badge-neutral">Photocopy</span> <strong>Tk <t t-esc="'%.0f' % exp.photocopy"/></strong> (Voucher Attached)</div></t>
-                                    <t t-if="exp.hotel_rent"><div><span class="ffm-badge ffm-badge-neutral">Hotel Rent</span> <strong>Tk <t t-esc="'%.0f' % exp.hotel_rent"/></strong> (Voucher Attached)</div></t>
+                                    <t t-if="exp.entertainment"><div><span class="ffm-badge ffm-badge-neutral">Entertainment</span> <strong>Tk <t t-esc="'%.0f' % exp.entertainment"/></strong><t t-if="exp.voucher_entertainment"> (Voucher Attached)</t></div></t>
+                                    <t t-if="exp.courier"><div><span class="ffm-badge ffm-badge-neutral">Courier</span> <strong>Tk <t t-esc="'%.0f' % exp.courier"/></strong><t t-if="exp.voucher_courier"> (Voucher Attached)</t></div></t>
+                                    <t t-if="exp.photocopy"><div><span class="ffm-badge ffm-badge-neutral">Photocopy</span> <strong>Tk <t t-esc="'%.0f' % exp.photocopy"/></strong><t t-if="exp.voucher_photocopy"> (Voucher Attached)</t></div></t>
+                                    <t t-if="exp.hotel_rent"><div><span class="ffm-badge ffm-badge-neutral">Hotel Rent</span> <strong>Tk <t t-esc="'%.0f' % exp.hotel_rent"/></strong><t t-if="exp.voucher_hotel_rent"> (Voucher Attached)</t></div></t>
                                     <t t-if="exp.promotion"><div><span class="ffm-badge ffm-badge-neutral">Promotion</span> <strong>Tk <t t-esc="'%.0f' % exp.promotion"/></strong></div></t>
                                     <t t-if="exp.stationery"><div><span class="ffm-badge ffm-badge-neutral">Stationery</span> <strong>Tk <t t-esc="'%.0f' % exp.stationery"/></strong></div></t>
                                     <t t-if="exp.carrying"><div><span class="ffm-badge ffm-badge-neutral">Carrying</span> <strong>Tk <t t-esc="'%.0f' % exp.carrying"/></strong></div></t>
@@ -1434,7 +1434,7 @@
                             </span>
                             Daily Expense &amp; Vouchers
                         </h2>
-                        <p class="ffm-form-subtitle">Record official field expenses with required receipt voucher uploads.</p>
+                        <p class="ffm-form-subtitle">Record official field expenses. Receipt vouchers are optional.</p>
                     </div>
                     <div style="text-align: right;">
                         <span class="ffm-badge ffm-badge-info" style="font-size: 0.80rem; padding: 5px 12px; font-weight: 600;">
@@ -1445,11 +1445,11 @@
 
                 <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-left: 4px solid #2563eb; padding: 12px 16px; border-radius: 8px; font-size: 0.82rem; color: #1e40af; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
                     <svg class="ffm-icon ffm-icon-sm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #2563eb; flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                    <span>At least one category is required (>0). Receipts/vouchers are mandatory for <strong>Entertainment, Courier, Photocopy, and Hotel Rent</strong>.</span>
+                    <span>At least one category is required (>0). You can attach a receipt/voucher for <strong>Entertainment, Courier, Photocopy, and Hotel Rent</strong> (optional).</span>
                 </div>
 
                 <form id="dailyExpenseForm" onsubmit="return handleExpenseSubmit(event)">
-                    <!-- 4 Voucher-Required Expenses in Responsive 2-Col Grid -->
+                    <!-- 4 Voucher-Supported Expenses in Responsive 2-Col Grid -->
                     <div class="ffm-expense-grid">
                         <!-- 1. Entertainment -->
                         <div class="ffm-expense-card" style="border-top-color: #0284c7;">
@@ -1457,7 +1457,7 @@
                                 <label class="ffm-form-label" for="entertainment" style="margin-bottom: 0; font-weight: 700; color: #1e293b;">
                                     <span>Entertainment (Tk)</span>
                                 </label>
-                                <span id="badge_v_ent" class="ffm-badge ffm-badge-danger" style="display: none; font-size: 0.70rem; padding: 2px 7px;">Voucher Required</span>
+                                <span id="badge_v_ent" class="ffm-badge ffm-badge-neutral" style="display: none; font-size: 0.70rem; padding: 2px 7px;">Voucher Optional</span>
                             </div>
                             <div class="ffm-currency-wrap">
                                 <span class="ffm-currency-prefix">Tk</span>
@@ -1486,7 +1486,7 @@
                                 <label class="ffm-form-label" for="courier" style="margin-bottom: 0; font-weight: 700; color: #1e293b;">
                                     <span>Courier (Tk)</span>
                                 </label>
-                                <span id="badge_v_cou" class="ffm-badge ffm-badge-danger" style="display: none; font-size: 0.70rem; padding: 2px 7px;">Voucher Required</span>
+                                <span id="badge_v_cou" class="ffm-badge ffm-badge-neutral" style="display: none; font-size: 0.70rem; padding: 2px 7px;">Voucher Optional</span>
                             </div>
                             <div class="ffm-currency-wrap">
                                 <span class="ffm-currency-prefix">Tk</span>
@@ -1515,7 +1515,7 @@
                                 <label class="ffm-form-label" for="photocopy" style="margin-bottom: 0; font-weight: 700; color: #1e293b;">
                                     <span>Photocopy (Tk)</span>
                                 </label>
-                                <span id="badge_v_pho" class="ffm-badge ffm-badge-danger" style="display: none; font-size: 0.70rem; padding: 2px 7px;">Voucher Required</span>
+                                <span id="badge_v_pho" class="ffm-badge ffm-badge-neutral" style="display: none; font-size: 0.70rem; padding: 2px 7px;">Voucher Optional</span>
                             </div>
                             <div class="ffm-currency-wrap">
                                 <span class="ffm-currency-prefix">Tk</span>
@@ -1544,7 +1544,7 @@
                                 <label class="ffm-form-label" for="hotel_rent" style="margin-bottom: 0; font-weight: 700; color: #1e293b;">
                                     <span>Hotel Rent (Tk)</span>
                                 </label>
-                                <span id="badge_v_hot" class="ffm-badge ffm-badge-danger" style="display: none; font-size: 0.70rem; padding: 2px 7px;">Voucher Required</span>
+                                <span id="badge_v_hot" class="ffm-badge ffm-badge-neutral" style="display: none; font-size: 0.70rem; padding: 2px 7px;">Voucher Optional</span>
                             </div>
                             <div class="ffm-currency-wrap">
                                 <span class="ffm-currency-prefix">Tk</span>
@@ -1770,22 +1770,6 @@
                     var v_pho = document.getElementById('hidden_v_pho').value;
                     var v_hot = document.getElementById('hidden_v_hot').value;
 
-                    if (entertainment &gt; 0 &amp;&amp; !v_ent) {
-                        FFM.showToast('Entertainment voucher image is required.', 'error');
-                        return false;
-                    }
-                    if (courier &gt; 0 &amp;&amp; !v_cou) {
-                        FFM.showToast('Courier voucher image is required.', 'error');
-                        return false;
-                    }
-                    if (photocopy &gt; 0 &amp;&amp; !v_pho) {
-                        FFM.showToast('Photocopy voucher image is required.', 'error');
-                        return false;
-                    }
-                    if (hotel_rent &gt; 0 &amp;&amp; !v_hot) {
-                        FFM.showToast('Hotel rent voucher image is required.', 'error');
-                        return false;
-                    }
 
                     var btn = document.getElementById('submitExpenseBtn');
                     FFM.withLiveLocation(btn, 'Submitting... please wait', function(loc, release) {
@@ -1851,7 +1835,7 @@
             </a>
 
             <!-- Today's own report: submit for approval -->
-            <t t-if="my_today_report and my_today_report.state == 'draft'">
+            <t t-if="approval_enabled and my_today_report and my_today_report.state == 'draft'">
                 <div class="ffm-submit-strip">
                     <div>
                         <div class="ffm-submit-strip-title">Today's report is not submitted yet</div>
@@ -1911,7 +1895,8 @@
                                 </div>
                             </div>
                             <div style="display: flex; align-items: center; gap: 8px;">
-                                <t t-if="report_state == 'approved'">
+                                <t t-if="not approval_enabled"/>
+                                <t t-elif="report_state == 'approved'">
                                     <span style="display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 6px; font-size: 0.78rem; font-weight: 600; background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0;">
                                         Approved
                                     </span>
@@ -2217,12 +2202,12 @@
                                                     Pending Attendance
                                                 </span>
                                             </t>
-                                            <t t-if="m['latest_state'] == 'approved'">
+                                            <t t-if="approval_enabled and m['latest_state'] == 'approved'">
                                                 <span style="font-size: 0.75rem; padding: 3px 8px; border-radius: 4px; background: #ecfdf5; color: #047857; font-weight: 600; border: 1px solid #a7f3d0;">
                                                     Approved
                                                 </span>
                                             </t>
-                                            <t t-elif="m['latest_state']">
+                                            <t t-elif="approval_enabled and m['latest_state']">
                                                 <span style="font-size: 0.75rem; padding: 3px 8px; border-radius: 4px; background: #fef3c7; color: #b45309; font-weight: 600; border: 1px solid #fde68a;">
                                                     Pending
                                                 </span>
@@ -2303,7 +2288,8 @@
                                 </div>
                             </div>
                             <div style="display: flex; align-items: center; gap: 8px;">
-                                <t t-if="report_state == 'approved'">
+                                <t t-if="not approval_enabled"/>
+                                <t t-elif="report_state == 'approved'">
                                     <span style="font-size: 0.75rem; padding: 4px 10px; border-radius: 4px; background: #dcfce7; color: #15803d; font-weight: 600; border: 1px solid #bbf7d0;">
                                         Approved
                                     </span>
@@ -2653,7 +2639,7 @@
                     </div>
                     <div>
                         <t t-if="statement">
-                            <span t-attf-class="ffm-badge #{'ffm-badge-success' if statement.state == 'paid' else ('ffm-badge-warning' if statement.state in ('submitted', 'checked') else ('ffm-badge-danger' if statement.state == 'rejected' else 'ffm-badge-info'))}" style="text-transform: uppercase;">
+                            <span t-if="approval_enabled" t-attf-class="ffm-badge #{'ffm-badge-success' if statement.state == 'paid' else ('ffm-badge-warning' if statement.state in ('submitted', 'checked') else ('ffm-badge-danger' if statement.state == 'rejected' else 'ffm-badge-info'))}" style="text-transform: uppercase;">
                                 <t t-esc="statement.state"/>
                             </span>
                         </t>
@@ -2685,7 +2671,7 @@
                 </form>
 
                 <!-- Rejection Notice if rejected -->
-                <t t-if="statement and statement.state == 'rejected'">
+                <t t-if="approval_enabled and statement and statement.state == 'rejected'">
                     <div style="background: #fee2e2; border-left: 4px solid #ef4444; padding: 10px 14px; border-radius: 6px; margin-bottom: 16px; font-size: 0.85rem; color: #991b1b;">
                         <strong>Rejection Reason: </strong>
                         <span t-esc="statement.rejection_reason or 'No reason specified.'"/>
@@ -2733,7 +2719,7 @@
                 </div>
 
                 <!-- Submission Form (when draft or rejected) -->
-                <t t-if="statement and statement.state in ('draft', 'rejected') and (statement.line_ids or statement.total_other_expenses &gt; 0)">
+                <t t-if="approval_enabled and statement and statement.state in ('draft', 'rejected') and (statement.line_ids or statement.total_other_expenses &gt; 0)">
                     <form method="post" action="/ff/statement/submit" style="background: #fff; border: 1.5px solid #107c41; border-radius: 8px; padding: 14px; margin-bottom: 20px;">
                         <input type="hidden" name="statement_id" t-att-value="statement.id"/>
                         <div class="ffm-form-group">
@@ -2873,6 +2859,22 @@
                 </div>
             </div>
 
+            <!-- Approval workflow switch (Manager / Super Admin) -->
+            <div t-if="is_management" class="ffm-approval-switch">
+                <div>
+                    <div class="ffm-approval-switch-title">Approval System</div>
+                    <div class="ffm-approval-switch-sub">
+                        <t t-if="approval_enabled">On: daily reports and monthly statements go through submit, approve and reject.</t>
+                        <t t-else="">Off: no submit, pending, approved or rejected steps anywhere in the app.</t>
+                    </div>
+                </div>
+                <label class="ffm-switch" title="Turn approval system on or off">
+                    <input type="checkbox" id="approvalToggle" t-att-checked="'checked' if approval_enabled else None"
+                           onchange="FFM.toggleApproval(this)"/>
+                    <span class="ffm-switch-slider"></span>
+                </label>
+            </div>
+
             <!-- KPI Summary Cards -->
             <div class="ffm-kpi-row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px;">
                 <!-- Attendance -->
@@ -2884,7 +2886,7 @@
                     <div class="ffm-metric-sub" style="color: #dc2626;"><t t-esc="absent_count"/> Absent Today</div>
                 </div>
                 <!-- Pending Approvals -->
-                <div class="ffm-metric-card">
+                <div t-if="approval_enabled" class="ffm-metric-card">
                     <div class="ffm-metric-label">Pending Reports</div>
                     <div class="ffm-metric-value" style="color: #d97706;">
                         <t t-esc="len(pending_reports)"/>
@@ -2918,7 +2920,7 @@
             </div>
             <!-- Navigation -->
             <div class="ffm-segmented-nav" id="managerTabsNav">
-                <a href="/ff/manager?tab=approvals" onclick="switchManagerTab('approvals', event)" data-tab="approvals"
+                <a t-if="approval_enabled" href="/ff/manager?tab=approvals" onclick="switchManagerTab('approvals', event)" data-tab="approvals"
                    t-attf-class="ffm-seg-tab #{'active' if active_tab == 'approvals' else ''}">
                     <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
                     Approvals
@@ -2951,7 +2953,7 @@
             </div>
 
             <!-- ── Approvals: daily reports and monthly statements waiting on me ── -->
-            <div id="tab-approvals" class="ffm-tab-pane" t-attf-style="display: #{'block' if active_tab == 'approvals' else 'none'};">
+            <div t-if="approval_enabled" id="tab-approvals" class="ffm-tab-pane" t-attf-style="display: #{'block' if active_tab == 'approvals' else 'none'};">
                 <div class="ffm-form-card" style="margin-bottom: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                         <h3 style="font-size: 0.95rem; font-weight: 700; color: #1e293b; margin: 0;">
@@ -3492,7 +3494,7 @@
                                         <th style="padding: 8px 10px;">Place</th>
                                         <th style="padding: 8px 10px; text-align: right;">Order</th>
                                         <th style="padding: 8px 10px; text-align: right;">Sale</th>
-                                        <th style="padding: 8px 10px; text-align: center;">Status</th>
+                                        <th t-if="approval_enabled" style="padding: 8px 10px; text-align: center;">Status</th>
                                         <th style="padding: 8px 10px; text-align: center;">Download PDF</th>
                                     </tr>
                                 </thead>
@@ -3503,7 +3505,7 @@
                                             <td style="padding: 8px 10px;"><t t-esc="tr.working_place_id.name or '-'"/></td>
                                             <td style="padding: 8px 10px; text-align: right;">৳<t t-esc="'%.0f' % tr.total_order_tk"/></td>
                                             <td style="padding: 8px 10px; text-align: right;">৳<t t-esc="'%.0f' % tr.total_sale_tk"/></td>
-                                            <td style="padding: 8px 10px; text-align: center;">
+                                            <td t-if="approval_enabled" style="padding: 8px 10px; text-align: center;">
                                                 <span t-attf-class="ffm-badge #{'ffm-badge-success' if tr.state == 'approved' else ('ffm-badge-warning' if tr.state == 'submitted' else ('ffm-badge-danger' if tr.state == 'rejected' else 'ffm-badge-info'))}">
                                                     <t t-esc="tr.state.upper()"/>
                                                 </span>
@@ -3541,7 +3543,7 @@
                                         <th style="padding: 8px 10px;">Working Place</th>
                                         <th style="padding: 8px 10px; text-align: right;">Order</th>
                                         <th style="padding: 8px 10px; text-align: right;">Sale</th>
-                                        <th style="padding: 8px 10px; text-align: center;">Status</th>
+                                        <th t-if="approval_enabled" style="padding: 8px 10px; text-align: center;">Status</th>
                                         <th style="padding: 8px 10px; text-align: center;">Download PDF</th>
                                     </tr>
                                 </thead>
@@ -3553,7 +3555,7 @@
                                             <td style="padding: 8px 10px;"><t t-esc="rep.working_place_id.name or rep.working_place or '-'"/></td>
                                             <td style="padding: 8px 10px; text-align: right;">৳<t t-esc="'%.0f' % rep.total_order_tk"/></td>
                                             <td style="padding: 8px 10px; text-align: right;">৳<t t-esc="'%.0f' % rep.total_sale_tk"/></td>
-                                            <td style="padding: 8px 10px; text-align: center;">
+                                            <td t-if="approval_enabled" style="padding: 8px 10px; text-align: center;">
                                                 <span t-attf-class="ffm-badge #{'ffm-badge-success' if rep.state == 'approved' else ('ffm-badge-warning' if rep.state == 'submitted' else ('ffm-badge-danger' if rep.state == 'rejected' else 'ffm-badge-info'))}">
                                                     <t t-esc="rep.state.upper()"/>
                                                 </span>
@@ -3589,7 +3591,7 @@
                                         <th style="padding: 8px 10px; text-align: right;">Daily TA</th>
                                         <th style="padding: 8px 10px; text-align: right;">Other Exp</th>
                                         <th style="padding: 8px 10px; text-align: right;">Total Claim</th>
-                                        <th style="padding: 8px 10px; text-align: center;">Status</th>
+                                        <th t-if="approval_enabled" style="padding: 8px 10px; text-align: center;">Status</th>
                                         <th style="padding: 8px 10px; text-align: center;">Download PDF</th>
                                     </tr>
                                 </thead>
@@ -3602,7 +3604,7 @@
                                             <td style="padding: 8px 10px; text-align: right;">৳<t t-esc="'%.0f' % st.total_daily_ta"/></td>
                                             <td style="padding: 8px 10px; text-align: right;">৳<t t-esc="'%.0f' % st.total_other_expenses"/></td>
                                             <td style="padding: 8px 10px; text-align: right; font-weight: 700; color: #047857;">৳<t t-esc="'%.0f' % st.grand_total"/></td>
-                                            <td style="padding: 8px 10px; text-align: center;">
+                                            <td t-if="approval_enabled" style="padding: 8px 10px; text-align: center;">
                                                 <span t-attf-class="ffm-badge #{'ffm-badge-success' if st.state == 'approved' else ('ffm-badge-warning' if st.state == 'submitted' else 'ffm-badge-info')}">
                                                     <t t-esc="st.state.upper()"/>
                                                 </span>

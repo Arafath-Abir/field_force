@@ -201,6 +201,35 @@
     };
 
     // 6. Manager Panel Actions (Approve, Reject, Check)
+    FFM.toggleApproval = function(input) {
+        var enabled = input.checked;
+        var msg = enabled ? 'Turn ON the approval system?' : 'Turn OFF the approval system? Pending, approved and rejected statuses will be hidden.';
+        if (!confirm(msg)) { input.checked = !enabled; return; }
+        input.disabled = true;
+        fetch('/ff/manager/approval/toggle', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({jsonrpc: '2.0', method: 'call', params: {enabled: enabled}})
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            var res = data.result || {};
+            if (res.status === 'success') {
+                FFM.showToast(res.message, 'success');
+                setTimeout(function() { window.location.href = '/ff/manager'; }, 600);
+            } else {
+                input.checked = !enabled;
+                input.disabled = false;
+                FFM.showToast(res.message || 'Could not change the setting.', 'error');
+            }
+        })
+        .catch(function() {
+            input.checked = !enabled;
+            input.disabled = false;
+            FFM.showToast('Network error.', 'error');
+        });
+    };
+
     FFM.approveReport = function(reportId, btn) {
         if (!confirm('Are you sure you want to approve this daily report?')) return;
         var release = FFM.doubleTapGuard(btn, 'Approving...');

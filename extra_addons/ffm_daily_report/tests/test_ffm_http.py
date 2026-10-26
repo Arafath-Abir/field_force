@@ -10,6 +10,8 @@ class TestFFMHttp(HttpCase):
     def setUp(self):
         super(TestFFMHttp, self).setUp()
         self.env['ir.http']._clear_routing_map()
+        # These flows exercise the approval workflow, which is off by default
+        self.env['ir.config_parameter'].sudo().set_param('ffm_daily_report.approval_enabled', '1')
 
     def test_01_http_dashboard_and_attendance_submit(self):
         """Test marketer mobile shell access and JSON attendance submission via HttpCase."""
@@ -310,6 +312,35 @@ class TestFFMHttp(HttpCase):
         self.assertEqual(res_data_fp.get('status'), 'success')
         self.assertEqual(rep_fp.state, 'approved')
 
+    def test_approval_switch_off_hides_and_blocks_approvals(self):
+        """With the approval switch off there is no Approvals tab and approve is refused."""
+        self.env['ir.config_parameter'].sudo().set_param('ffm_daily_report.approval_enabled', '0')
+        emp_fp = self.env['hr.employee'].search([('user_id.login', '=', 'ffm_fp_demo')], limit=1)
+        report = self.env['ffm.daily.report'].create({
+            'employee_id': emp_fp.id,
+            'date': '2019-03-03',
+            'state': 'submitted',
+        })
 
+        self.authenticate('ffm_asm_demo', 'Demo12345!')
+        res = self.url_open('/ff/manager?tab=approvals')
+        self.assertEqual(res.status_code, 200)
+        self.assertNotIn(b'id="tab-approvals"', res.content)
+        self.assertNotIn(b'Pending Reports', res.content)
 
+        resp = self.url_open(
+            '/ff/manager/report/approve',
+            data=json.dumps({'jsonrpc': '2.0', 'method': 'call', 'params': {'report_id': report.id}}),
+            headers={'Content-Type': 'application/json'}
+        )
+        result = json.loads(resp.content.decode()).get('result', {})
+        self.assertEqual(result.get('status'), 'error')
+        self.assertEqual(report.state, 'submitted')
 
+        # Only Manager / Super Admin may flip the switch
+        resp_toggle = self.url_open(
+            '/ff/manager/approval/toggle',
+            data=json.dumps({'jsonrpc': '2.0', 'method': 'call', 'params': {'enabled': True}}),
+            headers={'Content-Type': 'application/json'}
+        )
+        self.assertEqual(json.loads(resp_toggle.content.decode()).get('result', {}).get('status'), 'error')

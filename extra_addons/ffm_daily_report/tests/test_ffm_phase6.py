@@ -97,7 +97,7 @@ class TestFFMStatementModels(TransactionCase):
         })
 
         self.user_accounts = self.Users.create({
-            'name': 'Stmt Accounts User',
+            'name': 'Stmt Super Admin User',
             'login': 'stmt_accounts_user',
             'email': 'stmt_accounts@example.com',
             'groups_id': [(6, 0, [self.grp_accounts.id])],
@@ -360,11 +360,10 @@ class TestFFMStatementModels(TransactionCase):
         self.assertIn(stmt_fp1, nsm_visible)
         self.assertIn(stmt_fp2, nsm_visible)
 
-        # Accounts view: sees only approved and paid statements
-        stmt_fp1.write({'state': 'approved'})
-        acc_visible = self.Statement.with_user(self.user_accounts).search([])
-        self.assertIn(stmt_fp1, acc_visible)
-        self.assertNotIn(stmt_fp2, acc_visible, "Accounts must not see draft/submitted statements.")
+        # Super Admin view (sees all, including draft/submitted)
+        admin_visible = self.Statement.with_user(self.user_accounts).search([])
+        self.assertIn(stmt_fp1, admin_visible)
+        self.assertIn(stmt_fp2, admin_visible)
 
     def test_05_skip_check_step_for_top_level_user(self):
         """Top-level employees without a parent_id skip the 'submitted' check step directly to 'checked'."""
@@ -390,6 +389,8 @@ class TestFFMStatementHttp(HttpCase):
     def setUp(self):
         super().setUp()
         self.env['ir.http']._clear_routing_map()
+        # These flows exercise the approval workflow, which is off by default
+        self.env['ir.config_parameter'].sudo().set_param('ffm_daily_report.approval_enabled', '1')
 
     def test_01_http_statement_routes(self):
         """Test portal /ff/statement page, statement generation, submit, and PDF export."""

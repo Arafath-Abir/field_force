@@ -19,7 +19,6 @@ class TestFFMDailyReport(TransactionCase):
         self.grp_fp = self.env.ref('field_force_management.group_ffm_field_person')
         self.grp_asm = self.env.ref('field_force_management.group_ffm_asm')
         self.grp_rsm = self.env.ref('field_force_management.group_ffm_rsm')
-        self.grp_dsm = self.env.ref('field_force_management.group_ffm_dsm')
         self.grp_nsm = self.env.ref('field_force_management.group_ffm_nsm')
         self.grp_director = self.env.ref('field_force_management.group_ffm_nsm')
         self.grp_admin = self.env.ref('field_force_management.group_ffm_admin')

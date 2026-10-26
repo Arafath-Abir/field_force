@@ -100,41 +100,21 @@ class TestFFMPhase4Models(TransactionCase):
         self.assertTrue(exp.id)
         self.assertEqual(exp.total_amount, 400.0)
 
-    def test_02_voucher_required_for_the_four_categories(self):
-        """Vouchers are required for Entertainment, Courier, Photocopy, and Hotel Rent when amount > 0."""
+    def test_02_voucher_optional_for_the_four_categories(self):
+        """Vouchers are optional for Entertainment, Courier, Photocopy, and Hotel Rent."""
         today = date.today()
 
-        # Entertainment without voucher -> Error
-        with self.assertRaises(ValidationError):
-            self.DailyExpense.create({
-                'employee_id': self.emp_fp1.id,
-                'date': today,
-                'entertainment': 300.0,
-            })
-
-        # Courier without voucher -> Error
-        with self.assertRaises(ValidationError):
-            self.DailyExpense.create({
-                'employee_id': self.emp_fp1.id,
-                'date': today,
-                'courier': 120.0,
-            })
-
-        # Photocopy without voucher -> Error
-        with self.assertRaises(ValidationError):
-            self.DailyExpense.create({
-                'employee_id': self.emp_fp1.id,
-                'date': today,
-                'photocopy': 80.0,
-            })
-
-        # Hotel rent without voucher -> Error
-        with self.assertRaises(ValidationError):
-            self.DailyExpense.create({
-                'employee_id': self.emp_fp1.id,
-                'date': today,
-                'hotel_rent': 1500.0,
-            })
+        # Without vouchers -> Success
+        exp_no_voucher = self.DailyExpense.create({
+            'employee_id': self.emp_fp1.id,
+            'date': today,
+            'entertainment': 300.0,
+            'courier': 120.0,
+            'photocopy': 80.0,
+            'hotel_rent': 1500.0,
+        })
+        self.assertTrue(exp_no_voucher.id)
+        exp_no_voucher.unlink()
 
         # With vouchers provided -> Success
         exp = self.DailyExpense.create({
@@ -319,12 +299,13 @@ class TestFFMPhase4Http(HttpCase):
         self.assertEqual(res_page.status_code, 200)
         self.assertIn('Daily Expense', res_page.content.decode('utf-8'))
 
-        # 3. Submit expense without required voucher -> Should return error
+        # 3. Submit expense with a non-image voucher -> Should return error
         err_payload = {
             'jsonrpc': '2.0',
             'method': 'call',
             'params': {
                 'entertainment': 400.0,
+                'voucher_entertainment': base64.b64encode(b'%PDF-1.4 not an image').decode('utf-8'),
                 'note': 'Tea and biscuits with chemist',
                 'latitude': 23.7461,
                 'longitude': 90.3742,
@@ -339,7 +320,7 @@ class TestFFMPhase4Http(HttpCase):
         self.assertEqual(res_err.status_code, 200)
         data_err = res_err.json().get('result', {})
         self.assertEqual(data_err.get('status'), 'error')
-        self.assertIn('voucher image is required', data_err.get('message', ''))
+        self.assertIn('Entertainment Voucher', data_err.get('message', ''))
 
         # 4. Submit valid expense with voucher and client_uuid
         uuid_token = 'http-expense-uuid-demo-777'

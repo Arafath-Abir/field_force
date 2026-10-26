@@ -51,7 +51,7 @@
                     <notebook>
                         <page string="Expense Categories" name="expense_categories">
                             <group>
-                                <group string="Major Expenses (Voucher Required)">
+                                <group string="Major Expenses (Voucher Optional)">
                                     <field name="entertainment"/>
                                     <field name="courier"/>
                                     <field name="photocopy"/>

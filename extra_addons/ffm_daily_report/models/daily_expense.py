@@ -134,24 +134,16 @@ class FFMDailyExpense(models.Model):
                     'voucher_photocopy', 'voucher_hotel_rent')
     def _check_voucher_requirements(self):
         for rec in self:
-            if rec.entertainment > 0:
-                if not rec.voucher_entertainment:
-                    raise ValidationError(_('A voucher image is required for Entertainment expense.'))
+            if rec.voucher_entertainment:
                 _validate_image_bytes(rec.voucher_entertainment, _('Entertainment Voucher'))
 
-            if rec.courier > 0:
-                if not rec.voucher_courier:
-                    raise ValidationError(_('A voucher image is required for Courier expense.'))
+            if rec.voucher_courier:
                 _validate_image_bytes(rec.voucher_courier, _('Courier Voucher'))
 
-            if rec.photocopy > 0:
-                if not rec.voucher_photocopy:
-                    raise ValidationError(_('A voucher image is required for Photocopy expense.'))
+            if rec.voucher_photocopy:
                 _validate_image_bytes(rec.voucher_photocopy, _('Photocopy Voucher'))
 
-            if rec.hotel_rent > 0:
-                if not rec.voucher_hotel_rent:
-                    raise ValidationError(_('A voucher image is required for Hotel Rent expense.'))
+            if rec.voucher_hotel_rent:
                 _validate_image_bytes(rec.voucher_hotel_rent, _('Hotel Rent Voucher'))
 
     @api.model
