@@ -74,8 +74,7 @@ class FFMHome(Home):
                 is_admin = (user._is_admin() or
                             user.has_group('field_force_management.group_ffm_admin') or
                             user.has_group('base.group_system'))
-                is_manager = (user.has_group('field_force_management.group_ffm_nsm') or
-                              user.has_group('field_force_management.group_ffm_director')) and not is_admin
+                is_manager = user.has_group('field_force_management.group_ffm_nsm') and not is_admin
                 is_rsm = user.has_group('field_force_management.group_ffm_rsm') and not (is_admin or is_manager)
                 is_asm = user.has_group('field_force_management.group_ffm_asm') and not (is_admin or is_manager or is_rsm)
                 is_fp = not (is_admin or is_manager or is_rsm or is_asm)
@@ -96,8 +95,7 @@ class FFMHome(Home):
                 is_admin = (user._is_admin() or
                             user.has_group('field_force_management.group_ffm_admin') or
                             user.has_group('base.group_system'))
-                is_manager = (user.has_group('field_force_management.group_ffm_nsm') or
-                              user.has_group('field_force_management.group_ffm_director')) and not is_admin
+                is_manager = user.has_group('field_force_management.group_ffm_nsm') and not is_admin
                 is_rsm = user.has_group('field_force_management.group_ffm_rsm') and not (is_admin or is_manager)
                 is_asm = user.has_group('field_force_management.group_ffm_asm') and not (is_admin or is_manager or is_rsm)
                 is_fp = not (is_admin or is_manager or is_rsm or is_asm)
@@ -237,7 +235,7 @@ class FFMController(http.Controller):
         app_name = request.env['ir.config_parameter'].sudo().get_param('ffm.app_name', default='Newtec FFM')
         
         is_super_admin = (user._is_admin() or user.has_group('field_force_management.group_ffm_admin') or user.has_group('base.group_system'))
-        is_manager = (user.has_group('field_force_management.group_ffm_nsm') or user.has_group('field_force_management.group_ffm_director')) and not is_super_admin
+        is_manager = user.has_group('field_force_management.group_ffm_nsm') and not is_super_admin
         is_rsm = user.has_group('field_force_management.group_ffm_rsm') and not (is_super_admin or is_manager)
         is_asm = user.has_group('field_force_management.group_ffm_asm') and not (is_super_admin or is_manager or is_rsm)
         is_fp = not (is_super_admin or is_manager or is_rsm or is_asm)
@@ -1371,7 +1369,7 @@ class FFMController(http.Controller):
         employee = user.employee_id or request.env['hr.employee'].sudo().search([('user_id', '=', user.id)], limit=1)
         
         is_super_admin = (user._is_admin() or user.has_group('field_force_management.group_ffm_admin') or user.has_group('base.group_system'))
-        is_manager = user.has_group('field_force_management.group_ffm_nsm') or user.has_group('field_force_management.group_ffm_director')
+        is_manager = user.has_group('field_force_management.group_ffm_nsm')
         is_rsm = user.has_group('field_force_management.group_ffm_rsm')
         is_asm = user.has_group('field_force_management.group_ffm_asm')
         is_fp = not (is_super_admin or is_manager or is_rsm or is_asm)
@@ -1711,7 +1709,6 @@ class FFMController(http.Controller):
         is_manager = (user.has_group('field_force_management.group_ffm_asm') or
                       user.has_group('field_force_management.group_ffm_rsm') or
                       user.has_group('field_force_management.group_ffm_nsm') or
-                      user.has_group('field_force_management.group_ffm_director') or
                       user.has_group('field_force_management.group_ffm_admin') or
                       request.env.is_admin())
         if not is_manager:
@@ -1724,8 +1721,7 @@ class FFMController(http.Controller):
         is_super_admin = (request.env.is_admin() or
                           user.has_group('field_force_management.group_ffm_admin') or
                           user.has_group('base.group_system'))
-        is_manager = (user.has_group('field_force_management.group_ffm_nsm') or
-                      user.has_group('field_force_management.group_ffm_director')) and not is_super_admin
+        is_manager = user.has_group('field_force_management.group_ffm_nsm') and not is_super_admin
         # Management roles assign territories, people, logins and the reporting hierarchy
         is_management = is_super_admin or is_manager
         is_rsm = user.has_group('field_force_management.group_ffm_rsm') and not (is_super_admin or is_manager)
@@ -1970,8 +1966,7 @@ class FFMController(http.Controller):
             request.env.is_admin() or
             user.has_group('field_force_management.group_ffm_admin') or
             user.has_group('base.group_system') or
-            user.has_group('field_force_management.group_ffm_nsm') or
-            user.has_group('field_force_management.group_ffm_director')
+            user.has_group('field_force_management.group_ffm_nsm')
         )
 
     def _ffm_id_list(self, values):

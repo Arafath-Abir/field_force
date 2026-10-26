@@ -144,7 +144,6 @@ class DailyReport(models.Model):
         user = self.env.user
         higher_groups = [
             'field_force_management.group_ffm_nsm',
-            'field_force_management.group_ffm_director',
             'field_force_management.group_ffm_admin',
             'base.group_system',
         ]
@@ -164,7 +163,7 @@ class DailyReport(models.Model):
             if rec.state != 'submitted':
                 raise UserError(_('Only submitted reports can be approved.'))
             if not rec._can_approve_or_reject():
-                raise UserError(_('Only the direct manager or a higher authority (RSM, DSM, NSM, Director, Admin) can approve this daily report.'))
+                raise UserError(_('Only the direct manager or a higher authority (RSM, Manager, Super Admin) can approve this daily report.'))
             rec.state = 'approved'
 
     def action_reject(self):
@@ -172,7 +171,7 @@ class DailyReport(models.Model):
             if rec.state != 'submitted':
                 raise UserError(_('Only submitted reports can be rejected.'))
             if not rec._can_approve_or_reject():
-                raise UserError(_('Only the direct manager or a higher authority (RSM, DSM, NSM, Director, Admin) can reject this daily report.'))
+                raise UserError(_('Only the direct manager or a higher authority (RSM, Manager, Super Admin) can reject this daily report.'))
             rec.state = 'rejected'
 
     def action_reset_draft(self):

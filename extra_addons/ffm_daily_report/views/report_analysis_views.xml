@@ -385,7 +385,7 @@
               name="Reporting"
               parent="field_force_management.menu_ffm_root"
               sequence="50"
-              groups="field_force_management.group_ffm_asm,field_force_management.group_ffm_rsm,field_force_management.group_ffm_dsm,field_force_management.group_ffm_nsm,field_force_management.group_ffm_director,field_force_management.group_ffm_admin"/>
+              groups="field_force_management.group_ffm_asm,field_force_management.group_ffm_rsm,field_force_management.group_ffm_nsm,field_force_management.group_ffm_admin"/>
 
     <menuitem id="menu_ffm_daily_report_analysis"
               name="Daily Report &amp; Sales Analysis"

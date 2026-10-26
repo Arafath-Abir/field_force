@@ -61,15 +61,12 @@ def activate_and_set_credentials(env):
         ('ffm_admin_demo', 'System Admin (FFM Admin)'),
         ('ffm_nsm_demo', 'Jahangir Alam (NSM)'),
         ('ffm_rsm_demo', 'Md. Karimul Islam (RSM)'),
-        ('ffm_dsm_demo', 'Anisur Rahman (DSM)'),
         ('ffm_asm_demo', 'Md. Nazmul Huda (ASM)'),
         ('ffm_asm_dhaka', 'Tariqul Alam (ASM)'),
         ('ffm_fp_demo', 'Abdur Rahim (MPO)'),
         ('ffm_fp_sherpur', 'Shafiqul Islam (MPO)'),
         ('ffm_fp_dhaka', 'Monir Hossain (MPO)'),
         ('ffm_fp_demo2', 'Kamrul Islam (FP-2)'),
-        ('ffm_director_demo', 'Dr. Zahid Hossain (Director)'),
-        ('ffm_accounts_demo', 'Shafiqul Islam (Accounts)'),
     ]
 
     for login, name in user_configs:

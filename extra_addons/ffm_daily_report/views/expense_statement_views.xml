@@ -48,19 +48,19 @@
                             attrs="{'invisible': [('state', 'not in', ('draft', 'rejected'))]}"/>
                     <button name="action_check" string="Check (Superior)"
                             type="object" class="btn-warning"
-                            groups="field_force_management.group_ffm_asm,field_force_management.group_ffm_rsm,field_force_management.group_ffm_dsm,field_force_management.group_ffm_nsm,field_force_management.group_ffm_director,field_force_management.group_ffm_admin"
+                            groups="field_force_management.group_ffm_asm,field_force_management.group_ffm_rsm,field_force_management.group_ffm_nsm,field_force_management.group_ffm_admin"
                             attrs="{'invisible': [('state', '!=', 'submitted')]}"/>
                     <button name="action_approve" string="Approve"
                             type="object" class="btn-primary"
-                            groups="field_force_management.group_ffm_nsm,field_force_management.group_ffm_director,field_force_management.group_ffm_admin"
+                            groups="field_force_management.group_ffm_nsm,field_force_management.group_ffm_admin"
                             attrs="{'invisible': [('state', '!=', 'checked')]}"/>
                     <button name="action_pay" string="Mark as Paid"
                             type="object" class="btn-success"
-                            groups="field_force_management.group_ffm_accounts,account.group_account_user,field_force_management.group_ffm_admin"
+                            groups="account.group_account_user,field_force_management.group_ffm_admin"
                             attrs="{'invisible': [('state', '!=', 'approved')]}"/>
                     <button name="action_open_reject_wizard" string="Reject"
                             type="object" class="btn-danger"
-                            groups="field_force_management.group_ffm_asm,field_force_management.group_ffm_rsm,field_force_management.group_ffm_dsm,field_force_management.group_ffm_nsm,field_force_management.group_ffm_director,field_force_management.group_ffm_admin"
+                            groups="field_force_management.group_ffm_asm,field_force_management.group_ffm_rsm,field_force_management.group_ffm_nsm,field_force_management.group_ffm_admin"
                             attrs="{'invisible': [('state', 'not in', ('submitted', 'checked'))]}"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="draft,submitted,checked,approved,paid"/>
@@ -228,7 +228,7 @@
               name="Accounts Statements (To Pay)"
               parent="field_force_management.menu_ffm_root"
               sequence="35"
-              groups="field_force_management.group_ffm_accounts,account.group_account_user,field_force_management.group_ffm_admin"
+              groups="account.group_account_user,field_force_management.group_ffm_admin"
               action="action_ffm_expense_statement_accounts"/>
 
 </odoo>

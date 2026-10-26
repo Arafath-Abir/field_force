@@ -290,7 +290,7 @@
                             </td>
                             <td>
                                 <div class="sig-line">
-                                    Approved by (NSM/Director)<br/>
+                                    Approved by (Manager)<br/>
                                     <strong><t t-esc="doc.approved_by.name or ''"/></strong><br/>
                                     <span style="font-size: 8px; color: #666;">
                                         <t t-if="doc.approved_date">Date: <t t-esc="doc.approved_date.strftime('%Y-%m-%d %H:%M')"/></t>

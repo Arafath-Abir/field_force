@@ -56,7 +56,7 @@ class ResConfigSettings(models.TransientModel):
         string='RSM/ASM See Full Subtree',
         default=False,
         config_parameter='field_force_management.subtree_visibility',
-        help='If enabled, ASM/RSM/DSM see full subordinate subtree (child_of) instead of only direct reports.',
+        help='If enabled, ASM/RSM see full subordinate subtree (child_of) instead of only direct reports.',
     )
 
     @staticmethod

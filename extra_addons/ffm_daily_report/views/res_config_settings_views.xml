@@ -54,7 +54,7 @@
                             <div class="o_setting_right_pane">
                                 <label for="ffm_subtree_visibility"/>
                                 <div class="text-muted">
-                                    Allow ASM/RSM/DSM to see the full hierarchy tree below them (child_of) instead of only direct reports.
+                                    Allow ASM/RSM to see the full hierarchy tree below them (child_of) instead of only direct reports.
                                 </div>
                             </div>
                         </div>

@@ -35,7 +35,7 @@ class TestFFMStatementModels(TransactionCase):
         self.grp_rsm = self.env.ref('field_force_management.group_ffm_rsm')
         self.grp_nsm = self.env.ref('field_force_management.group_ffm_nsm')
         self.grp_admin = self.env.ref('field_force_management.group_ffm_admin')
-        self.grp_accounts = self.env.ref('field_force_management.group_ffm_accounts')
+        self.grp_accounts = self.env.ref('field_force_management.group_ffm_admin')
 
         # Create Job & Allowance rate
         self.job_mio = self.Job.create({'name': 'Test Medical Information Officer'})
@@ -259,7 +259,7 @@ class TestFFMStatementModels(TransactionCase):
         self.assertEqual(stmt.checked_by, self.user_asm)
         self.assertTrue(stmt.checked_date)
 
-        # Verify ASM cannot approve (only NSM, Director, Admin can approve)
+        # Verify ASM cannot approve (only Manager, Super Admin can approve)
         with self.assertRaises((UserError, AccessError)):
             stmt_as_asm.action_approve()
 

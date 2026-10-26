@@ -27,39 +27,18 @@
         <field name="implied_ids" eval="[(4, ref('group_ffm_asm'))]"/>
     </record>
 
-    <!-- DSM -->
-    <record id="group_ffm_dsm" model="res.groups">
-        <field name="name">DSM</field>
+    <!-- Manager (Manager Panel) -->
+    <record id="group_ffm_nsm" model="res.groups">
+        <field name="name">Manager</field>
         <field name="category_id" ref="ffm_module_category"/>
         <field name="implied_ids" eval="[(4, ref('group_ffm_rsm'))]"/>
     </record>
 
-    <!-- NSM / MM -->
-    <record id="group_ffm_nsm" model="res.groups">
-        <field name="name">NSM / MM</field>
-        <field name="category_id" ref="ffm_module_category"/>
-        <field name="implied_ids" eval="[(4, ref('group_ffm_dsm'))]"/>
-    </record>
-
-    <!-- Director (same level as NSM/MM, implies DSM) -->
-    <record id="group_ffm_director" model="res.groups">
-        <field name="name">Director</field>
-        <field name="category_id" ref="ffm_module_category"/>
-        <field name="implied_ids" eval="[(4, ref('group_ffm_dsm'))]"/>
-    </record>
-
-    <!-- Accounts -->
-    <record id="group_ffm_accounts" model="res.groups">
-        <field name="name">Accounts</field>
-        <field name="category_id" ref="ffm_module_category"/>
-        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
-    </record>
-
-    <!-- Admin (full access) -->
+    <!-- Super Admin (full access) -->
     <record id="group_ffm_admin" model="res.groups">
-        <field name="name">Administrator</field>
+        <field name="name">Super Admin</field>
         <field name="category_id" ref="ffm_module_category"/>
-        <field name="implied_ids" eval="[(4, ref('group_ffm_nsm')), (4, ref('group_ffm_director'))]"/>
+        <field name="implied_ids" eval="[(4, ref('group_ffm_nsm'))]"/>
         <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
     </record>
 
@@ -77,11 +56,11 @@
         <field name="perm_unlink" eval="False"/>
     </record>
 
-    <!-- Daily Report: Managers (ASM, RSM, DSM: Own + Direct Reports / Subtree) -->
+    <!-- Daily Report: Managers (ASM, RSM: Own + Direct Reports / Subtree) -->
     <record id="rule_ffm_daily_report_manager" model="ir.rule">
         <field name="name">Daily Report: Manager Visibility</field>
         <field name="model_id" ref="model_ffm_daily_report"/>
-        <field name="groups" eval="[(4, ref('group_ffm_asm')), (4, ref('group_ffm_rsm')), (4, ref('group_ffm_dsm'))]"/>
+        <field name="groups" eval="[(4, ref('group_ffm_asm')), (4, ref('group_ffm_rsm'))]"/>
         <field name="domain_force">['|', '|', ('employee_id.user_id', '=', user.id), ('employee_id.parent_id.user_id', '=', user.id), ('employee_id', 'child_of', [e.id for e in user.employee_ids])] if user.env['ir.config_parameter'].sudo().get_param('field_force_management.subtree_visibility') else ['|', ('employee_id.user_id', '=', user.id), ('employee_id.parent_id.user_id', '=', user.id)]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="True"/>
@@ -89,11 +68,11 @@
         <field name="perm_unlink" eval="False"/>
     </record>
 
-    <!-- Daily Report: Top Management (NSM/MM, Director, Admin: All Records) -->
+    <!-- Daily Report: Top Management (Manager, Super Admin: All Records) -->
     <record id="rule_ffm_daily_report_all" model="ir.rule">
-        <field name="name">Daily Report: All Records for NSM, Director, Admin</field>
+        <field name="name">Daily Report: All Records for Manager, Super Admin</field>
         <field name="model_id" ref="model_ffm_daily_report"/>
-        <field name="groups" eval="[(4, ref('group_ffm_nsm')), (4, ref('group_ffm_director')), (4, ref('group_ffm_admin')), (4, ref('group_ffm_accounts'))]"/>
+        <field name="groups" eval="[(4, ref('group_ffm_nsm')), (4, ref('group_ffm_admin'))]"/>
         <field name="domain_force">[(1, '=', 1)]</field>
     </record>
 
@@ -109,15 +88,15 @@
     <record id="rule_ffm_chemist_visit_manager" model="ir.rule">
         <field name="name">Chemist Visit: Manager Visibility</field>
         <field name="model_id" ref="model_ffm_chemist_visit"/>
-        <field name="groups" eval="[(4, ref('group_ffm_asm')), (4, ref('group_ffm_rsm')), (4, ref('group_ffm_dsm'))]"/>
+        <field name="groups" eval="[(4, ref('group_ffm_asm')), (4, ref('group_ffm_rsm'))]"/>
         <field name="domain_force">['|', ('report_id.employee_id.user_id', '=', user.id), ('report_id.employee_id', 'child_of', [e.id for e in user.employee_ids])] if user.env['ir.config_parameter'].sudo().get_param('field_force_management.subtree_visibility') else ['|', ('report_id.employee_id.user_id', '=', user.id), ('report_id.employee_id.parent_id.user_id', '=', user.id)]</field>
     </record>
 
     <!-- Chemist Visit: All -->
     <record id="rule_ffm_chemist_visit_all" model="ir.rule">
-        <field name="name">Chemist Visit: All Records for NSM, Director, Admin</field>
+        <field name="name">Chemist Visit: All Records for Manager, Super Admin</field>
         <field name="model_id" ref="model_ffm_chemist_visit"/>
-        <field name="groups" eval="[(4, ref('group_ffm_nsm')), (4, ref('group_ffm_director')), (4, ref('group_ffm_admin')), (4, ref('group_ffm_accounts'))]"/>
+        <field name="groups" eval="[(4, ref('group_ffm_nsm')), (4, ref('group_ffm_admin'))]"/>
         <field name="domain_force">[(1, '=', 1)]</field>
     </record>
 
@@ -133,15 +112,15 @@
     <record id="rule_ffm_prescriber_visit_manager" model="ir.rule">
         <field name="name">Prescriber Visit: Manager Visibility</field>
         <field name="model_id" ref="model_ffm_prescriber_visit"/>
-        <field name="groups" eval="[(4, ref('group_ffm_asm')), (4, ref('group_ffm_rsm')), (4, ref('group_ffm_dsm'))]"/>
+        <field name="groups" eval="[(4, ref('group_ffm_asm')), (4, ref('group_ffm_rsm'))]"/>
         <field name="domain_force">['|', ('report_id.employee_id.user_id', '=', user.id), ('report_id.employee_id', 'child_of', [e.id for e in user.employee_ids])] if user.env['ir.config_parameter'].sudo().get_param('field_force_management.subtree_visibility') else ['|', ('report_id.employee_id.user_id', '=', user.id), ('report_id.employee_id.parent_id.user_id', '=', user.id)]</field>
     </record>
 
     <!-- Prescriber Visit: All -->
     <record id="rule_ffm_prescriber_visit_all" model="ir.rule">
-        <field name="name">Prescriber Visit: All Records for NSM, Director, Admin</field>
+        <field name="name">Prescriber Visit: All Records for Manager, Super Admin</field>
         <field name="model_id" ref="model_ffm_prescriber_visit"/>
-        <field name="groups" eval="[(4, ref('group_ffm_nsm')), (4, ref('group_ffm_director')), (4, ref('group_ffm_admin')), (4, ref('group_ffm_accounts'))]"/>
+        <field name="groups" eval="[(4, ref('group_ffm_nsm')), (4, ref('group_ffm_admin'))]"/>
         <field name="domain_force">[(1, '=', 1)]</field>
     </record>
 
@@ -157,15 +136,15 @@
     <record id="rule_ffm_travel_log_manager" model="ir.rule">
         <field name="name">Travel Log: Manager Visibility</field>
         <field name="model_id" ref="model_ffm_travel_log"/>
-        <field name="groups" eval="[(4, ref('group_ffm_asm')), (4, ref('group_ffm_rsm')), (4, ref('group_ffm_dsm'))]"/>
+        <field name="groups" eval="[(4, ref('group_ffm_asm')), (4, ref('group_ffm_rsm'))]"/>
         <field name="domain_force">['|', ('employee_id.user_id', '=', user.id), ('employee_id', 'child_of', [e.id for e in user.employee_ids])] if user.env['ir.config_parameter'].sudo().get_param('field_force_management.subtree_visibility') else ['|', ('employee_id.user_id', '=', user.id), ('employee_id.parent_id.user_id', '=', user.id)]</field>
     </record>
 
     <!-- Travel Log: All -->
     <record id="rule_ffm_travel_log_all" model="ir.rule">
-        <field name="name">Travel Log: All Records for NSM, Director, Admin, Accounts</field>
+        <field name="name">Travel Log: All Records for Manager, Super Admin</field>
         <field name="model_id" ref="model_ffm_travel_log"/>
-        <field name="groups" eval="[(4, ref('group_ffm_nsm')), (4, ref('group_ffm_director')), (4, ref('group_ffm_admin')), (4, ref('group_ffm_accounts'))]"/>
+        <field name="groups" eval="[(4, ref('group_ffm_nsm')), (4, ref('group_ffm_admin'))]"/>
         <field name="domain_force">[(1, '=', 1)]</field>
     </record>
 
@@ -181,15 +160,15 @@
     <record id="rule_ffm_travel_journey_manager" model="ir.rule">
         <field name="name">Travel Journey: Manager Visibility</field>
         <field name="model_id" ref="model_ffm_travel_journey"/>
-        <field name="groups" eval="[(4, ref('group_ffm_asm')), (4, ref('group_ffm_rsm')), (4, ref('group_ffm_dsm'))]"/>
+        <field name="groups" eval="[(4, ref('group_ffm_asm')), (4, ref('group_ffm_rsm'))]"/>
         <field name="domain_force">['|', ('travel_log_id.employee_id.user_id', '=', user.id), ('travel_log_id.employee_id', 'child_of', [e.id for e in user.employee_ids])] if user.env['ir.config_parameter'].sudo().get_param('field_force_management.subtree_visibility') else ['|', ('travel_log_id.employee_id.user_id', '=', user.id), ('travel_log_id.employee_id.parent_id.user_id', '=', user.id)]</field>
     </record>
 
     <!-- Travel Journey: All -->
     <record id="rule_ffm_travel_journey_all" model="ir.rule">
-        <field name="name">Travel Journey: All Records for NSM, Director, Admin, Accounts</field>
+        <field name="name">Travel Journey: All Records for Manager, Super Admin</field>
         <field name="model_id" ref="model_ffm_travel_journey"/>
-        <field name="groups" eval="[(4, ref('group_ffm_nsm')), (4, ref('group_ffm_director')), (4, ref('group_ffm_admin')), (4, ref('group_ffm_accounts'))]"/>
+        <field name="groups" eval="[(4, ref('group_ffm_nsm')), (4, ref('group_ffm_admin'))]"/>
         <field name="domain_force">[(1, '=', 1)]</field>
     </record>
 
@@ -205,15 +184,15 @@
     <record id="rule_customer_information_manager" model="ir.rule">
         <field name="name">Customer Information: Manager Visibility</field>
         <field name="model_id" ref="customer_management.model_customer_information"/>
-        <field name="groups" eval="[(4, ref('group_ffm_asm')), (4, ref('group_ffm_rsm')), (4, ref('group_ffm_dsm'))]"/>
+        <field name="groups" eval="[(4, ref('group_ffm_asm')), (4, ref('group_ffm_rsm'))]"/>
         <field name="domain_force">['|', '|', ('field_person_id.user_id', '=', user.id), ('field_person_id', '=', False), ('field_person_id', 'child_of', [e.id for e in user.employee_ids])] if user.env['ir.config_parameter'].sudo().get_param('field_force_management.subtree_visibility') else ['|', '|', ('field_person_id.user_id', '=', user.id), ('field_person_id', '=', False), ('field_person_id.parent_id.user_id', '=', user.id)]</field>
     </record>
 
     <!-- Customer Information: All -->
     <record id="rule_customer_information_all" model="ir.rule">
-        <field name="name">Customer Information: All Records for NSM, Director, Admin</field>
+        <field name="name">Customer Information: All Records for Manager, Super Admin</field>
         <field name="model_id" ref="customer_management.model_customer_information"/>
-        <field name="groups" eval="[(4, ref('group_ffm_nsm')), (4, ref('group_ffm_director')), (4, ref('group_ffm_admin'))]"/>
+        <field name="groups" eval="[(4, ref('group_ffm_nsm')), (4, ref('group_ffm_admin'))]"/>
         <field name="domain_force">[(1, '=', 1)]</field>
     </record>
 

@@ -73,6 +73,6 @@
         parent="field_force_management.menu_ffm_config"
         sequence="40"
         action="action_ffm_allowance_rate"
-        groups="field_force_management.group_ffm_admin,field_force_management.group_ffm_director,field_force_management.group_ffm_nsm"/>
+        groups="field_force_management.group_ffm_admin,field_force_management.group_ffm_nsm"/>
 
 </odoo>

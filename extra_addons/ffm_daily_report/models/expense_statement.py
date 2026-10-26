@@ -291,9 +291,7 @@ class FFMExpenseStatement(models.Model):
                     res_name=rec.name
                 )
                 approver = self.env['res.users'].search([
-                    '|',
                     ('groups_id', 'in', self.env.ref('field_force_management.group_ffm_nsm').ids),
-                    ('groups_id', 'in', self.env.ref('field_force_management.group_ffm_director').ids),
                 ], limit=1)
                 if approver:
                     rec.with_context(mail_activity_quick_update=True).activity_schedule(
@@ -324,7 +322,7 @@ class FFMExpenseStatement(models.Model):
                     )
 
     def action_check(self):
-        """Direct superior (ASM, RSM, DSM, NSM) checks the statement."""
+        """Direct superior (ASM, RSM, Manager) checks the statement."""
         for rec in self:
             if rec.state != 'submitted':
                 raise UserError(_("Only Submitted statements can be checked."))
@@ -336,7 +334,6 @@ class FFMExpenseStatement(models.Model):
             if emp.parent_id and emp.parent_id.user_id == user:
                 is_manager = True
             elif (user.has_group('field_force_management.group_ffm_nsm') or
-                  user.has_group('field_force_management.group_ffm_director') or
                   user.has_group('field_force_management.group_ffm_admin')):
                 is_manager = True
             elif emp.parent_id and user.id in self.env['res.users'].search([('employee_id', 'child_of', user.employee_id.id)]).ids:
@@ -368,9 +365,7 @@ class FFMExpenseStatement(models.Model):
                 pass
 
             approver = self.env['res.users'].search([
-                '|',
                 ('groups_id', 'in', self.env.ref('field_force_management.group_ffm_nsm').ids),
-                ('groups_id', 'in', self.env.ref('field_force_management.group_ffm_director').ids),
             ], limit=1)
             if approver:
                 rec.with_context(mail_activity_quick_update=True).activity_schedule(
@@ -381,16 +376,15 @@ class FFMExpenseStatement(models.Model):
                 )
 
     def action_approve(self):
-        """NSM, MM, Director or Super Admin approves the statement."""
+        """Manager or Super Admin approves the statement."""
         for rec in self:
             if rec.state != 'checked':
                 raise UserError(_("Only Checked statements can be approved."))
 
             user = self.env.user
             if not (user.has_group('field_force_management.group_ffm_nsm') or
-                    user.has_group('field_force_management.group_ffm_director') or
-                    user.has_group('field_force_management.group_ffm_admin')):
-                raise UserError(_("Only NSM, Marketing Manager, Director or Super Admin can approve statements."))
+                      user.has_group('field_force_management.group_ffm_admin')):
+                raise UserError(_("Only Manager or Super Admin can approve statements."))
 
             rec.write({
                 'state': 'approved',
@@ -411,9 +405,7 @@ class FFMExpenseStatement(models.Model):
                 pass
 
             acc_user = self.env['res.users'].search([
-                '|',
-                ('groups_id', 'in', self.env.ref('field_force_management.group_ffm_accounts').ids),
-                ('groups_id', 'in', self.env.ref('account.group_account_user').ids),
+                ('groups_id', 'in', self.env.ref('field_force_management.group_ffm_admin').ids),
             ], limit=1)
             if acc_user:
                 rec.with_context(mail_activity_quick_update=True).activity_schedule(
@@ -424,16 +416,15 @@ class FFMExpenseStatement(models.Model):
                 )
 
     def action_pay(self):
-        """Accounts marks the statement as paid."""
+        """Manager or Super Admin marks the statement as paid."""
         for rec in self:
             if rec.state != 'approved':
                 raise UserError(_("Only Approved statements can be marked as paid."))
 
             user = self.env.user
-            if not (user.has_group('field_force_management.group_ffm_accounts') or
-                    user.has_group('account.group_account_user') or
+            if not (user.has_group('field_force_management.group_ffm_nsm') or
                     user.has_group('field_force_management.group_ffm_admin')):
-                raise UserError(_("Only Accounts personnel can mark statements as paid."))
+                raise UserError(_("Only Manager or Super Admin can mark statements as paid."))
 
             rec.write({
                 'state': 'paid',

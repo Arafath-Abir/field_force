@@ -12,9 +12,6 @@
         <record id="job_demo_rsm" model="hr.job">
             <field name="name">Regional Sales Manager</field>
         </record>
-        <record id="job_demo_dsm" model="hr.job">
-            <field name="name">Divisional Sales Manager</field>
-        </record>
         <record id="job_demo_nsm" model="hr.job">
             <field name="name">National Sales Manager</field>
         </record>
@@ -36,12 +33,6 @@
             <field name="job_id" ref="job_demo_rsm"/>
             <field name="da_per_day">700.0</field>
             <field name="motorcycle_maintenance_per_month">4500.0</field>
-            <field name="active">1</field>
-        </record>
-        <record id="rate_demo_dsm" model="ffm.allowance.rate">
-            <field name="job_id" ref="job_demo_dsm"/>
-            <field name="da_per_day">900.0</field>
-            <field name="motorcycle_maintenance_per_month">5500.0</field>
             <field name="active">1</field>
         </record>
         <record id="rate_demo_nsm" model="ffm.allowance.rate">
@@ -100,19 +91,7 @@
             ])]"/>
         </record>
 
-        <!-- 5. DSM Demo -->
-        <record id="user_demo_dsm" model="res.users">
-            <field name="name">Anisur Rahman (DSM)</field>
-            <field name="login">ffm_dsm_demo</field>
-            <field name="password">Demo12345!</field>
-            <field name="tz">Asia/Dhaka</field>
-            <field name="groups_id" eval="[(6, 0, [
-                ref('base.group_user'),
-                ref('field_force_management.group_ffm_dsm')
-            ])]"/>
-        </record>
-
-        <!-- 6. NSM Demo -->
+        <!-- 5. Manager Demo -->
         <record id="user_demo_nsm" model="res.users">
             <field name="name">Jahangir Alam (NSM)</field>
             <field name="login">ffm_nsm_demo</field>
@@ -124,31 +103,7 @@
             ])]"/>
         </record>
 
-        <!-- 7. Director Demo -->
-        <record id="user_demo_director" model="res.users">
-            <field name="name">Dr. Zahid Hossain (Director)</field>
-            <field name="login">ffm_director_demo</field>
-            <field name="password">Demo12345!</field>
-            <field name="tz">Asia/Dhaka</field>
-            <field name="groups_id" eval="[(6, 0, [
-                ref('base.group_user'),
-                ref('field_force_management.group_ffm_director')
-            ])]"/>
-        </record>
-
-        <!-- 8. Accounts Demo -->
-        <record id="user_demo_accounts" model="res.users">
-            <field name="name">Shafiqul Islam (Accounts)</field>
-            <field name="login">ffm_accounts_demo</field>
-            <field name="password">Demo12345!</field>
-            <field name="tz">Asia/Dhaka</field>
-            <field name="groups_id" eval="[(6, 0, [
-                ref('base.group_user'),
-                ref('field_force_management.group_ffm_accounts')
-            ])]"/>
-        </record>
-
-        <!-- 9. Admin Demo -->
+        <!-- 6. Super Admin Demo -->
         <record id="user_demo_admin" model="res.users">
             <field name="name">System Admin (FFM Admin)</field>
             <field name="login">ffm_admin_demo</field>
@@ -161,37 +116,19 @@
             ])]"/>
         </record>
 
-        <!-- ── Demo Employees (hr.employee) linked to users with hierarchy ── -->
-        <record id="emp_demo_director" model="hr.employee">
-            <field name="name">Dr. Zahid Hossain</field>
-            <field name="user_id" ref="user_demo_director"/>
-            <field name="hq">Head Office, Dhaka</field>
-            <field name="ffm_phone">+8801711000001</field>
-        </record>
-
         <record id="emp_demo_nsm" model="hr.employee">
             <field name="name">Jahangir Alam</field>
             <field name="user_id" ref="user_demo_nsm"/>
             <field name="job_id" ref="job_demo_nsm"/>
-            <field name="parent_id" ref="emp_demo_director"/>
             <field name="hq">Head Office, Dhaka</field>
             <field name="ffm_phone">+8801711000002</field>
-        </record>
-
-        <record id="emp_demo_dsm" model="hr.employee">
-            <field name="name">Anisur Rahman</field>
-            <field name="user_id" ref="user_demo_dsm"/>
-            <field name="job_id" ref="job_demo_dsm"/>
-            <field name="parent_id" ref="emp_demo_nsm"/>
-            <field name="hq">Dhaka North</field>
-            <field name="ffm_phone">+8801711000003</field>
         </record>
 
         <record id="emp_demo_rsm" model="hr.employee">
             <field name="name">Mahmudul Hasan</field>
             <field name="user_id" ref="user_demo_rsm"/>
             <field name="job_id" ref="job_demo_rsm"/>
-            <field name="parent_id" ref="emp_demo_dsm"/>
+            <field name="parent_id" ref="emp_demo_nsm"/>
             <field name="hq">Gazipur</field>
             <field name="ffm_phone">+8801711000004</field>
         </record>

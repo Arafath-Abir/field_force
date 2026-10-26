@@ -26,7 +26,6 @@ class HrEmployee(models.Model):
             user = emp.user_id
             job = (emp.job_id.name or '').lower()
             if user and (user.has_group('field_force_management.group_ffm_nsm') or
-                         user.has_group('field_force_management.group_ffm_director') or
                          user.has_group('field_force_management.group_ffm_admin')):
                 emp.ffm_role = 'manager'
             elif (user and user.has_group('field_force_management.group_ffm_rsm')) or 'rsm' in job or 'regional' in job:
@@ -43,12 +42,8 @@ class HrEmployee(models.Model):
     def _get_target_ffm_group_xmlid(self):
         self.ensure_one()
         job_name = (self.job_id.name or '').upper()
-        if 'DIRECTOR' in job_name:
-            return 'field_force_management.group_ffm_director'
-        if 'NSM' in job_name or 'NATIONAL' in job_name or 'MARKETING MANAGER' in job_name:
+        if 'NSM' in job_name or 'NATIONAL' in job_name or ('MANAGER' in job_name and 'AREA' not in job_name and 'REGION' not in job_name):
             return 'field_force_management.group_ffm_nsm'
-        if 'DSM' in job_name or 'DIVISION' in job_name:
-            return 'field_force_management.group_ffm_dsm'
         if 'RSM' in job_name or 'REGION' in job_name:
             return 'field_force_management.group_ffm_rsm'
         if 'ASM' in job_name or 'AREA' in job_name:

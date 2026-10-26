@@ -39,7 +39,7 @@ class TestFFMPhase5Models(TransactionCase):
         self.grp_asm = self.env.ref('field_force_management.group_ffm_asm')
         self.grp_rsm = self.env.ref('field_force_management.group_ffm_rsm')
         self.grp_nsm = self.env.ref('field_force_management.group_ffm_nsm')
-        self.grp_director = self.env.ref('field_force_management.group_ffm_director')
+        self.grp_director = self.env.ref('field_force_management.group_ffm_nsm')
         self.grp_admin = self.env.ref('field_force_management.group_ffm_admin')
 
         # Create Hierarchy: RSM -> ASM -> FP1 & FP2
