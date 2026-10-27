@@ -2674,3 +2674,560 @@ body {
         font-weight: 400;
     }
 }
+
+/* ==========================================================================
+   Reports Side Panel (ASM, RSM, Manager, Super Admin)
+   Desktop: fixed column beside the page. Phone/tablet: slide-in drawer
+   opened from the header "Reports" button.
+   ========================================================================== */
+
+:root {
+    --ffm-bg: #f3f6f4;
+    --ffm-header-h: 57px;
+    --ffm-sidenav-w: 236px;
+}
+
+.ffm-shell {
+    width: 100%;
+}
+
+.ffm-sidenav-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    padding: 5px 10px;
+    border-radius: 7px;
+    font: inherit;
+    font-size: 0.76rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.ffm-sidenav-toggle:hover {
+    background: rgba(255, 255, 255, 0.22);
+}
+
+.ffm-sidenav {
+    background: #ffffff;
+    border-right: 1px solid var(--ffm-border);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.ffm-sidenav-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 18px 6px;
+}
+
+.ffm-sidenav-heading {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--ffm-text);
+}
+
+.ffm-sidenav-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--ffm-border);
+    border-radius: 8px;
+    background: #ffffff;
+    color: var(--ffm-text-muted);
+    cursor: pointer;
+}
+
+.ffm-sidenav-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 4px 10px 24px;
+}
+
+.ffm-sidenav-group {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--ffm-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 16px 10px 6px;
+}
+
+.ffm-sidenav-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    color: var(--ffm-text-secondary);
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-weight: 500;
+    line-height: 1.3;
+    transition: background 0.12s ease, color 0.12s ease;
+}
+
+.ffm-sidenav-link .ffm-icon {
+    color: var(--ffm-text-muted);
+}
+
+.ffm-sidenav-link:hover {
+    background: var(--ffm-surface-muted, #f8f9fb);
+    color: var(--ffm-text);
+}
+
+.ffm-sidenav-link.active {
+    background: var(--ffm-primary-light);
+    color: var(--ffm-primary);
+    font-weight: 600;
+}
+
+.ffm-sidenav-link.active .ffm-icon {
+    color: var(--ffm-primary);
+}
+
+.ffm-sidenav-count {
+    margin-left: auto;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 9999px;
+    background: var(--ffm-warning-light);
+    color: #92400e;
+    border: 1px solid #fde68a;
+    font-size: 0.7rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ffm-sidenav-backdrop {
+    display: none;
+}
+
+/* Phone and tablet: drawer */
+@media (max-width: 1023px) {
+    .ffm-sidenav {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: min(82vw, 290px);
+        z-index: 300;
+        transform: translateX(-100%);
+        transition: transform 0.2s ease;
+        box-shadow: none;
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .ffm-sidenav-open .ffm-sidenav {
+        transform: translateX(0);
+        box-shadow: 0 10px 30px rgba(16, 24, 40, 0.18);
+    }
+
+    .ffm-sidenav-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 250;
+        background: rgba(15, 23, 42, 0.32);
+    }
+
+    .ffm-sidenav-open .ffm-sidenav-backdrop {
+        display: block;
+    }
+
+    .ffm-sidenav-open {
+        overflow: hidden;
+    }
+
+    .ffm-sidenav-link {
+        padding: 11px 10px;
+        font-size: 0.92rem;
+    }
+}
+
+/* Narrow phones: the Reports button replaces the title and role pill */
+@media (max-width: 480px) {
+    .ffm-has-sidenav .ffm-header-title,
+    .ffm-has-sidenav .ffm-header-badge-role {
+        display: none !important;
+    }
+}
+
+@media (max-width: 400px) {
+    .ffm-has-sidenav .ffm-logout-text {
+        display: none;
+    }
+}
+
+/* Desktop: fixed column, content beside it */
+@media (min-width: 1024px) {
+    .ffm-sidenav-toggle,
+    .ffm-sidenav-close {
+        display: none;
+    }
+
+    .ffm-has-sidenav .ffm-header-inner {
+        max-width: none;
+    }
+
+    .ffm-has-sidenav .ffm-shell {
+        display: flex;
+        align-items: flex-start;
+    }
+
+    .ffm-has-sidenav .ffm-sidenav {
+        position: sticky;
+        top: var(--ffm-header-h);
+        width: var(--ffm-sidenav-w);
+        height: calc(100vh - var(--ffm-header-h));
+        flex-shrink: 0;
+    }
+
+    .ffm-has-sidenav .ffm-container {
+        flex: 1;
+        min-width: 0;
+        padding: 24px 28px 40px;
+    }
+}
+
+/* Side panel: counts, and the approval switch pinned at the bottom */
+.ffm-sidenav-num {
+    margin-left: auto;
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: var(--ffm-text-muted);
+}
+
+.ffm-sidenav-link.active .ffm-sidenav-num {
+    color: var(--ffm-primary);
+}
+
+.ffm-sidenav-switch {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 18px;
+    border-top: 1px solid var(--ffm-border);
+    background: var(--ffm-surface-muted, #f8f9fb);
+}
+
+.ffm-sidenav-switch-title {
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: var(--ffm-text);
+}
+
+.ffm-sidenav-switch-sub {
+    font-size: 0.74rem;
+    color: var(--ffm-text-muted);
+    margin-top: 1px;
+}
+
+/* ==========================================================================
+   Page layout pieces shared by the Manager Panel and Report pages
+   ========================================================================== */
+
+.ffm-page-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.ffm-page-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--ffm-text);
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+}
+
+.ffm-page-sub {
+    font-size: 0.84rem;
+    color: var(--ffm-text-muted);
+    margin-top: 4px;
+}
+
+.ffm-page-date {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    color: var(--ffm-text-muted);
+}
+
+.ffm-page-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.ffm-page-actions .ffm-btn {
+    text-decoration: none;
+}
+
+/* Daily / Monthly switch */
+.ffm-seg-mini {
+    display: inline-flex;
+    background: #ffffff;
+    border: 1px solid var(--ffm-border);
+    border-radius: 8px;
+    padding: 3px;
+}
+
+.ffm-seg-mini a {
+    padding: 5px 14px;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--ffm-text-secondary);
+    text-decoration: none;
+}
+
+.ffm-seg-mini a.active {
+    background: var(--ffm-primary-light);
+    color: var(--ffm-primary);
+}
+
+/* Filter bar */
+.ffm-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px;
+    background: #ffffff;
+    border: 1px solid var(--ffm-border);
+    border-radius: var(--ffm-radius);
+    padding: 14px 16px;
+    margin-bottom: 18px;
+}
+
+.ffm-filter-field {
+    flex: 1 1 160px;
+    min-width: 0;
+}
+
+.ffm-filter-field--wide {
+    flex: 2 1 240px;
+}
+
+.ffm-filter-field .ffm-form-label {
+    font-size: 0.76rem;
+    margin-bottom: 4px;
+}
+
+.ffm-filter-field .ffm-form-control {
+    min-height: 38px;
+    padding: 7px 10px;
+    font-size: 0.88rem;
+}
+
+.ffm-filter-submit .ffm-btn {
+    min-height: 38px;
+}
+
+/* Summary numbers */
+.ffm-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.ffm-stat {
+    background: #ffffff;
+    border: 1px solid var(--ffm-border);
+    border-radius: var(--ffm-radius);
+    padding: 12px 14px;
+}
+
+.ffm-stat-label {
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: var(--ffm-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.ffm-stat-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--ffm-text);
+    margin-top: 2px;
+}
+
+.ffm-stat-line {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 20px;
+    font-size: 0.82rem;
+    color: var(--ffm-text-muted);
+    padding: 2px 2px 0;
+    margin-bottom: 18px;
+}
+
+.ffm-stat-line strong {
+    color: var(--ffm-text);
+    font-weight: 600;
+}
+
+.ffm-text-success { color: var(--ffm-success) !important; }
+.ffm-text-danger { color: var(--ffm-danger) !important; }
+.ffm-muted { color: var(--ffm-text-muted); font-weight: 400; }
+.ffm-nowrap { white-space: nowrap; }
+.ffm-capitalize { text-transform: capitalize; }
+
+.ffm-link {
+    color: var(--ffm-primary);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.ffm-report-section-head--split {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+
+.ffm-report-section-head .ffm-muted {
+    font-size: 0.78rem;
+}
+
+.ffm-report-section .ffm-empty {
+    padding: 18px 10px;
+}
+
+.ffm-rtable tfoot td {
+    background: var(--ffm-surface-muted, #f8f9fb);
+    font-weight: 700;
+    border-bottom: none;
+}
+
+.ffm-rtable tfoot .ffm-rtable-foot-label {
+    text-align: right;
+}
+
+.ffm-rtable-title {
+    font-weight: 600;
+    color: var(--ffm-text);
+}
+
+.ffm-rtable-status .ffm-badge + .ffm-badge {
+    margin-left: 4px;
+}
+
+.ffm-rtable-action a + a {
+    margin-left: 14px;
+}
+
+.ffm-rtable-scroll {
+    overflow-x: auto;
+}
+
+.ffm-expense-items span + span::before {
+    content: " · ";
+    color: var(--ffm-text-muted);
+}
+
+.ffm-pager {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: -6px 0 18px;
+    font-size: 0.82rem;
+}
+
+@media (max-width: 640px) {
+    .ffm-page-title {
+        font-size: 1.15rem;
+    }
+
+    .ffm-page-head {
+        align-items: flex-start;
+    }
+
+    .ffm-filter-bar {
+        padding: 12px;
+    }
+
+    .ffm-filter-bar {
+        gap: 10px;
+    }
+
+    .ffm-filter-field {
+        flex-basis: calc(50% - 5px);
+    }
+
+    .ffm-filter-field:first-of-type,
+    .ffm-filter-field--wide {
+        flex-basis: 100%;
+    }
+
+    .ffm-filter-submit {
+        width: 100%;
+    }
+
+    .ffm-filter-submit .ffm-btn {
+        width: 100%;
+    }
+
+    .ffm-stat-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .ffm-stat-value {
+        font-size: 1.05rem;
+    }
+
+    .ffm-rtable td.ffm-rtable-status {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+}
+
+/* Team members on phones: name and status on top, numbers in two columns */
+@media (max-width: 640px) {
+    .ffm-rtable.ffm-rtable--team tbody tr {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        column-gap: 18px;
+    }
+
+    .ffm-rtable--team td.ffm-rtable-title,
+    .ffm-rtable--team td.ffm-rtable-status,
+    .ffm-rtable--team td.ffm-rtable-action {
+        grid-column: 1 / -1;
+    }
+
+    .ffm-rtable--team td.ffm-rtable-status {
+        justify-content: flex-start;
+        padding-bottom: 6px !important;
+    }
+
+    .ffm-rtable--team td.ffm-rtable-status::before {
+        display: none;
+    }
+
+    .ffm-rtable--team .ffm-rtable-sub {
+        display: block;
+        margin-left: 0;
+    }
+}
