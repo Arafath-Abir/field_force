@@ -13,7 +13,7 @@
                 <meta name="theme-color" content="#047857"/>
                 <title><t t-esc="app_name or 'Newtec FFM'"/></title>
                 <link rel="manifest" href="/ff/manifest.json"/>
-                                <link rel="stylesheet" href="/ffm_daily_report/static/src/css/ffm_mobile.css?v=3.0.3"/>
+                                <link rel="stylesheet" href="/ffm_daily_report/static/src/css/ffm_mobile.css?v=3.1.0"/>
                 <style>
                     svg {
                         fill: none !important;
@@ -41,20 +41,16 @@
                         max-height: 18px !important;
                     }
                     .ffm-icon-box {
-                        width: 36px !important;
-                        height: 36px !important;
-                        max-width: 36px !important;
-                        max-height: 36px !important;
+                        width: 38px !important;
+                        height: 38px !important;
+                        max-width: 38px !important;
+                        max-height: 38px !important;
                         display: inline-flex !important;
                         align-items: center !important;
                         justify-content: center !important;
                     }
-                    .ffm-tile {
-                        min-height: 94px !important;
-                        padding: 10px 8px !important;
-                    }
                 </style>
-                <script src="/ffm_daily_report/static/src/js/ffm_app.js?v=3.0.0"></script>
+                <script src="/ffm_daily_report/static/src/js/ffm_app.js?v=3.1.0"></script>
             </head>
             <!-- Reports side panel: ASM, RSM, Manager and Super Admin only -->
             <t t-set="show_sidenav" t-value="is_super_admin or is_manager or is_rsm or is_asm"/>
@@ -74,11 +70,6 @@
                                 <img src="https://res.cloudinary.com/dt94ywdob/image/upload/v1792770101/Newtec_logo_edkini.png" alt="Newtec Logo" class="ffm-header-logo"/>
                                 <span class="ffm-header-title"><t t-esc="app_name or 'Newtec FFM'"/></span>
                             </a>
-                            <t t-if="panel_title">
-                                <span class="ffm-header-badge-role">
-                                    <t t-esc="panel_title"/>
-                                </span>
-                            </t>
                         </div>
 
                         <!-- Right: Actions & User Info -->
@@ -336,204 +327,233 @@
                 </div>
             </div>
 
-            <!-- Section 2: Dedicated "My Team" Card (Hierarchy and Structure) -->
-            <div class="ffm-hier-section">
-                <div class="ffm-section-title" style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-                    <svg class="ffm-icon ffm-icon-sm" width="18" height="18" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                    My Team
+            <!-- Section 2: Interactive "My Team" Card (Click to Reveal) -->
+            <div class="ffm-myteam-card" id="ffmMyTeamCard">
+                <div class="ffm-myteam-header" onclick="FFM.toggleMyTeam()" role="button" tabindex="0">
+                    <div class="ffm-myteam-header-left">
+                        <div class="ffm-myteam-icon">
+                            <svg class="ffm-icon ffm-icon-sm" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                        </div>
+                        <div>
+                            <div class="ffm-myteam-title">
+                                <span>My Team</span>
+                                <t t-if="is_rsm">
+                                    <span class="ffm-badge ffm-badge-neutral" style="font-size: 0.72rem; padding: 2px 7px;"><t t-esc="len(rsm_hierarchy_asms)"/> ASMs</span>
+                                </t>
+                                <t t-elif="is_asm">
+                                    <span class="ffm-badge ffm-badge-neutral" style="font-size: 0.72rem; padding: 2px 7px;"><t t-esc="len(asm_subordinate_fps)"/> Field Persons</span>
+                                </t>
+                            </div>
+                            <div class="ffm-myteam-subtitle">
+                                <t t-if="is_rsm">Tap to view regional hierarchy &amp; assigned field force</t>
+                                <t t-elif="is_asm">Tap to view your area field force &amp; territories</t>
+                                <t t-elif="is_fp">Tap to view your reporting line &amp; supervisor details</t>
+                                <t t-else="">Tap to manage field people and regional hierarchy</t>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ffm-myteam-header-right">
+                        <div class="ffm-myteam-toggle-pill">
+                            <span class="ffm-myteam-toggle-text">View Team</span>
+                            <svg class="ffm-myteam-arrow ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="ffm-hier-card">
-                    <!-- 1. RSM: Shows ASMs under them and FPs under each ASM -->
-                    <t t-if="is_rsm">
-                        <div class="ffm-hier-head">
-                            <div class="ffm-hier-head-title">
-                                Regional Team Hierarchy (ASMs &amp; Field Persons)
+                <!-- Collapsible Team Hierarchy Details -->
+                <div class="ffm-myteam-body" id="ffmMyTeamBody">
+                    <div class="ffm-myteam-body-inner">
+                        <!-- 1. RSM: Shows ASMs under them and FPs under each ASM -->
+                        <t t-if="is_rsm">
+                            <div class="ffm-hier-head">
+                                <div class="ffm-hier-head-title">
+                                    Regional Team Hierarchy (ASMs &amp; Field Persons)
+                                </div>
+                                <span class="ffm-hier-subtext">Reports To: <strong style="color: #0284c7;">Marketing Manager/Head Office</strong></span>
                             </div>
-                            <span class="ffm-hier-subtext">Reports To: <strong style="color: #0284c7;">Marketing Manager/Head Office</strong></span>
-                        </div>
 
-                        <t t-if="rsm_hierarchy_asms or rsm_direct_fps">
-                            <div class="ffm-hier-asm-tree">
-                                <t t-foreach="rsm_hierarchy_asms" t-as="item">
-                                    <div class="ffm-hier-asm-block">
-                                        <div class="ffm-hier-asm-row">
-                                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                                                <span class="ffm-role-pill ffm-role-pill--asm">ASM</span>
-                                                <strong style="font-size: 0.96rem; color: #0f172a;"><t t-esc="item['asm'].name"/></strong>
-                                                <t t-if="item['asm'].ffm_territory_ids">
-                                                    <span class="ffm-sub-text">(📍 <t t-esc="', '.join(item['asm'].ffm_territory_ids.mapped('name'))"/>)</span>
-                                                </t>
-                                                <t t-set="asm_depots" t-value="', '.join(item['asm'].ffm_territory_ids.mapped('branch_id.name'))"/>
-                                                <t t-if="asm_depots">
-                                                    <span class="ffm-sub-text">🏭 <t t-esc="asm_depots"/></span>
-                                                </t>
-                                                <t t-if="item['asm'].ffm_phone">
-                                                    <span class="ffm-sub-text">• 📞 <t t-esc="item['asm'].ffm_phone"/></span>
-                                                </t>
-                                            </div>
-                                            <span class="ffm-badge ffm-badge-neutral"><t t-esc="len(item['fps'])"/> Field Persons</span>
-                                        </div>
-                                        <div class="ffm-hier-nested-fps">
-                                            <t t-foreach="item['fps']" t-as="fp">
-                                                <div class="ffm-hier-fp-chip">
-                                                    <span class="ffm-hier-fp-chip-dot"></span>
-                                                    <strong><t t-esc="fp.name"/></strong>
-                                                    <t t-if="fp.ffm_territory_ids">
-                                                        <span style="color: #64748b; font-size: 0.78rem;">— 📍 <t t-esc="', '.join(fp.ffm_territory_ids.mapped('name'))"/></span>
+                            <t t-if="rsm_hierarchy_asms or rsm_direct_fps">
+                                <div class="ffm-hier-asm-tree">
+                                    <t t-foreach="rsm_hierarchy_asms" t-as="item">
+                                        <div class="ffm-hier-asm-block">
+                                            <div class="ffm-hier-asm-row">
+                                                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                                    <span class="ffm-role-pill ffm-role-pill--asm">ASM</span>
+                                                    <strong style="font-size: 0.96rem; color: #0f172a;"><t t-esc="item['asm'].name"/></strong>
+                                                    <t t-if="item['asm'].ffm_territory_ids">
+                                                        <span class="ffm-sub-text">(📍 <t t-esc="', '.join(item['asm'].ffm_territory_ids.mapped('name'))"/>)</span>
                                                     </t>
-                                                    <t t-set="fp_depots" t-value="', '.join(fp.ffm_territory_ids.mapped('branch_id.name'))"/>
-                                                    <t t-if="fp_depots">
-                                                        <span style="color: #0284c7; font-size: 0.78rem;">(🏭 <t t-esc="fp_depots"/>)</span>
+                                                    <t t-set="asm_depots" t-value="', '.join(item['asm'].ffm_territory_ids.mapped('branch_id.name'))"/>
+                                                    <t t-if="asm_depots">
+                                                        <span class="ffm-sub-text">🏭 <t t-esc="asm_depots"/></span>
+                                                    </t>
+                                                    <t t-if="item['asm'].ffm_phone">
+                                                        <span class="ffm-sub-text">• 📞 <t t-esc="item['asm'].ffm_phone"/></span>
                                                     </t>
                                                 </div>
-                                            </t>
-                                            <t t-if="not item['fps']">
-                                                <span class="ffm-sub-text" style="font-style: italic;">No field persons assigned under this ASM</span>
-                                            </t>
-                                        </div>
-                                    </div>
-                                </t>
-
-                                <t t-if="rsm_direct_fps">
-                                    <div class="ffm-hier-asm-block" style="border-left: 3px solid #10b981;">
-                                        <div class="ffm-hier-asm-row">
-                                            <div style="display: flex; align-items: center; gap: 8px;">
-                                                <span class="ffm-badge ffm-badge-success">Direct Reports</span>
-                                                <strong style="font-size: 0.92rem; color: #0f172a;">Field Persons (Direct to RSM)</strong>
+                                                <span class="ffm-badge ffm-badge-neutral"><t t-esc="len(item['fps'])"/> Field Persons</span>
                                             </div>
-                                            <span class="ffm-badge ffm-badge-neutral"><t t-esc="len(rsm_direct_fps)"/> Field Persons</span>
+                                            <div class="ffm-hier-nested-fps">
+                                                <t t-foreach="item['fps']" t-as="fp">
+                                                    <div class="ffm-hier-fp-chip">
+                                                        <span class="ffm-hier-fp-chip-dot"></span>
+                                                        <strong><t t-esc="fp.name"/></strong>
+                                                        <t t-if="fp.ffm_territory_ids">
+                                                            <span style="color: #64748b; font-size: 0.78rem;">— 📍 <t t-esc="', '.join(fp.ffm_territory_ids.mapped('name'))"/></span>
+                                                        </t>
+                                                        <t t-set="fp_depots" t-value="', '.join(fp.ffm_territory_ids.mapped('branch_id.name'))"/>
+                                                        <t t-if="fp_depots">
+                                                            <span style="color: #0284c7; font-size: 0.78rem;">(🏭 <t t-esc="fp_depots"/>)</span>
+                                                        </t>
+                                                    </div>
+                                                </t>
+                                                <t t-if="not item['fps']">
+                                                    <span class="ffm-sub-text" style="font-style: italic;">No field persons assigned under this ASM</span>
+                                                </t>
+                                            </div>
                                         </div>
-                                        <div class="ffm-hier-nested-fps">
-                                            <t t-foreach="rsm_direct_fps" t-as="fp">
-                                                <div class="ffm-hier-fp-chip">
-                                                    <span class="ffm-hier-fp-chip-dot"></span>
-                                                    <strong><t t-esc="fp.name"/></strong>
-                                                    <t t-if="fp.ffm_territory_ids">
-                                                        <span style="color: #64748b; font-size: 0.78rem;">— 📍 <t t-esc="', '.join(fp.ffm_territory_ids.mapped('name'))"/></span>
-                                                    </t>
-                                                    <t t-set="fp_depots" t-value="', '.join(fp.ffm_territory_ids.mapped('branch_id.name'))"/>
-                                                    <t t-if="fp_depots">
-                                                        <span style="color: #0284c7; font-size: 0.78rem;">(🏭 <t t-esc="fp_depots"/>)</span>
-                                                    </t>
+                                    </t>
+
+                                    <t t-if="rsm_direct_fps">
+                                        <div class="ffm-hier-asm-block" style="border-left: 3px solid #10b981;">
+                                            <div class="ffm-hier-asm-row">
+                                                <div style="display: flex; align-items: center; gap: 8px;">
+                                                    <span class="ffm-badge ffm-badge-success">Direct Reports</span>
+                                                    <strong style="font-size: 0.92rem; color: #0f172a;">Field Persons (Direct to RSM)</strong>
                                                 </div>
-                                            </t>
+                                                <span class="ffm-badge ffm-badge-neutral"><t t-esc="len(rsm_direct_fps)"/> Field Persons</span>
+                                            </div>
+                                            <div class="ffm-hier-nested-fps">
+                                                <t t-foreach="rsm_direct_fps" t-as="fp">
+                                                    <div class="ffm-hier-fp-chip">
+                                                        <span class="ffm-hier-fp-chip-dot"></span>
+                                                        <strong><t t-esc="fp.name"/></strong>
+                                                        <t t-if="fp.ffm_territory_ids">
+                                                            <span style="color: #64748b; font-size: 0.78rem;">— 📍 <t t-esc="', '.join(fp.ffm_territory_ids.mapped('name'))"/></span>
+                                                        </t>
+                                                        <t t-set="fp_depots" t-value="', '.join(fp.ffm_territory_ids.mapped('branch_id.name'))"/>
+                                                        <t t-if="fp_depots">
+                                                            <span style="color: #0284c7; font-size: 0.78rem;">(🏭 <t t-esc="fp_depots"/>)</span>
+                                                        </t>
+                                                    </div>
+                                                </t>
+                                            </div>
                                         </div>
-                                    </div>
-                                </t>
-                            </div>
+                                    </t>
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <div class="ffm-empty-sm">No ASMs or Field Persons assigned in your region yet.</div>
+                            </t>
                         </t>
-                        <t t-else="">
-                            <div class="ffm-empty-sm">No ASMs or Field Persons assigned in your region yet.</div>
-                        </t>
-                    </t>
 
-                    <!-- 2. ASM: Shows supervising RSM and Field Persons under them -->
-                    <t t-elif="is_asm">
-                        <div class="ffm-hier-head">
-                            <div class="ffm-hier-head-title">
-                                My Area Team &amp; Supervising RSM
+                        <!-- 2. ASM: Shows supervising RSM and Field Persons under them -->
+                        <t t-elif="is_asm">
+                            <div class="ffm-hier-head">
+                                <div class="ffm-hier-head-title">
+                                    My Area Team &amp; Supervising RSM
+                                </div>
+                                <span class="ffm-hier-subtext">Reports To: <strong style="color: #0284c7;"><t t-esc="rsm_name or 'Marketing Manager/Head Office'"/></strong></span>
                             </div>
-                            <span class="ffm-hier-subtext">Reports To: <strong style="color: #0284c7;"><t t-esc="rsm_name or 'Marketing Manager/Head Office'"/></strong></span>
-                        </div>
 
-                        <div style="margin-bottom: 12px; font-size: 0.84rem; font-weight: 600; color: #475569;">
-                            Field Persons Under Me (<t t-esc="len(asm_subordinate_fps)"/>):
-                        </div>
-                        <t t-if="asm_subordinate_fps">
+                            <div style="margin-bottom: 12px; font-size: 0.84rem; font-weight: 600; color: #475569;">
+                                Field Persons Under Me (<t t-esc="len(asm_subordinate_fps)"/>):
+                            </div>
+                            <t t-if="asm_subordinate_fps">
+                                <div class="ffm-hier-grid">
+                                    <t t-foreach="asm_subordinate_fps" t-as="fp">
+                                        <div class="ffm-hier-item-box">
+                                            <div class="ffm-hier-item-top">
+                                                <div style="display: flex; align-items: center; gap: 6px;">
+                                                    <span class="ffm-role-pill ffm-role-pill--fp">FP</span>
+                                                    <span class="ffm-hier-item-name"><t t-esc="fp.name"/></span>
+                                                </div>
+                                                <a t-attf-href="/ff/report/cards?employee_id={{fp.id}}" class="ffm-badge ffm-badge-neutral" style="text-decoration: none; font-size: 0.72rem;">View Reports</a>
+                                            </div>
+                                            <div class="ffm-hier-item-detail">
+                                                <t t-if="fp.ffm_territory_ids">
+                                                    <span>📍 Terr: <strong><t t-esc="', '.join(fp.ffm_territory_ids.mapped('name'))"/></strong></span>
+                                                </t>
+                                                <t t-set="fp_depot" t-value="', '.join(fp.ffm_territory_ids.mapped('branch_id.name'))"/>
+                                                <t t-if="fp_depot">
+                                                    <span>🏭 Depot: <strong style="color: #0284c7;"><t t-esc="fp_depot"/></strong></span>
+                                                </t>
+                                                <t t-if="fp.ffm_phone">
+                                                    <span>📞 <t t-esc="fp.ffm_phone"/></span>
+                                                </t>
+                                            </div>
+                                        </div>
+                                    </t>
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <div class="ffm-empty-sm">No field persons assigned under you yet.</div>
+                            </t>
+                        </t>
+
+                        <!-- 3. Field Person: Shows their ASM, RSM, Territory and Depot -->
+                        <t t-elif="is_fp">
+                            <div class="ffm-hier-head">
+                                <div class="ffm-hier-head-title">
+                                    My Reporting Line &amp; Territory
+                                </div>
+                                <span class="ffm-hier-subtext">Direct Reporting Hierarchy</span>
+                            </div>
                             <div class="ffm-hier-grid">
-                                <t t-foreach="asm_subordinate_fps" t-as="fp">
-                                    <div class="ffm-hier-item-box">
-                                        <div class="ffm-hier-item-top">
-                                            <div style="display: flex; align-items: center; gap: 6px;">
-                                                <span class="ffm-role-pill ffm-role-pill--fp">FP</span>
-                                                <span class="ffm-hier-item-name"><t t-esc="fp.name"/></span>
-                                            </div>
-                                            <a t-attf-href="/ff/report/cards?employee_id={{fp.id}}" class="ffm-badge ffm-badge-neutral" style="text-decoration: none; font-size: 0.72rem;">View Reports</a>
-                                        </div>
-                                        <div class="ffm-hier-item-detail">
-                                            <t t-if="fp.ffm_territory_ids">
-                                                <span>📍 Terr: <strong><t t-esc="', '.join(fp.ffm_territory_ids.mapped('name'))"/></strong></span>
-                                            </t>
-                                            <t t-set="fp_depot" t-value="', '.join(fp.ffm_territory_ids.mapped('branch_id.name'))"/>
-                                            <t t-if="fp_depot">
-                                                <span>🏭 Depot: <strong style="color: #0284c7;"><t t-esc="fp_depot"/></strong></span>
-                                            </t>
-                                            <t t-if="fp.ffm_phone">
-                                                <span>📞 <t t-esc="fp.ffm_phone"/></span>
-                                            </t>
-                                        </div>
+                                <div class="ffm-hier-item-box">
+                                    <div class="ffm-hier-item-top">
+                                        <span class="ffm-role-pill ffm-role-pill--asm">ASM</span>
+                                        <span class="ffm-sub-text">Direct Supervisor</span>
                                     </div>
-                                </t>
+                                    <div class="ffm-hier-item-name"><t t-esc="asm_name or 'Direct / Head Office'"/></div>
+                                    <div class="ffm-hier-item-detail">
+                                        <t t-if="asm_employee and asm_employee.ffm_phone"><span>📞 <t t-esc="asm_employee.ffm_phone"/></span></t>
+                                        <t t-if="asm_employee and asm_employee.hq"><span>📍 HQ: <t t-esc="asm_employee.hq"/></span></t>
+                                    </div>
+                                </div>
+                                <div class="ffm-hier-item-box">
+                                    <div class="ffm-hier-item-top">
+                                        <span class="ffm-role-pill ffm-role-pill--rsm">RSM</span>
+                                        <span class="ffm-sub-text">Regional Manager</span>
+                                    </div>
+                                    <div class="ffm-hier-item-name"><t t-esc="rsm_name or 'Marketing Manager/Head Office'"/></div>
+                                    <div class="ffm-hier-item-detail">
+                                        <t t-if="rsm_employee and rsm_employee.ffm_phone"><span>📞 <t t-esc="rsm_employee.ffm_phone"/></span></t>
+                                        <t t-if="rsm_employee and rsm_employee.hq"><span>📍 HQ: <t t-esc="rsm_employee.hq"/></span></t>
+                                    </div>
+                                </div>
+                                <div class="ffm-hier-item-box">
+                                    <div class="ffm-hier-item-top">
+                                        <span class="ffm-badge ffm-badge-neutral" style="font-size: 0.72rem;">Territory &amp; Depot</span>
+                                        <span class="ffm-sub-text">Assigned Area</span>
+                                    </div>
+                                    <div class="ffm-hier-item-name"><t t-esc="territory_names or 'Unassigned'"/></div>
+                                    <div class="ffm-hier-item-detail">
+                                        <t t-if="depot_names"><span>🏭 Depot: <strong style="color: #0284c7;"><t t-esc="depot_names"/></strong></span></t>
+                                        <t t-else=""><span>🏭 Depot: Main Depot</span></t>
+                                    </div>
+                                </div>
                             </div>
                         </t>
+
+                        <!-- 4. Manager / Admin -->
                         <t t-else="">
-                            <div class="ffm-empty-sm">No field persons assigned under you yet.</div>
+                            <div class="ffm-hier-head">
+                                <div class="ffm-hier-head-title">
+                                    Central Field Operations Overview
+                                </div>
+                                <span class="ffm-hier-subtext">Head Office Administration</span>
+                            </div>
+                            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                                <a href="/ff/manager?tab=team" class="ffm-btn ffm-btn-secondary" style="width: auto; padding: 8px 16px; font-size: 0.84rem; text-decoration: none;">
+                                    <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg> Manage People &amp; Logins
+                                </a>
+                                <a href="/ff/manager?tab=territories" class="ffm-btn ffm-btn-secondary" style="width: auto; padding: 8px 16px; font-size: 0.84rem; text-decoration: none;">
+                                    <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon></svg> Manage Territories &amp; Depots
+                                </a>
+                            </div>
                         </t>
-                    </t>
-
-                    <!-- 3. Field Person: Shows their ASM, RSM, Territory and Depot -->
-                    <t t-elif="is_fp">
-                        <div class="ffm-hier-head">
-                            <div class="ffm-hier-head-title">
-                                My Reporting Line &amp; Territory
-                            </div>
-                            <span class="ffm-hier-subtext">Direct Reporting Hierarchy</span>
-                        </div>
-                        <div class="ffm-hier-grid">
-                            <div class="ffm-hier-item-box">
-                                <div class="ffm-hier-item-top">
-                                    <span class="ffm-role-pill ffm-role-pill--asm">ASM</span>
-                                    <span class="ffm-sub-text">Direct Supervisor</span>
-                                </div>
-                                <div class="ffm-hier-item-name"><t t-esc="asm_name or 'Direct / Head Office'"/></div>
-                                <div class="ffm-hier-item-detail">
-                                    <t t-if="asm_employee and asm_employee.ffm_phone"><span>📞 <t t-esc="asm_employee.ffm_phone"/></span></t>
-                                    <t t-if="asm_employee and asm_employee.hq"><span>📍 HQ: <t t-esc="asm_employee.hq"/></span></t>
-                                </div>
-                            </div>
-                            <div class="ffm-hier-item-box">
-                                <div class="ffm-hier-item-top">
-                                    <span class="ffm-role-pill ffm-role-pill--rsm">RSM</span>
-                                    <span class="ffm-sub-text">Regional Manager</span>
-                                </div>
-                                <div class="ffm-hier-item-name"><t t-esc="rsm_name or 'Marketing Manager/Head Office'"/></div>
-                                <div class="ffm-hier-item-detail">
-                                    <t t-if="rsm_employee and rsm_employee.ffm_phone"><span>📞 <t t-esc="rsm_employee.ffm_phone"/></span></t>
-                                    <t t-if="rsm_employee and rsm_employee.hq"><span>📍 HQ: <t t-esc="rsm_employee.hq"/></span></t>
-                                </div>
-                            </div>
-                            <div class="ffm-hier-item-box">
-                                <div class="ffm-hier-item-top">
-                                    <span class="ffm-badge ffm-badge-neutral" style="font-size: 0.72rem;">Territory &amp; Depot</span>
-                                    <span class="ffm-sub-text">Assigned Area</span>
-                                </div>
-                                <div class="ffm-hier-item-name"><t t-esc="territory_names or 'Unassigned'"/></div>
-                                <div class="ffm-hier-item-detail">
-                                    <t t-if="depot_names"><span>🏭 Depot: <strong style="color: #0284c7;"><t t-esc="depot_names"/></strong></span></t>
-                                    <t t-else=""><span>🏭 Depot: Main Depot</span></t>
-                                </div>
-                            </div>
-                        </div>
-                    </t>
-
-                    <!-- 4. Manager / Admin -->
-                    <t t-else="">
-                        <div class="ffm-hier-head">
-                            <div class="ffm-hier-head-title">
-                                Central Field Operations Overview
-                            </div>
-                            <span class="ffm-hier-subtext">Head Office Administration</span>
-                        </div>
-                        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                            <a href="/ff/manager?tab=team" class="ffm-btn ffm-btn-secondary" style="width: auto; padding: 8px 16px; font-size: 0.84rem; text-decoration: none;">
-                                <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg> Manage People &amp; Logins
-                            </a>
-                            <a href="/ff/manager?tab=territories" class="ffm-btn ffm-btn-secondary" style="width: auto; padding: 8px 16px; font-size: 0.84rem; text-decoration: none;">
-                                <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon></svg> Manage Territories &amp; Depots
-                            </a>
-                        </div>
-                    </t>
+                    </div>
                 </div>
             </div>
         </t>

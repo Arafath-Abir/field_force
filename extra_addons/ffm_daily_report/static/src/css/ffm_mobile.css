@@ -3408,54 +3408,318 @@ body {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
+/* ── Smooth Site Animation & Transitions ────────────────────────────────── */
+@keyframes ffmPageEntrance {
+    0% {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.ffm-main,
+.ffm-content {
+    animation: ffmPageEntrance 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 /* ── Glassmorphism Dashboard Cards & Form Cards ─────────────────────────── */
 .ffm-tile {
-    background: rgba(255, 255, 255, 0.78) !important;
-    backdrop-filter: blur(12px) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.75) !important;
-    box-shadow: 0 4px 18px 0 rgba(31, 38, 135, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03) !important;
-    border-radius: 12px !important;
-    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    border-radius: 14px !important;
+    padding: 20px 14px !important;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 110px;
+    position: relative;
+    overflow: hidden;
+    text-decoration: none !important;
+    transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.26s ease,
+                border-color 0.26s ease,
+                background 0.26s ease !important;
+}
+
+.ffm-tile::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: currentColor;
+    opacity: 0.75;
+    border-top-left-radius: 14px;
+    border-top-right-radius: 14px;
 }
 
 .ffm-tile:hover {
-    background: rgba(255, 255, 255, 0.94) !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 8px 26px 0 rgba(31, 38, 135, 0.09) !important;
-    border-color: rgba(255, 255, 255, 0.95) !important;
+    transform: translateY(-5px) scale(1.015) !important;
 }
+
+.ffm-tile:active {
+    transform: scale(0.975) !important;
+}
+
+.ffm-tile .ffm-icon-box {
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    border-radius: 12px !important;
+}
+
+.ffm-tile:hover .ffm-icon-box {
+    transform: scale(1.12) rotate(-3deg) !important;
+}
+
+/* ── Soft Colorful Action Tiles ─────────────────────────────────────────── */
+/* 1. Green: Daily Attendance */
+.ffm-tile--green {
+    background: linear-gradient(135deg, rgba(236, 253, 245, 0.92) 0%, rgba(209, 250, 229, 0.65) 100%) !important;
+    border: 1px solid rgba(16, 185, 129, 0.38) !important;
+    box-shadow: 0 4px 18px 0 rgba(16, 185, 129, 0.08) !important;
+    color: #047857;
+}
+.ffm-tile--green:hover {
+    background: linear-gradient(135deg, rgba(209, 250, 229, 0.98) 0%, rgba(167, 243, 208, 0.85) 100%) !important;
+    border-color: rgba(16, 185, 129, 0.65) !important;
+    box-shadow: 0 10px 26px 0 rgba(16, 185, 129, 0.20) !important;
+}
+.ffm-tile--green .ffm-tile-title { color: #064e3b !important; }
+.ffm-tile--green .ffm-tile-subtitle { color: #047857 !important; }
+
+/* 2. Emerald: Chemist Visit */
+.ffm-tile--emerald {
+    background: linear-gradient(135deg, rgba(240, 253, 244, 0.92) 0%, rgba(187, 247, 208, 0.60) 100%) !important;
+    border: 1px solid rgba(5, 150, 105, 0.38) !important;
+    box-shadow: 0 4px 18px 0 rgba(5, 150, 105, 0.08) !important;
+    color: #059669;
+}
+.ffm-tile--emerald:hover {
+    background: linear-gradient(135deg, rgba(187, 247, 208, 0.98) 0%, rgba(134, 239, 172, 0.85) 100%) !important;
+    border-color: rgba(5, 150, 105, 0.65) !important;
+    box-shadow: 0 10px 26px 0 rgba(5, 150, 105, 0.20) !important;
+}
+.ffm-tile--emerald .ffm-tile-title { color: #064e3b !important; }
+.ffm-tile--emerald .ffm-tile-subtitle { color: #059669 !important; }
+
+/* 3. Rose: Doctor Visit */
+.ffm-tile--rose {
+    background: linear-gradient(135deg, rgba(255, 241, 242, 0.92) 0%, rgba(254, 205, 211, 0.60) 100%) !important;
+    border: 1px solid rgba(244, 63, 94, 0.38) !important;
+    box-shadow: 0 4px 18px 0 rgba(244, 63, 94, 0.08) !important;
+    color: #e11d48;
+}
+.ffm-tile--rose:hover {
+    background: linear-gradient(135deg, rgba(254, 205, 211, 0.98) 0%, rgba(251, 113, 133, 0.80) 100%) !important;
+    border-color: rgba(244, 63, 94, 0.65) !important;
+    box-shadow: 0 10px 26px 0 rgba(244, 63, 94, 0.20) !important;
+}
+.ffm-tile--rose .ffm-tile-title { color: #881337 !important; }
+.ffm-tile--rose .ffm-tile-subtitle { color: #be123c !important; }
+
+/* 4. Amber: Farm Visit */
+.ffm-tile--amber {
+    background: linear-gradient(135deg, rgba(255, 251, 235, 0.92) 0%, rgba(254, 243, 199, 0.65) 100%) !important;
+    border: 1px solid rgba(245, 158, 11, 0.40) !important;
+    box-shadow: 0 4px 18px 0 rgba(245, 158, 11, 0.08) !important;
+    color: #d97706;
+}
+.ffm-tile--amber:hover {
+    background: linear-gradient(135deg, rgba(254, 243, 199, 0.98) 0%, rgba(253, 230, 138, 0.85) 100%) !important;
+    border-color: rgba(245, 158, 11, 0.65) !important;
+    box-shadow: 0 10px 26px 0 rgba(245, 158, 11, 0.20) !important;
+}
+.ffm-tile--amber .ffm-tile-title { color: #78350f !important; }
+.ffm-tile--amber .ffm-tile-subtitle { color: #b45309 !important; }
+
+/* 5. Teal: Daily Expense */
+.ffm-tile--teal {
+    background: linear-gradient(135deg, rgba(240, 253, 250, 0.92) 0%, rgba(204, 251, 241, 0.65) 100%) !important;
+    border: 1px solid rgba(20, 184, 166, 0.38) !important;
+    box-shadow: 0 4px 18px 0 rgba(20, 184, 166, 0.08) !important;
+    color: #0d9488;
+}
+.ffm-tile--teal:hover {
+    background: linear-gradient(135deg, rgba(204, 251, 241, 0.98) 0%, rgba(153, 246, 228, 0.85) 100%) !important;
+    border-color: rgba(20, 184, 166, 0.65) !important;
+    box-shadow: 0 10px 26px 0 rgba(20, 184, 166, 0.20) !important;
+}
+.ffm-tile--teal .ffm-tile-title { color: #134e4a !important; }
+.ffm-tile--teal .ffm-tile-subtitle { color: #0f766e !important; }
+
+/* 6. Indigo: Daily Report Card */
+.ffm-tile--indigo {
+    background: linear-gradient(135deg, rgba(238, 242, 255, 0.92) 0%, rgba(224, 231, 255, 0.65) 100%) !important;
+    border: 1px solid rgba(99, 102, 241, 0.38) !important;
+    box-shadow: 0 4px 18px 0 rgba(99, 102, 241, 0.08) !important;
+    color: #4f46e5;
+}
+.ffm-tile--indigo:hover {
+    background: linear-gradient(135deg, rgba(224, 231, 255, 0.98) 0%, rgba(199, 210, 254, 0.85) 100%) !important;
+    border-color: rgba(99, 102, 241, 0.65) !important;
+    box-shadow: 0 10px 26px 0 rgba(99, 102, 241, 0.20) !important;
+}
+.ffm-tile--indigo .ffm-tile-title { color: #312e81 !important; }
+.ffm-tile--indigo .ffm-tile-subtitle { color: #4338ca !important; }
+
+/* 7. Blue: Team Approvals / Manager Panel */
+.ffm-tile--blue {
+    background: linear-gradient(135deg, rgba(239, 246, 255, 0.92) 0%, rgba(219, 234, 254, 0.70) 100%) !important;
+    border: 1.5px solid rgba(59, 130, 246, 0.42) !important;
+    box-shadow: 0 4px 18px 0 rgba(59, 130, 246, 0.10) !important;
+    color: #2563eb;
+}
+.ffm-tile--blue:hover {
+    background: linear-gradient(135deg, rgba(219, 234, 254, 0.98) 0%, rgba(191, 219, 254, 0.88) 100%) !important;
+    border-color: rgba(59, 130, 246, 0.70) !important;
+    box-shadow: 0 10px 26px 0 rgba(59, 130, 246, 0.24) !important;
+}
+.ffm-tile--blue .ffm-tile-title { color: #1e3a8a !important; }
+.ffm-tile--blue .ffm-tile-subtitle { color: #1d4ed8 !important; }
 
 .ffm-form-card,
 .ffm-terr-card,
 .ffm-metric-card,
 .ffm-hier-card {
-    background: rgba(255, 255, 255, 0.80) !important;
+    background: rgba(255, 255, 255, 0.85) !important;
     backdrop-filter: blur(12px) !important;
     -webkit-backdrop-filter: blur(12px) !important;
     border: 1px solid rgba(255, 255, 255, 0.75) !important;
     box-shadow: 0 4px 18px 0 rgba(31, 38, 135, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03) !important;
-    border-radius: 12px !important;
+    border-radius: 14px !important;
+}
+
+/* ── Interactive "My Team" Accordion Card ───────────────────────────────── */
+.ffm-myteam-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    box-shadow: 0 4px 20px 0 rgba(31, 38, 135, 0.06);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.2s ease;
+}
+
+.ffm-myteam-card:hover {
+    box-shadow: 0 8px 26px 0 rgba(31, 38, 135, 0.10);
+    border-color: rgba(2, 132, 199, 0.35);
+}
+
+.ffm-myteam-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s ease;
+}
+
+.ffm-myteam-header:hover {
+    background: rgba(255, 255, 255, 0.55);
+}
+
+.ffm-myteam-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ffm-myteam-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(4, 120, 87, 0.14), rgba(2, 132, 199, 0.14));
+    border: 1px solid rgba(4, 120, 87, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #047857;
+    flex-shrink: 0;
+}
+
+.ffm-myteam-title {
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.ffm-myteam-subtitle {
+    font-size: 0.80rem;
+    color: #64748b;
+    margin-top: 2px;
+}
+
+.ffm-myteam-toggle-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 9999px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    font-size: 0.80rem;
+    font-weight: 600;
+    color: #0f172a;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: all 0.22s ease;
+}
+
+.ffm-myteam-card:hover .ffm-myteam-toggle-pill,
+.ffm-myteam-card.is-open .ffm-myteam-toggle-pill {
+    border-color: #0284c7;
+    color: #0284c7;
+    background: #f0f9ff;
+}
+
+.ffm-myteam-arrow {
+    transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ffm-myteam-card.is-open .ffm-myteam-arrow {
+    transform: rotate(180deg);
+}
+
+.ffm-myteam-body {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.32s ease;
+}
+
+.ffm-myteam-card.is-open .ffm-myteam-body {
+    max-height: 3500px;
+    opacity: 1;
+}
+
+.ffm-myteam-body-inner {
+    padding: 0 20px 20px 20px;
+    border-top: 1px solid rgba(226, 232, 240, 0.8);
+    margin-top: 4px;
+    padding-top: 16px;
 }
 
 /* ── Visual Hierarchy Structure Components ──────────────────────────────── */
-.ffm-hier-section {
-    margin-bottom: 24px;
-}
-
-.ffm-hier-card {
-    padding: 16px 18px;
-    margin-bottom: 14px;
-    border-radius: 12px;
-}
-
 .ffm-hier-head {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
     padding-bottom: 10px;
     border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 .ffm-hier-head-title {
@@ -3474,30 +3738,34 @@ body {
 
 .ffm-hier-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 12px;
 }
 
 .ffm-hier-item-box {
-    background: rgba(255, 255, 255, 0.70);
-    border: 1px solid rgba(226, 232, 240, 0.8);
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(226, 232, 240, 0.9);
     border-radius: 10px;
     padding: 12px 14px;
     display: flex;
     flex-direction: column;
     gap: 6px;
-    transition: all 0.18s ease;
+    transition: all 0.22s ease;
 }
 
 .ffm-hier-item-box:hover {
-    background: rgba(255, 255, 255, 0.95);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    background: #ffffff;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+    border-color: #cbd5e1;
+    transform: translateY(-2px);
 }
 
 .ffm-hier-item-top {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
 }
 
 .ffm-hier-item-name {
@@ -3524,8 +3792,14 @@ body {
 .ffm-hier-asm-block {
     border: 1px solid rgba(226, 232, 240, 0.9);
     border-radius: 10px;
-    background: rgba(248, 250, 252, 0.70);
+    background: rgba(248, 250, 252, 0.75);
     padding: 14px 16px;
+    transition: all 0.2s ease;
+}
+
+.ffm-hier-asm-block:hover {
+    background: #ffffff;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
 }
 
 .ffm-hier-asm-row {
@@ -3557,6 +3831,12 @@ body {
     font-size: 0.82rem;
     color: #1e293b;
     box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    transition: all 0.18s ease;
+}
+
+.ffm-hier-fp-chip:hover {
+    border-color: #0284c7;
+    box-shadow: 0 2px 6px rgba(2, 132, 199, 0.12);
 }
 
 .ffm-hier-fp-chip-dot {
@@ -3564,5 +3844,20 @@ body {
     height: 7px;
     border-radius: 50%;
     background: #10b981;
+}
+
+@media (max-width: 640px) {
+    .ffm-myteam-header {
+        padding: 14px 16px;
+    }
+    .ffm-myteam-body-inner {
+        padding: 0 14px 14px 14px;
+    }
+    .ffm-hier-grid {
+        grid-template-columns: 1fr;
+    }
+    .ffm-hier-asm-block {
+        padding: 12px;
+    }
 }
 

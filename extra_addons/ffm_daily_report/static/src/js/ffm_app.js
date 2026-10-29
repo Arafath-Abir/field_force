@@ -661,6 +661,17 @@
         });
     };
 
+    FFM.toggleMyTeam = function() {
+        var card = document.getElementById('ffmMyTeamCard');
+        if (!card) return;
+        var isOpen = card.classList.toggle('is-open');
+        var textEl = card.querySelector('.ffm-myteam-toggle-text');
+        if (textEl) {
+            textEl.textContent = isOpen ? 'Hide Team' : 'View Team';
+        }
+    };
+    window.toggleMyTeam = FFM.toggleMyTeam;
+
     document.addEventListener('DOMContentLoaded', FFM.initPersonPickers);
     document.addEventListener('DOMContentLoaded', FFM.showFlash);
 
