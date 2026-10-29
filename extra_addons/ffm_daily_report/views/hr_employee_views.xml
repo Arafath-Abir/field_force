@@ -23,10 +23,12 @@
                     help="Set or reset login password for this employee."/>
             </xpath>
 
-            <!-- Add HQ and FFM Phone -->
+            <!-- Add HQ, FFM Phone, Depot and Territories -->
             <xpath expr="//field[@name='work_email']" position="after">
                 <field name="hq"/>
                 <field name="ffm_phone"/>
+                <field name="branch_id" string="Depot"/>
+                <field name="ffm_territory_ids" widget="many2many_tags" string="Territories"/>
             </xpath>
         </field>
     </record>

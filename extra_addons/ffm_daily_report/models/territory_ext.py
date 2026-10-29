@@ -10,9 +10,19 @@ class TerritoryTerritory(models.Model):
     member_ids = fields.Many2many(
         'hr.employee', 'ffm_territory_member_rel', 'territory_id', 'employee_id',
         string='Assigned Personnel')
+    depot_id = fields.Many2one('aam.branch', string='Depot', compute='_compute_depot_id', inverse='_inverse_depot_id', store=True)
     rsm_ids = fields.Many2many('hr.employee', string='RSMs', compute='_compute_role_members')
     asm_ids = fields.Many2many('hr.employee', string='ASMs', compute='_compute_role_members')
     fp_ids = fields.Many2many('hr.employee', string='Field Persons', compute='_compute_role_members')
+
+    @api.depends('branch_id')
+    def _compute_depot_id(self):
+        for rec in self:
+            rec.depot_id = rec.branch_id
+
+    def _inverse_depot_id(self):
+        for rec in self:
+            rec.branch_id = rec.depot_id
 
     @api.depends('member_ids', 'member_ids.ffm_role')
     def _compute_role_members(self):

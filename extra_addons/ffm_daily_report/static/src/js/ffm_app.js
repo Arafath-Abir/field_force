@@ -456,6 +456,11 @@
             FFM.showToast('Password must be at least 6 characters.', 'error');
             return;
         }
+        var terrIds = FFM.checkedValues('pf_territories');
+        if (!terrIds || !terrIds.length) {
+            FFM.showToast('Please select at least one territory for this person.', 'error');
+            return;
+        }
         FFM.jsonRpcPost('/ff/admin/employee/save', {
             emp_id: empId || null,
             name: name,
@@ -463,7 +468,7 @@
             email: email,
             password: password,
             parent_id: document.getElementById('pf_parent').value || null,
-            territory_ids: FFM.checkedValues('pf_territories'),
+            territory_ids: terrIds,
             branch_id: document.getElementById('pf_branch').value || null,
             phone: document.getElementById('pf_phone').value,
             hq: document.getElementById('pf_hq').value
@@ -502,14 +507,19 @@
 
     FFM.saveTerritory = function(btn) {
         var name = document.getElementById('tf_name').value.trim();
+        var branchId = document.getElementById('tf_branch').value;
         if (!name) {
             FFM.showToast('Please enter a territory name.', 'error');
+            return;
+        }
+        if (!branchId) {
+            FFM.showToast('Please select a Depot for this territory.', 'error');
             return;
         }
         FFM.jsonRpcPost('/ff/admin/territory/save', {
             territory_id: document.getElementById('tf_id').value || null,
             name: name,
-            branch_id: document.getElementById('tf_branch').value || null,
+            branch_id: branchId || null,
             member_ids: FFM.checkedValues('tf_members')
         }, btn, 'Saving...', 'territories');
     };
@@ -524,14 +534,14 @@
         var name = (document.getElementById('adm_branch_name') || {}).value || '';
         var code = (document.getElementById('adm_branch_code') || {}).value || '';
         if (!name.trim()) {
-            FFM.showToast('Please enter a branch name.', 'error');
+            FFM.showToast('Please enter a depot name.', 'error');
             return;
         }
         FFM.jsonRpcPost('/ff/admin/branch/save', {
             branch_id: branchId || null,
             name: name,
             code: code
-        }, btn, 'Saving Branch...', 'territories');
+        }, btn, 'Saving Depot...', 'territories');
     };
 
     FFM.editBranchFromBtn = function(btn) {
@@ -541,7 +551,7 @@
         document.getElementById('adm_branch_code').value = btn.getAttribute('data-code') || '';
         var titleEl = document.getElementById('adm_branch_form_title');
         if (titleEl) {
-            titleEl.innerText = 'Edit Branch: ' + (btn.getAttribute('data-name') || '');
+            titleEl.innerText = 'Edit Depot: ' + (btn.getAttribute('data-name') || '');
         }
         var card = document.getElementById('adminBranchFormCard');
         if (card && card.scrollIntoView) {
@@ -555,12 +565,12 @@
         document.getElementById('adm_branch_code').value = '';
         var titleEl = document.getElementById('adm_branch_form_title');
         if (titleEl) {
-            titleEl.innerText = 'Branches Management';
+            titleEl.innerText = 'Depots Management';
         }
     };
 
     FFM.deleteBranch = function(branchId, btn) {
-        if (!confirm('Are you sure you want to delete this branch?')) return;
+        if (!confirm('Are you sure you want to delete this depot?')) return;
         FFM.jsonRpcPost('/ff/admin/branch/delete', {branch_id: branchId}, btn, 'Deleting...', 'territories');
     };
 

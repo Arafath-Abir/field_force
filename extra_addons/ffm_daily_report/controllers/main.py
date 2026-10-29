@@ -265,11 +265,101 @@ class FFMController(http.Controller):
             panel_title = 'Field Person Portal'
             role_badge = 'Field Person'
 
+        # Hierarchy and territory resolution for current user
+        Emp = request.env['hr.employee'].sudo()
+        territories = employee.ffm_territory_ids if employee else request.env['territory.territory'].browse([])
+        if not territories and territory:
+            territories = territory
+        territory_names = ', '.join(territories.mapped('name')) if territories else ''
+        depot_list = [d for d in set(territories.mapped('branch_id.name') + [employee.branch_id.name if employee and employee.branch_id else False]) if d]
+        if not depot_list and employee:
+            child_depots = employee.child_ids.mapped('branch_id.name') + employee.child_ids.mapped('ffm_territory_ids.branch_id.name')
+            depot_list = [d for d in set(child_depots) if d]
+        depot_names = ', '.join(sorted(depot_list)) if depot_list else (employee.branch_id.name if employee and employee.branch_id else '')
+        if not depot_names:
+            first_depot = request.env['aam.branch'].sudo().search([], limit=1)
+            depot_names = first_depot.name if first_depot else 'Main Depot'
+
+        designation = employee.job_id.name if employee and employee.job_id else ('Area Sales Manager (ASM)' if is_asm else ('Regional Sales Manager (RSM)' if is_rsm else ('Field Marketer' if is_fp else role_badge)))
+
+        asm_employee = False
+        rsm_employee = False
+        asm_name = ''
+        rsm_name = ''
+        asm_subordinate_fps = Emp.browse([])
+        rsm_hierarchy_asms = []
+        rsm_direct_fps = Emp.browse([])
+
+        if is_fp and employee:
+            p = employee.parent_id
+            if p:
+                if p.ffm_role == 'asm':
+                    asm_employee = p
+                    if p.parent_id and p.parent_id.ffm_role == 'rsm':
+                        rsm_employee = p.parent_id
+                elif p.ffm_role == 'rsm':
+                    rsm_employee = p
+            if not asm_employee and territories:
+                asm_employee = territories.mapped('asm_ids')[:1]
+            if not rsm_employee and territories:
+                rsm_employee = territories.mapped('rsm_ids')[:1]
+            if not rsm_employee and asm_employee and asm_employee.parent_id and asm_employee.parent_id.ffm_role == 'rsm':
+                rsm_employee = asm_employee.parent_id
+
+            asm_name = asm_employee.name if asm_employee else ''
+            rsm_name = rsm_employee.name if rsm_employee else 'Marketing Manager/Head Office'
+
+        elif is_asm and employee:
+            p = employee.parent_id
+            if p and p.ffm_role == 'rsm':
+                rsm_employee = p
+            elif territories:
+                rsm_employee = territories.mapped('rsm_ids')[:1]
+            rsm_name = rsm_employee.name if rsm_employee else 'Marketing Manager/Head Office'
+
+            # Field persons under this ASM
+            direct_fps = Emp.search([('parent_id', '=', employee.id), ('ffm_role', '=', 'fp'), ('active', '=', True)], order='name')
+            terr_fps = territories.mapped('fp_ids').filtered('active') if territories else Emp.browse([])
+            asm_subordinate_fps = (direct_fps | terr_fps).sorted('name')
+
+        elif is_rsm and employee:
+            rsm_name = 'Marketing Manager/Head Office'
+            direct_asms = Emp.search([('parent_id', '=', employee.id), ('ffm_role', '=', 'asm'), ('active', '=', True)], order='name')
+            terr_asms = territories.mapped('asm_ids').filtered('active') if territories else Emp.browse([])
+            all_asms = (direct_asms | terr_asms).sorted('name')
+            all_asm_fps_set = set()
+
+            for asm_rec in all_asms:
+                sub_fps = Emp.search([('parent_id', '=', asm_rec.id), ('ffm_role', '=', 'fp'), ('active', '=', True)], order='name') | asm_rec.ffm_territory_ids.mapped('fp_ids').filtered('active')
+                sub_fps = sub_fps.sorted('name')
+                all_asm_fps_set.update(sub_fps.ids)
+                rsm_hierarchy_asms.append({
+                    'asm': asm_rec,
+                    'fps': sub_fps,
+                })
+            # Any FP directly reporting to RSM without an ASM
+            rsm_direct_fps = Emp.search([('parent_id', '=', employee.id), ('ffm_role', '=', 'fp'), ('active', '=', True), ('id', 'not in', list(all_asm_fps_set))], order='name')
+        else:
+            rsm_name = 'Marketing Manager/Head Office'
+
+        all_depots = request.env['aam.branch'].sudo().search([], order='name')
+
         return {
             'user': user,
             'user_name': user.name,
             'employee': employee,
             'territory': territory,
+            'territories': territories,
+            'territory_names': territory_names,
+            'depot_names': depot_names,
+            'all_depots': all_depots,
+            'asm_employee': asm_employee,
+            'rsm_employee': rsm_employee,
+            'asm_name': asm_name,
+            'rsm_name': rsm_name,
+            'asm_subordinate_fps': asm_subordinate_fps,
+            'rsm_hierarchy_asms': rsm_hierarchy_asms,
+            'rsm_direct_fps': rsm_direct_fps,
             'app_name': app_name,
             'is_super_admin': is_super_admin,
             'is_manager': is_manager,
@@ -280,6 +370,7 @@ class FFMController(http.Controller):
             'has_field_operations': has_field_operations,
             'panel_title': panel_title,
             'role_badge': role_badge,
+            'designation': designation,
             'approval_enabled': self._approval_enabled(),
         }
 
@@ -2104,6 +2195,8 @@ class FFMController(http.Controller):
                     return {'status': 'error', 'message': _('A person cannot report to themselves.')}
 
             territories = Territory.browse(self._ffm_id_list(territory_ids)).exists()
+            if not territories:
+                return {'status': 'error', 'message': _('Please select at least one territory for this person.')}
 
             Job = request.env['hr.job'].sudo()
             job = Job.search([('name', '=', job_title)], limit=1) or Job.create({'name': job_title})
@@ -2206,6 +2299,8 @@ class FFMController(http.Controller):
         name = (name or '').strip()
         if not name:
             return {'status': 'error', 'message': _('Territory name is required.')}
+        if not branch_id:
+            return {'status': 'error', 'message': _('Please select a Depot for this territory.')}
         try:
             Territory = request.env['territory.territory'].sudo()
             members = request.env['hr.employee'].sudo().browse(self._ffm_id_list(member_ids)).exists()

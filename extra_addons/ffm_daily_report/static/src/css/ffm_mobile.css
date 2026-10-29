@@ -11,8 +11,8 @@
     --ffm-accent: #0284c7;
     --ffm-accent-light: #e0f2fe;
 
-    --ffm-bg: #f8fafc;
-    --ffm-card-bg: #ffffff;
+    --ffm-bg: #faf8f2;
+    --ffm-card-bg: rgba(255, 255, 255, 0.85);
     --ffm-text: #0f172a;
     --ffm-text-secondary: #334155;
     --ffm-text-muted: #64748b;
@@ -54,7 +54,9 @@ html {
 
 body {
     font-family: var(--ffm-font);
+    background: linear-gradient(135deg, #fdfbf7 0%, #f5f2e9 100%);
     background-color: var(--ffm-bg);
+    background-attachment: fixed;
     color: var(--ffm-text);
     line-height: 1.45;
     min-height: 100vh;
@@ -3231,3 +3233,336 @@ body {
         margin-left: 0;
     }
 }
+
+/* ==========================================================================
+   Glassmorphism System & Hierarchy Cards
+   Simple, Modern, Clean Green-Blue Gradient Glassmorphic Design
+   ========================================================================== */
+
+/* ── Top Profile Header Bar: Green & Blue Gradient Glassmorphism ─────────── */
+.ffm-status-gradient-bar {
+    background: linear-gradient(135deg, rgba(13, 110, 78, 0.88) 0%, rgba(2, 132, 199, 0.82) 100%) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.35) !important;
+    box-shadow: 0 10px 30px 0 rgba(13, 92, 58, 0.16), 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+    border-radius: 14px !important;
+    padding: 16px 20px !important;
+    margin-bottom: 22px !important;
+    color: #ffffff !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.ffm-status-gradient-bar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0) 100%);
+}
+
+.ffm-glass-bar-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.ffm-glass-bar-user {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex: 1;
+    min-width: 260px;
+}
+
+.ffm-glass-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.22);
+    border: 1.5px solid rgba(255, 255, 255, 0.45);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.ffm-glass-user-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.ffm-glass-name-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.ffm-glass-user-name {
+    font-size: 1.12rem;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+}
+
+.ffm-glass-role-pill {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.38);
+    color: #ffffff;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.ffm-glass-hierarchy-line {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 5px;
+    font-size: 0.84rem;
+    color: rgba(255, 255, 255, 0.90);
+    line-height: 1.4;
+}
+
+.ffm-glass-meta-item {
+    display: inline-flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 0.84rem;
+}
+
+.ffm-glass-meta-item strong {
+    color: #ffffff;
+    font-weight: 600;
+    margin-right: 3px;
+}
+
+.ffm-glass-meta-sep {
+    color: rgba(255, 255, 255, 0.50);
+    font-size: 0.72rem;
+    margin: 0 4px;
+    user-select: none;
+}
+
+.ffm-glass-tag {
+    display: inline-flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.92);
+}
+
+.ffm-glass-bar-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.ffm-glass-date {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.92);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(0, 0, 0, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 5px 11px;
+    border-radius: 7px;
+}
+
+.ffm-glass-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border-radius: 9999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.ffm-glass-badge-done {
+    background: rgba(255, 255, 255, 0.95);
+    color: #0d7044;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.ffm-glass-badge-pending {
+    background: rgba(254, 240, 138, 0.95);
+    color: #854d0e;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+/* ── Glassmorphism Dashboard Cards & Form Cards ─────────────────────────── */
+.ffm-tile {
+    background: rgba(255, 255, 255, 0.78) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.75) !important;
+    box-shadow: 0 4px 18px 0 rgba(31, 38, 135, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+    border-radius: 12px !important;
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.ffm-tile:hover {
+    background: rgba(255, 255, 255, 0.94) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 26px 0 rgba(31, 38, 135, 0.09) !important;
+    border-color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.ffm-form-card,
+.ffm-terr-card,
+.ffm-metric-card,
+.ffm-hier-card {
+    background: rgba(255, 255, 255, 0.80) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.75) !important;
+    box-shadow: 0 4px 18px 0 rgba(31, 38, 135, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+    border-radius: 12px !important;
+}
+
+/* ── Visual Hierarchy Structure Components ──────────────────────────────── */
+.ffm-hier-section {
+    margin-bottom: 24px;
+}
+
+.ffm-hier-card {
+    padding: 16px 18px;
+    margin-bottom: 14px;
+    border-radius: 12px;
+}
+
+.ffm-hier-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.ffm-hier-head-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ffm-hier-subtext {
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+.ffm-hier-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+}
+
+.ffm-hier-item-box {
+    background: rgba(255, 255, 255, 0.70);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: all 0.18s ease;
+}
+
+.ffm-hier-item-box:hover {
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.ffm-hier-item-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ffm-hier-item-name {
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: #0f172a;
+}
+
+.ffm-hier-item-detail {
+    font-size: 0.8rem;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.ffm-hier-asm-tree {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.ffm-hier-asm-block {
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    border-radius: 10px;
+    background: rgba(248, 250, 252, 0.70);
+    padding: 14px 16px;
+}
+
+.ffm-hier-asm-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.ffm-hier-nested-fps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-left: 12px;
+    border-left: 3px solid #0284c7;
+    margin-top: 8px;
+}
+
+.ffm-hier-fp-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 0.82rem;
+    color: #1e293b;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+}
+
+.ffm-hier-fp-chip-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #10b981;
+}
+
