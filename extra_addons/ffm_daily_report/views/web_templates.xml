@@ -13,7 +13,7 @@
                 <meta name="theme-color" content="#047857"/>
                 <title><t t-esc="app_name or 'Newtec FFM'"/></title>
                 <link rel="manifest" href="/ff/manifest.json"/>
-                                <link rel="stylesheet" href="/ffm_daily_report/static/src/css/ffm_mobile.css?v=3.1.0"/>
+                                <link rel="stylesheet" href="/ffm_daily_report/static/src/css/ffm_mobile.css?v=3.2.0"/>
                 <style>
                     svg {
                         fill: none !important;
@@ -50,7 +50,7 @@
                         justify-content: center !important;
                     }
                 </style>
-                <script src="/ffm_daily_report/static/src/js/ffm_app.js?v=3.1.0"></script>
+                <script src="/ffm_daily_report/static/src/js/ffm_app.js?v=3.2.0"></script>
             </head>
             <!-- Reports side panel: ASM, RSM, Manager and Super Admin only -->
             <t t-set="show_sidenav" t-value="is_super_admin or is_manager or is_rsm or is_asm"/>
@@ -262,8 +262,14 @@
                 <div class="ffm-grid">
                     <t t-if="has_field_operations">
                         <!-- 1. Daily Attendance -->
-                        <a href="/ff/attendance" class="ffm-tile ffm-tile--green">
-                            <div class="ffm-icon-box ffm-icon-box--green"><svg class="ffm-icon ffm-icon-lg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></div>
+                        <a href="/ff/attendance" class="ffm-tile">
+                            <div class="ffm-icon-box ffm-icon-box--green">
+                                <svg class="ffm-icon ffm-icon-lg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 2a8 8 0 0 0-8 8c0 5.4 7.05 11.5 7.6 11.96a.6.6 0 0 0 .8 0C14.95 21.5 22 15.4 22 10a8 8 0 0 0-8-8z"/>
+                                    <circle cx="12" cy="10" r="3"/>
+                                    <path d="M12 7v3l2 1.5"/>
+                                </svg>
+                            </div>
                             <div class="ffm-tile-title">Daily Attendance</div>
                             <div class="ffm-tile-subtitle">Clock in &amp; location</div>
                             <t t-if="attendance_today">
@@ -275,45 +281,85 @@
                         </a>
 
                         <!-- 2. Chemist Visit -->
-                        <a href="/ff/visit/chemist" class="ffm-tile ffm-tile--emerald">
-                            <div class="ffm-icon-box ffm-icon-box--emerald"><svg class="ffm-icon ffm-icon-lg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"></path><path d="m8.5 8.5 7 7"></path></svg></div>
+                        <a href="/ff/visit/chemist" class="ffm-tile">
+                            <div class="ffm-icon-box ffm-icon-box--emerald">
+                                <svg class="ffm-icon ffm-icon-lg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/>
+                                    <path d="m8.5 8.5 7 7"/>
+                                    <line x1="14" y1="4" x2="20" y2="10"/>
+                                </svg>
+                            </div>
                             <div class="ffm-tile-title">Chemist Visit</div>
                             <div class="ffm-tile-subtitle">Orders &amp; collections</div>
                         </a>
 
                         <!-- 3. Doctor Visit -->
-                        <a href="/ff/visit/doctor" class="ffm-tile ffm-tile--rose">
-                            <div class="ffm-icon-box ffm-icon-box--rose"><svg class="ffm-icon ffm-icon-lg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 3v5a4.5 4.5 0 0 0 9 0V3"></path><path d="M9 12.5V17a4 4 0 0 0 4 4h1a4 4 0 0 0 4-4v-3.5"></path><circle cx="18" cy="11.5" r="2"></circle><circle cx="4.5" cy="3" r="1.5"></circle><circle cx="13.5" cy="3" r="1.5"></circle></svg></div>
+                        <a href="/ff/visit/doctor" class="ffm-tile">
+                            <div class="ffm-icon-box ffm-icon-box--rose">
+                                <svg class="ffm-icon ffm-icon-lg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M4.5 3v5a4.5 4.5 0 0 0 9 0V3"/>
+                                    <path d="M9 12.5V17a4 4 0 0 0 4 4h1a4 4 0 0 0 4-4v-3.5"/>
+                                    <circle cx="18" cy="11.5" r="2.5"/>
+                                    <circle cx="4.5" cy="3" r="1.5"/>
+                                    <circle cx="13.5" cy="3" r="1.5"/>
+                                </svg>
+                            </div>
                             <div class="ffm-tile-title">Doctor Visit</div>
                             <div class="ffm-tile-subtitle">Discussion &amp; sampling</div>
                         </a>
 
                         <!-- 4. Farm Visit -->
-                        <a href="/ff/visit/farm" class="ffm-tile ffm-tile--amber">
-                            <div class="ffm-icon-box ffm-icon-box--amber"><svg class="ffm-icon ffm-icon-lg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"></path></svg></div>
+                        <a href="/ff/visit/farm" class="ffm-tile">
+                            <div class="ffm-icon-box ffm-icon-box--amber">
+                                <svg class="ffm-icon ffm-icon-lg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M3 10.5 12 4l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-9.5z"/>
+                                    <path d="M9 21v-7a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v7"/>
+                                    <line x1="12" y1="8" x2="12" y2="10"/>
+                                    <line x1="10" y1="9" x2="14" y2="9"/>
+                                </svg>
+                            </div>
                             <div class="ffm-tile-title">Farm Visit</div>
                             <div class="ffm-tile-subtitle">Livestock &amp; poultry</div>
                         </a>
 
                         <!-- 5. Daily Expense -->
-                        <a href="/ff/expense" class="ffm-tile ffm-tile--teal">
-                            <div class="ffm-icon-box ffm-icon-box--teal"><svg class="ffm-icon ffm-icon-lg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg></div>
+                        <a href="/ff/expense" class="ffm-tile">
+                            <div class="ffm-icon-box ffm-icon-box--teal">
+                                <svg class="ffm-icon ffm-icon-lg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M19 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2"/>
+                                    <path d="M16 11h6a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-6a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2z"/>
+                                    <circle cx="18" cy="14" r="1" fill="currentColor"/>
+                                </svg>
+                            </div>
                             <div class="ffm-tile-title">Daily Expense</div>
                             <div class="ffm-tile-subtitle">Allowance &amp; vouchers</div>
                         </a>
                     </t>
 
                     <!-- 6. Daily Report Card (Always available for FP, ASM, RSM, Admin) -->
-                    <a href="/ff/report/cards" class="ffm-tile ffm-tile--indigo">
-                        <div class="ffm-icon-box ffm-icon-box--indigo"><svg class="ffm-icon ffm-icon-lg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></div>
+                    <a href="/ff/report/cards" class="ffm-tile">
+                        <div class="ffm-icon-box ffm-icon-box--indigo">
+                            <svg class="ffm-icon ffm-icon-lg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <path d="M8 17v-3"/>
+                                <path d="M12 17v-6"/>
+                                <path d="M16 17v-8"/>
+                            </svg>
+                        </div>
                         <div class="ffm-tile-title">Daily Report Card</div>
                         <div class="ffm-tile-subtitle">Self report &amp; PDF</div>
                     </a>
 
                     <!-- 7. Team Approvals / Manager Panel (For Supervisors: ASM, RSM, Manager, Super Admin) -->
                     <t t-if="is_supervisor">
-                        <a href="/ff/manager" class="ffm-tile ffm-tile-featured ffm-tile--blue">
-                            <div class="ffm-icon-box ffm-icon-box--blue"><svg class="ffm-icon ffm-icon-lg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg></div>
+                        <a href="/ff/manager" class="ffm-tile ffm-tile-featured">
+                            <div class="ffm-icon-box ffm-icon-box--blue">
+                                <svg class="ffm-icon ffm-icon-lg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                                    <path d="m9 12 2 2 4-4"/>
+                                </svg>
+                            </div>
                             <div class="ffm-tile-title"><t t-if="approval_enabled">Team Approvals</t><t t-else="">Manager Panel</t></div>
                             <div class="ffm-tile-subtitle"><t t-if="approval_enabled">Review &amp; approve reports</t><t t-else="">Team activity &amp; reports</t></div>
                             <t t-if="approval_enabled and pending_reports_count and pending_reports_count &gt; 0">
