@@ -13,7 +13,7 @@
                 <meta name="theme-color" content="#047857"/>
                 <title><t t-esc="app_name or 'Newtec FFM'"/></title>
                 <link rel="manifest" href="/ff/manifest.json"/>
-                                <link rel="stylesheet" href="/ffm_daily_report/static/src/css/ffm_mobile.css?v=3.0.2"/>
+                                <link rel="stylesheet" href="/ffm_daily_report/static/src/css/ffm_mobile.css?v=3.0.3"/>
                 <style>
                     svg {
                         fill: none !important;
@@ -238,13 +238,12 @@
                         <div class="ffm-glass-user-info">
                             <div class="ffm-glass-name-row">
                                 <span class="ffm-glass-user-name"><t t-esc="employee.name or user_name"/></span>
-                                <span class="ffm-glass-role-pill"><t t-esc="role_badge"/></span>
                             </div>
                             
-                            <!-- Designation and Depot Only -->
+                            <!-- Designation and Depot Under Name -->
                             <div class="ffm-glass-hierarchy-line">
                                 <span class="ffm-glass-meta-item">
-                                    <t t-esc="designation"/>
+                                    <t t-esc="role_badge"/>
                                 </span>
                                 <span class="ffm-glass-meta-sep">&#8226;</span>
                                 <span class="ffm-glass-meta-item">
@@ -254,26 +253,12 @@
                         </div>
                     </div>
 
-                    <!-- Right side date & attendance badge -->
+                    <!-- Right side date only -->
                     <div class="ffm-glass-bar-status">
                         <div class="ffm-glass-date">
                             <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                             <span t-esc="today_str"/>
                         </div>
-                        <t t-if="has_field_operations">
-                            <t t-if="attendance_today">
-                                <span class="ffm-glass-badge ffm-glass-badge-done">
-                                    <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                    Attendance Marked
-                                </span>
-                            </t>
-                            <t t-else="">
-                                <span class="ffm-glass-badge ffm-glass-badge-pending">
-                                    <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                                    Attendance Pending
-                                </span>
-                            </t>
-                        </t>
                     </div>
                 </div>
             </div>
