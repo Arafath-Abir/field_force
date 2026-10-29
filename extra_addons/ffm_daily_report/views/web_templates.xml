@@ -612,48 +612,51 @@
                 <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Home
             </a>
 
-            <div class="ffm-form-card">
+            <div class="ffm-form-card ffm-attendance-card">
                 <div class="ffm-form-header">
-                    <div>
-                        <h2 class="ffm-form-title">
-                            <svg class="ffm-icon ffm-icon-sm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 6px; color: #0f5132;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> Daily Field Attendance
-                        </h2>
-                        <p class="ffm-form-subtitle">Tap submit to record your reporting time with live location.</p>
-                    </div>
-                    <span class="ffm-badge ffm-badge-info" style="font-size: 0.78rem; padding: 4px 10px;">
+                    <h2 class="ffm-form-title">
+                        <span class="ffm-icon-box ffm-icon-box-sm ffm-icon-box--green">
+                            <svg class="ffm-icon ffm-icon-sm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                        </span>
+                        Daily Field Attendance
+                    </h2>
+                    <span class="ffm-date-badge">
+                        <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                         <t t-esc="today_str"/>
                     </span>
                 </div>
 
                 <!-- Case A: Already submitted today -->
                 <t t-if="attendance">
-                    <div style="background: #ffffff; border: 1px solid #e4e7ec; border-radius: 12px; padding: 18px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(16, 124, 65, 0.06);">
-                        <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: #15803d; font-size: 0.95rem; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #dcfce7;">
-                            <svg class="ffm-icon ffm-icon-sm" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                            Today's Attendance Recorded Successfully
+                    <div class="ffm-attendance-success-box">
+                        <div class="ffm-success-check-row">
+                            <span class="ffm-success-check-badge">
+                                <svg class="ffm-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </span>
+                            <span>Attendance Recorded Successfully</span>
                         </div>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; font-size: 0.86rem;">
-                            <div style="background: #ffffff; padding: 10px 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
-                                <span style="font-size: 0.72rem; color: #64748b; display: block; font-weight: 600; text-transform: uppercase;">Reporting Time</span>
-                                <strong style="color: #0f172a; font-size: 0.96rem;" t-esc="reporting_time_str"/>
+                        <div class="ffm-att-metric-grid">
+                            <div class="ffm-att-metric-card">
+                                <span class="ffm-att-metric-label">Reporting Time</span>
+                                <strong class="ffm-att-metric-val" t-esc="reporting_time_str"/>
                             </div>
-                            <div style="background: #ffffff; padding: 10px 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
-                                <span style="font-size: 0.72rem; color: #64748b; display: block; font-weight: 600; text-transform: uppercase;">Location / Place</span>
-                                <strong style="color: #0f172a;" t-esc="attendance.place_name or 'Bangladesh'"/>
+                            <div class="ffm-att-metric-card">
+                                <span class="ffm-att-metric-label">Location / Place</span>
+                                <strong class="ffm-att-metric-val" t-esc="attendance.place_name or 'Bangladesh'"/>
                             </div>
-                            <div style="background: #ffffff; padding: 10px 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
-                                <span style="font-size: 0.72rem; color: #64748b; display: block; font-weight: 600; text-transform: uppercase;">Mode of Journey</span>
-                                <strong style="color: #0f172a;" t-esc="attendance.mode_of_journey or 'N/A'"/>
+                            <div class="ffm-att-metric-card">
+                                <span class="ffm-att-metric-label">Mode of Journey</span>
+                                <strong class="ffm-att-metric-val" t-esc="attendance.mode_of_journey or 'N/A'"/>
                             </div>
-                            <div style="background: #ffffff; padding: 10px 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
-                                <span style="font-size: 0.72rem; color: #64748b; display: block; font-weight: 600; text-transform: uppercase;">GPS Accuracy</span>
-                                <strong style="color: #047857;">±<t t-esc="'%.0f' % attendance.accuracy"/>m</strong>
+                            <div class="ffm-att-metric-card">
+                                <span class="ffm-att-metric-label">GPS Accuracy</span>
+                                <strong class="ffm-att-metric-val ffm-acc-val">±<t t-esc="'%.0f' % attendance.accuracy"/>m</strong>
                             </div>
                         </div>
                     </div>
 
-                    <div style="text-align: center;">
-                        <a href="/ff" class="ffm-btn ffm-btn-secondary" style="max-width: 240px; margin: 0 auto;">
+                    <div style="text-align: center; margin-top: 18px;">
+                        <a href="/ff" class="ffm-btn ffm-btn-secondary" style="max-width: 220px; margin: 0 auto;">
                             Back to Home
                         </a>
                     </div>
@@ -662,16 +665,15 @@
                 <!-- Case B: Not submitted yet -->
                 <t t-else="">
                     <form id="attendanceForm" onsubmit="return handleAttendanceSubmit(event)">
-                        <div class="ffm-live-loc-note" style="margin-top: 0;">
-                            <svg class="ffm-icon ffm-icon-sm" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                            <span>Your live location is captured when you tap Submit. Attendance cannot be submitted without location, so keep GPS / location turned on.</span>
+                        <div class="ffm-gps-live-indicator">
+                            <span class="ffm-gps-pulse-dot"></span>
+                            <span>Live GPS location required on submit</span>
                         </div>
 
                         <!-- Mode of Journey -->
                         <div class="ffm-form-group">
                             <label class="ffm-form-label" for="mode_of_journey">
-                                <span>Mode of Journey *</span>
-                                <span style="font-size: 0.72rem; color: #64748b; font-weight: normal;">Travel method used today</span>
+                                <span>Mode of Journey <span class="ffm-req">*</span></span>
                             </label>
                             <select id="mode_of_journey" name="mode_of_journey" class="ffm-form-control">
                                 <option value="Motorcycle">Motorcycle</option>
@@ -684,8 +686,9 @@
                         </div>
 
                         <!-- Submit Button: captures live GPS, then submits -->
-                        <button type="submit" id="btnSubmitAttendance" class="ffm-btn ffm-btn-primary">
-                            <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle;"><polyline points="20 6 9 17 4 12"></polyline></svg> Submit Daily Attendance
+                        <button type="submit" id="btnSubmitAttendance" class="ffm-btn ffm-btn-primary" style="margin-top: 8px;">
+                            <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <span>Submit Daily Attendance</span>
                         </button>
                     </form>
 
@@ -1002,7 +1005,6 @@
                             </span>
                             Chemist Shop Visit
                         </h2>
-                        <p class="ffm-form-subtitle">Record pharmacy visits, product bookings, sales delivery, and cash collection.</p>
                     </div>
                 </div>
 
@@ -1012,7 +1014,7 @@
                         <label class="ffm-form-label" for="chemist_name_manual">
                             <span>Chemist / Pharmacy Name <span class="ffm-req">*</span></span>
                         </label>
-                        <input type="text" id="chemist_name_manual" name="chemist_name_manual" class="ffm-form-control" required="required"/>
+                        <input type="text" id="chemist_name_manual" name="chemist_name_manual" class="ffm-form-control" required="required" placeholder="Enter pharmacy name"/>
                         <input type="hidden" id="chemist_id" name="chemist_id" value=""/>
                     </div>
 
@@ -1020,38 +1022,38 @@
                     <div class="ffm-fin-grid">
                         <div class="ffm-fin-card ffm-fin-card--order">
                             <label class="ffm-fin-label" for="order_tk">
-                                <span>Order (Tk) <span class="ffm-req">*</span></span>
+                                <span>Order (Tk)</span>
                             </label>
                             <div class="ffm-currency-wrap">
                                 <span class="ffm-currency-prefix">Tk</span>
-                                <input type="number" id="order_tk" name="order_tk" class="ffm-form-control" min="0" step="1" value="0" required="required"/>
+                                <input type="number" id="order_tk" name="order_tk" class="ffm-form-control" min="0" step="1" placeholder="0"/>
                             </div>
                         </div>
 
                         <div class="ffm-fin-card ffm-fin-card--sale">
                             <label class="ffm-fin-label" for="sale_tk">
-                                <span>Sale (Tk) <span class="ffm-req">*</span></span>
+                                <span>Sale (Tk)</span>
                             </label>
                             <div class="ffm-currency-wrap">
                                 <span class="ffm-currency-prefix">Tk</span>
-                                <input type="number" id="sale_tk" name="sale_tk" class="ffm-form-control" min="0" step="1" value="0" required="required"/>
+                                <input type="number" id="sale_tk" name="sale_tk" class="ffm-form-control" min="0" step="1" placeholder="0"/>
                             </div>
                         </div>
 
                         <div class="ffm-fin-card ffm-fin-card--coll">
                             <label class="ffm-fin-label" for="coll_tk">
-                                <span>Collection (Tk) <span class="ffm-req">*</span></span>
+                                <span>Collection (Tk)</span>
                             </label>
                             <div class="ffm-currency-wrap">
                                 <span class="ffm-currency-prefix">Tk</span>
-                                <input type="number" id="coll_tk" name="coll_tk" class="ffm-form-control" min="0" step="1" value="0" required="required"/>
+                                <input type="number" id="coll_tk" name="coll_tk" class="ffm-form-control" min="0" step="1" placeholder="0"/>
                             </div>
                         </div>
                     </div>
 
                     <div class="ffm-form-group">
                         <label class="ffm-form-label" for="note">Visit Notes / Remarks</label>
-                        <input type="text" id="note" name="note" class="ffm-form-control"/>
+                        <input type="text" id="note" name="note" class="ffm-form-control" placeholder="Optional remarks"/>
                     </div>
 
                     <!-- ── Journey & T.A. Bill ── -->
@@ -1078,11 +1080,11 @@
                             </div>
                             <div class="ffm-form-group" style="margin-bottom: 0;">
                                 <label class="ffm-form-label" for="fare_tk">
-                                    <span>T.A. Bill for Vehicle (Tk) <span class="ffm-req">*</span></span>
+                                    <span>T.A. Bill for Vehicle (Tk)</span>
                                 </label>
                                 <div class="ffm-currency-wrap">
                                     <span class="ffm-currency-prefix">Tk</span>
-                                    <input type="number" id="fare_tk" class="ffm-form-control" min="0" step="1" value="0" required="required" style="color: #1f2937;"/>
+                                    <input type="number" id="fare_tk" class="ffm-form-control" min="0" step="1" placeholder="0" style="color: #1f2937;"/>
                                 </div>
                             </div>
                         </div>
@@ -1092,9 +1094,9 @@
                         </div>
                     </div>
 
-                    <div class="ffm-live-loc-note">
-                        <svg class="ffm-icon ffm-icon-sm" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                        <span>Your live location is captured automatically when you save. Keep GPS / location turned on.</span>
+                    <div class="ffm-gps-live-indicator">
+                        <span class="ffm-gps-pulse-dot"></span>
+                        <span>Live GPS location required on submit</span>
                     </div>
 
                     <button type="submit" id="btnSubmitChemist" class="ffm-btn ffm-btn-primary">
@@ -1117,14 +1119,21 @@
                         return false;
                     }
 
-                    var order = parseInt(document.getElementById('order_tk').value, 10);
-                    var sale = parseInt(document.getElementById('sale_tk').value, 10);
-                    var coll = parseInt(document.getElementById('coll_tk').value, 10);
+                    var orderRaw = document.getElementById('order_tk').value.trim();
+                    var saleRaw = document.getElementById('sale_tk').value.trim();
+                    var collRaw = document.getElementById('coll_tk').value.trim();
+
+                    var order = orderRaw === '' ? 0 : parseInt(orderRaw, 10);
+                    var sale = saleRaw === '' ? 0 : parseInt(saleRaw, 10);
+                    var coll = collRaw === '' ? 0 : parseInt(collRaw, 10);
 
                     if (isNaN(order) || isNaN(sale) || isNaN(coll) || order &lt; 0 || sale &lt; 0 || coll &lt; 0) {
-                        FFM.showToast('Please enter valid whole numbers for amounts.', 'error');
+                        FFM.showToast('Please enter valid positive numbers for amounts.', 'error');
                         return false;
                     }
+
+                    var fareRaw = document.getElementById('fare_tk').value.trim();
+                    var fare = fareRaw === '' ? 0 : parseFloat(fareRaw);
 
                     var btn = document.getElementById('btnSubmitChemist');
                     FFM.withLiveLocation(btn, 'Saving...', function(loc, release) {
@@ -1140,7 +1149,7 @@
                             note: document.getElementById('note').value.trim(),
                             mode: document.getElementById('mode').value,
                             other_mode: document.getElementById('other_mode').value.trim(),
-                            fare_tk: parseFloat(document.getElementById('fare_tk').value || 0),
+                            fare_tk: fare,
                             client_uuid: FFM.getOrGenerateUUID('ffm_chemist_visit_uuid')
                         };
 
@@ -1188,7 +1197,6 @@
                             </span>
                             Doctor / Prescriber Visit
                         </h2>
-                        <p class="ffm-form-subtitle">Record doctor consultations, product discussion notes, and sampling details.</p>
                     </div>
                 </div>
 
@@ -1198,7 +1206,7 @@
                         <label class="ffm-form-label" for="prescriber_name_manual">
                             <span>Doctor / Prescriber Name <span class="ffm-req">*</span></span>
                         </label>
-                        <input type="text" id="prescriber_name_manual" name="prescriber_name_manual" class="ffm-form-control" required="required"/>
+                        <input type="text" id="prescriber_name_manual" name="prescriber_name_manual" class="ffm-form-control" required="required" placeholder="Enter doctor name"/>
                         <input type="hidden" id="doctor_id" name="doctor_id" value=""/>
                     </div>
 
@@ -1207,7 +1215,7 @@
                             <label class="ffm-form-label" for="mobile">
                                 <span>Doctor Phone / Contact <span class="ffm-req">*</span></span>
                             </label>
-                            <input type="text" id="mobile" name="mobile" class="ffm-form-control" required="required"/>
+                            <input type="text" id="mobile" name="mobile" class="ffm-form-control" required="required" placeholder="e.g. 017xxxxxxxx"/>
                         </div>
                         <div class="ffm-form-group">
                             <label class="ffm-form-label" for="grade">
@@ -1225,21 +1233,21 @@
                         <label class="ffm-form-label" for="mailing_address">
                             <span>Chamber / Hospital Address <span class="ffm-req">*</span></span>
                         </label>
-                        <input type="text" id="mailing_address" name="mailing_address" class="ffm-form-control" required="required"/>
+                        <input type="text" id="mailing_address" name="mailing_address" class="ffm-form-control" required="required" placeholder="Chamber or hospital location"/>
                     </div>
 
                     <div class="ffm-form-group">
                         <label class="ffm-form-label" for="product_discussion">
                             <span>Product Discussion Highlights <span class="ffm-req">*</span></span>
                         </label>
-                        <input type="text" id="product_discussion" name="product_discussion" class="ffm-form-control" required="required"/>
+                        <input type="text" id="product_discussion" name="product_discussion" class="ffm-form-control" required="required" placeholder="Discussed products &amp; feedback"/>
                     </div>
 
                     <div class="ffm-form-group">
                         <label class="ffm-form-label" for="sample">
                             <span>Sample / Literature Given <span class="ffm-req">*</span></span>
                         </label>
-                        <input type="text" id="sample" name="sample" class="ffm-form-control" required="required"/>
+                        <input type="text" id="sample" name="sample" class="ffm-form-control" required="required" placeholder="Samples or literature provided"/>
                     </div>
 
                     <!-- ── Journey & T.A. Bill ── -->
@@ -1266,19 +1274,19 @@
                             </div>
                             <div class="ffm-form-group" style="margin-bottom: 0;">
                                 <label class="ffm-form-label" for="doc_fare_tk">
-                                    <span>T.A. Bill for Vehicle (Tk) <span class="ffm-req">*</span></span>
+                                    <span>T.A. Bill for Vehicle (Tk)</span>
                                 </label>
                                 <div class="ffm-currency-wrap">
                                     <span class="ffm-currency-prefix">Tk</span>
-                                    <input type="number" id="doc_fare_tk" class="ffm-form-control" min="0" step="1" value="0" required="required" style="color: #1f2937;"/>
+                                    <input type="number" id="doc_fare_tk" class="ffm-form-control" min="0" step="1" placeholder="0" style="color: #1f2937;"/>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="ffm-live-loc-note">
-                        <svg class="ffm-icon ffm-icon-sm" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                        <span>Your live location is captured automatically when you save. Keep GPS / location turned on.</span>
+                    <div class="ffm-gps-live-indicator">
+                        <span class="ffm-gps-pulse-dot"></span>
+                        <span>Live GPS location required on submit</span>
                     </div>
 
                     <button type="submit" id="btnSubmitDoctor" class="ffm-btn ffm-btn-primary">
@@ -1297,6 +1305,9 @@
                         return false;
                     }
 
+                    var fareRaw = document.getElementById('doc_fare_tk').value.trim();
+                    var fare = fareRaw === '' ? 0 : parseFloat(fareRaw);
+
                     var btn = document.getElementById('btnSubmitDoctor');
                     FFM.withLiveLocation(btn, 'Saving...', function(loc, release) {
                         var payload = {
@@ -1311,7 +1322,7 @@
                             sample: document.getElementById('sample').value.trim(),
                             grade: document.getElementById('grade').value,
                             mode: document.getElementById('doc_mode').value,
-                            fare_tk: parseFloat(document.getElementById('doc_fare_tk').value || 0),
+                            fare_tk: fare,
                             client_uuid: FFM.getOrGenerateUUID('ffm_doctor_visit_uuid')
                         };
 
@@ -1359,7 +1370,6 @@
                             </span>
                             Farm &amp; Institution Visit
                         </h2>
-                        <p class="ffm-form-subtitle">Record visits to poultry, dairy, fishery farms or commercial institutions.</p>
                     </div>
                 </div>
 
@@ -1368,54 +1378,53 @@
                         <label class="ffm-form-label" for="farm_name">
                             <span>Farm or Institution Name <span class="ffm-req">*</span></span>
                         </label>
-                        <input type="text" id="farm_name" name="farm_name" class="ffm-form-control" required="required"/>
+                        <input type="text" id="farm_name" name="farm_name" class="ffm-form-control" required="required" placeholder="Enter farm or institution name"/>
                     </div>
 
                     <div class="ffm-form-group">
                         <label class="ffm-form-label" for="farm_address">
                             <span>Location / Address</span>
-                            <span class="ffm-hint">Village, Union or Area details</span>
                         </label>
-                        <input type="text" id="farm_address" name="address" class="ffm-form-control"/>
+                        <input type="text" id="farm_address" name="address" class="ffm-form-control" placeholder="Village, union or area details"/>
                     </div>
 
-                    <!-- Livestock & Animal Capacity Grid -->
+                    <!-- Livestock & Animal Capacity Grid (All Required) -->
                     <div class="ffm-capacity-box">
                         <div class="ffm-capacity-title">
                             <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d97706;"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
-                            <span>Livestock &amp; Capacity Breakdown</span>
+                            <span>Livestock &amp; Capacity Breakdown <span class="ffm-req">*</span></span>
                         </div>
                         <div class="ffm-capacity-grid">
                             <div class="ffm-form-group" style="margin-bottom: 0;">
-                                <label class="ffm-form-label" for="broiler" style="font-size: 0.76rem;">Broiler Shed / Cap</label>
-                                <input type="text" id="broiler" name="broiler" class="ffm-form-control"/>
+                                <label class="ffm-form-label" for="broiler" style="font-size: 0.76rem;"><span>Broiler Shed / Cap <span class="ffm-req">*</span></span></label>
+                                <input type="text" id="broiler" name="broiler" class="ffm-form-control" required="required" placeholder="e.g. 2000"/>
                             </div>
                             <div class="ffm-form-group" style="margin-bottom: 0;">
-                                <label class="ffm-form-label" for="layer" style="font-size: 0.76rem;">Layer Shed / Cap</label>
-                                <input type="text" id="layer" name="layer" class="ffm-form-control"/>
+                                <label class="ffm-form-label" for="layer" style="font-size: 0.76rem;"><span>Layer Shed / Cap <span class="ffm-req">*</span></span></label>
+                                <input type="text" id="layer" name="layer" class="ffm-form-control" required="required" placeholder="e.g. 1500"/>
                             </div>
                             <div class="ffm-form-group" style="margin-bottom: 0;">
-                                <label class="ffm-form-label" for="sonali" style="font-size: 0.76rem;">Sonali Shed / Cap</label>
-                                <input type="text" id="sonali" name="sonali" class="ffm-form-control"/>
+                                <label class="ffm-form-label" for="sonali" style="font-size: 0.76rem;"><span>Sonali Shed / Cap <span class="ffm-req">*</span></span></label>
+                                <input type="text" id="sonali" name="sonali" class="ffm-form-control" required="required" placeholder="e.g. 1000"/>
                             </div>
                             <div class="ffm-form-group" style="margin-bottom: 0;">
-                                <label class="ffm-form-label" for="cattle" style="font-size: 0.76rem;">Cattle Count</label>
-                                <input type="text" id="cattle" name="cattle" class="ffm-form-control"/>
+                                <label class="ffm-form-label" for="cattle" style="font-size: 0.76rem;"><span>Cattle Count <span class="ffm-req">*</span></span></label>
+                                <input type="text" id="cattle" name="cattle" class="ffm-form-control" required="required" placeholder="e.g. 20"/>
                             </div>
                             <div class="ffm-form-group" style="margin-bottom: 0;">
-                                <label class="ffm-form-label" for="aqua" style="font-size: 0.76rem;">Fishery / Aqua</label>
-                                <input type="text" id="aqua" name="aqua" class="ffm-form-control"/>
+                                <label class="ffm-form-label" for="aqua" style="font-size: 0.76rem;"><span>Fishery / Aqua <span class="ffm-req">*</span></span></label>
+                                <input type="text" id="aqua" name="aqua" class="ffm-form-control" required="required" placeholder="e.g. 2 ponds"/>
                             </div>
                             <div class="ffm-form-group" style="margin-bottom: 0;">
-                                <label class="ffm-form-label" for="bird_count" style="font-size: 0.76rem;">Total Animals / Birds</label>
-                                <input type="number" id="bird_count" name="bird_count" class="ffm-form-control" min="0" value="0" style="font-weight: 700; color: #0f172a;"/>
+                                <label class="ffm-form-label" for="bird_count" style="font-size: 0.76rem;"><span>Total Animals / Birds <span class="ffm-req">*</span></span></label>
+                                <input type="number" id="bird_count" name="bird_count" class="ffm-form-control" min="0" required="required" placeholder="0" style="font-weight: 700; color: #0f172a;"/>
                             </div>
                         </div>
                     </div>
 
                     <div class="ffm-form-group">
                         <label class="ffm-form-label" for="farm_note">Discussion Highlights &amp; Farmer Feedback</label>
-                        <input type="text" id="farm_note" name="note" class="ffm-form-control"/>
+                        <input type="text" id="farm_note" name="note" class="ffm-form-control" placeholder="Discussion notes and farmer response"/>
                     </div>
 
                     <!-- ── Journey & T.A. Bill ── -->
@@ -1442,19 +1451,19 @@
                             </div>
                             <div class="ffm-form-group" style="margin-bottom: 0;">
                                 <label class="ffm-form-label" for="farm_fare_tk">
-                                    <span>T.A. Bill for Vehicle (Tk) <span class="ffm-req">*</span></span>
+                                    <span>T.A. Bill for Vehicle (Tk)</span>
                                 </label>
                                 <div class="ffm-currency-wrap">
                                     <span class="ffm-currency-prefix">Tk</span>
-                                    <input type="number" id="farm_fare_tk" class="ffm-form-control" min="0" step="1" value="0" required="required" style="color: #1f2937;"/>
+                                    <input type="number" id="farm_fare_tk" class="ffm-form-control" min="0" step="1" placeholder="0" style="color: #1f2937;"/>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="ffm-live-loc-note">
-                        <svg class="ffm-icon ffm-icon-sm" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                        <span>Your live location is captured automatically when you save. Keep GPS / location turned on.</span>
+                    <div class="ffm-gps-live-indicator">
+                        <span class="ffm-gps-pulse-dot"></span>
+                        <span>Live GPS location required on submit</span>
                     </div>
 
                     <button type="submit" id="btnSubmitFarm" class="ffm-btn ffm-btn-primary">
@@ -1469,8 +1478,37 @@
                     var name = document.getElementById('farm_name').value.trim();
                     if (!name) {
                         FFM.showToast('Please enter farm or institution name.', 'error');
+                        document.getElementById('farm_name').focus();
                         return false;
                     }
+
+                    var broiler = document.getElementById('broiler').value.trim();
+                    var layer = document.getElementById('layer').value.trim();
+                    var sonali = document.getElementById('sonali').value.trim();
+                    var cattle = document.getElementById('cattle').value.trim();
+                    var aqua = document.getElementById('aqua').value.trim();
+                    var birdCountRaw = document.getElementById('bird_count').value.trim();
+
+                    if (!broiler || !layer || !sonali || !cattle || !aqua || birdCountRaw === '') {
+                        FFM.showToast('All Livestock &amp; Capacity Breakdown fields are required.', 'error');
+                        if (!broiler) document.getElementById('broiler').focus();
+                        else if (!layer) document.getElementById('layer').focus();
+                        else if (!sonali) document.getElementById('sonali').focus();
+                        else if (!cattle) document.getElementById('cattle').focus();
+                        else if (!aqua) document.getElementById('aqua').focus();
+                        else if (birdCountRaw === '') document.getElementById('bird_count').focus();
+                        return false;
+                    }
+
+                    var birdCount = parseInt(birdCountRaw, 10);
+                    if (isNaN(birdCount) || birdCount &lt; 0) {
+                        FFM.showToast('Please enter a valid number for Total Animals / Birds.', 'error');
+                        document.getElementById('bird_count').focus();
+                        return false;
+                    }
+
+                    var fareRaw = document.getElementById('farm_fare_tk').value.trim();
+                    var fare = fareRaw === '' ? 0 : parseFloat(fareRaw);
 
                     var btn = document.getElementById('btnSubmitFarm');
                     FFM.withLiveLocation(btn, 'Saving...', function(loc, release) {
@@ -1480,15 +1518,15 @@
                             gps_accuracy: loc.gps_accuracy,
                             farm_name: name,
                             address: document.getElementById('farm_address').value.trim(),
-                            broiler: document.getElementById('broiler').value.trim(),
-                            layer: document.getElementById('layer').value.trim(),
-                            sonali: document.getElementById('sonali').value.trim(),
-                            cattle: document.getElementById('cattle').value.trim(),
-                            aqua: document.getElementById('aqua').value.trim(),
-                            bird_count: parseInt(document.getElementById('bird_count').value || 0, 10),
+                            broiler: broiler,
+                            layer: layer,
+                            sonali: sonali,
+                            cattle: cattle,
+                            aqua: aqua,
+                            bird_count: birdCount,
                             note: document.getElementById('farm_note').value.trim(),
                             mode: document.getElementById('farm_mode').value,
-                            fare_tk: parseFloat(document.getElementById('farm_fare_tk').value || 0),
+                            fare_tk: fare,
                             client_uuid: FFM.getOrGenerateUUID('ffm_farm_visit_uuid')
                         };
 
@@ -1767,18 +1805,13 @@
                             </span>
                             Daily Expense &amp; Vouchers
                         </h2>
-                        <p class="ffm-form-subtitle">Record official field expenses. Receipt vouchers are optional.</p>
                     </div>
                     <div style="text-align: right;">
-                        <span class="ffm-badge ffm-badge-info" style="font-size: 0.80rem; padding: 5px 12px; font-weight: 600;">
+                        <span class="ffm-date-badge">
+                            <svg class="ffm-icon ffm-icon-xs" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                             <t t-esc="today_str"/>
                         </span>
                     </div>
-                </div>
-
-                <div style="background: #f3f4f6; border: 1px solid #f3f4f6; border-left: 4px solid #0f5132; padding: 12px 16px; border-radius: 8px; font-size: 0.82rem; color: #1f2937; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
-                    <svg class="ffm-icon ffm-icon-sm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #0f5132; flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                    <span>At least one category is required (>0). You can attach a receipt/voucher for <strong>Entertainment, Courier, Photocopy, and Hotel Rent</strong> (optional).</span>
                 </div>
 
                 <form id="dailyExpenseForm" onsubmit="return handleExpenseSubmit(event)">
@@ -1794,7 +1827,7 @@
                             </div>
                             <div class="ffm-currency-wrap">
                                 <span class="ffm-currency-prefix">Tk</span>
-                                <input type="number" id="entertainment" name="entertainment" class="ffm-form-control ffm-amount-control" min="0" step="1" oninput="onAmountChanged('entertainment')"/>
+                                <input type="number" id="entertainment" name="entertainment" class="ffm-form-control ffm-amount-control" min="0" step="1" placeholder="0" oninput="onAmountChanged('entertainment')"/>
                             </div>
                             
                             <div id="voucher_box_entertainment" class="ffm-upload-box">
@@ -1823,7 +1856,7 @@
                             </div>
                             <div class="ffm-currency-wrap">
                                 <span class="ffm-currency-prefix">Tk</span>
-                                <input type="number" id="courier" name="courier" class="ffm-form-control ffm-amount-control" min="0" step="1" oninput="onAmountChanged('courier')"/>
+                                <input type="number" id="courier" name="courier" class="ffm-form-control ffm-amount-control" min="0" step="1" placeholder="0" oninput="onAmountChanged('courier')"/>
                             </div>
                             
                             <div id="voucher_box_courier" class="ffm-upload-box">
@@ -1852,7 +1885,7 @@
                             </div>
                             <div class="ffm-currency-wrap">
                                 <span class="ffm-currency-prefix">Tk</span>
-                                <input type="number" id="photocopy" name="photocopy" class="ffm-form-control ffm-amount-control" min="0" step="1" oninput="onAmountChanged('photocopy')"/>
+                                <input type="number" id="photocopy" name="photocopy" class="ffm-form-control ffm-amount-control" min="0" step="1" placeholder="0" oninput="onAmountChanged('photocopy')"/>
                             </div>
                             
                             <div id="voucher_box_photocopy" class="ffm-upload-box">
@@ -1881,7 +1914,7 @@
                             </div>
                             <div class="ffm-currency-wrap">
                                 <span class="ffm-currency-prefix">Tk</span>
-                                <input type="number" id="hotel_rent" name="hotel_rent" class="ffm-form-control ffm-amount-control" min="0" step="1" oninput="onAmountChanged('hotel_rent')"/>
+                                <input type="number" id="hotel_rent" name="hotel_rent" class="ffm-form-control ffm-amount-control" min="0" step="1" placeholder="0" oninput="onAmountChanged('hotel_rent')"/>
                             </div>
                             
                             <div id="voucher_box_hotel_rent" class="ffm-upload-box">
@@ -1912,35 +1945,35 @@
                                 <label class="ffm-form-label" for="promotion" style="font-size: 0.76rem;">Promotion (Tk)</label>
                                 <div class="ffm-currency-wrap">
                                     <span class="ffm-currency-prefix">Tk</span>
-                                    <input type="number" id="promotion" name="promotion" class="ffm-form-control expense-amount-input" min="0" step="1" oninput="recalcTotal()"/>
+                                    <input type="number" id="promotion" name="promotion" class="ffm-form-control expense-amount-input" min="0" step="1" placeholder="0" oninput="recalcTotal()"/>
                                 </div>
                             </div>
                             <div class="ffm-form-group">
                                 <label class="ffm-form-label" for="stationery" style="font-size: 0.76rem;">Stationery (Tk)</label>
                                 <div class="ffm-currency-wrap">
                                     <span class="ffm-currency-prefix">Tk</span>
-                                    <input type="number" id="stationery" name="stationery" class="ffm-form-control expense-amount-input" min="0" step="1" oninput="recalcTotal()"/>
+                                    <input type="number" id="stationery" name="stationery" class="ffm-form-control expense-amount-input" min="0" step="1" placeholder="0" oninput="recalcTotal()"/>
                                 </div>
                             </div>
                             <div class="ffm-form-group">
                                 <label class="ffm-form-label" for="carrying" style="font-size: 0.76rem;">Carrying (Tk)</label>
                                 <div class="ffm-currency-wrap">
                                     <span class="ffm-currency-prefix">Tk</span>
-                                    <input type="number" id="carrying" name="carrying" class="ffm-form-control expense-amount-input" min="0" step="1" oninput="recalcTotal()"/>
+                                    <input type="number" id="carrying" name="carrying" class="ffm-form-control expense-amount-input" min="0" step="1" placeholder="0" oninput="recalcTotal()"/>
                                 </div>
                             </div>
                             <div class="ffm-form-group">
                                 <label class="ffm-form-label" for="banking" style="font-size: 0.76rem;">Banking (Tk)</label>
                                 <div class="ffm-currency-wrap">
                                     <span class="ffm-currency-prefix">Tk</span>
-                                    <input type="number" id="banking" name="banking" class="ffm-form-control expense-amount-input" min="0" step="1" oninput="recalcTotal()"/>
+                                    <input type="number" id="banking" name="banking" class="ffm-form-control expense-amount-input" min="0" step="1" placeholder="0" oninput="recalcTotal()"/>
                                 </div>
                             </div>
                             <div class="ffm-form-group">
                                 <label class="ffm-form-label" for="bike" style="font-size: 0.76rem;">Motorcycle Fuel &amp; Maintenance (Tk)</label>
                                 <div class="ffm-currency-wrap">
                                     <span class="ffm-currency-prefix">Tk</span>
-                                    <input type="number" id="bike" name="bike" class="ffm-form-control expense-amount-input" min="0" step="1" oninput="recalcTotal()"/>
+                                    <input type="number" id="bike" name="bike" class="ffm-form-control expense-amount-input" min="0" step="1" placeholder="0" oninput="recalcTotal()"/>
                                 </div>
                             </div>
                         </div>
@@ -1948,7 +1981,7 @@
 
                     <div class="ffm-form-group">
                         <label class="ffm-form-label" for="note">Expense Description / Notes</label>
-                        <textarea id="note" name="note" class="ffm-form-control" rows="2"></textarea>
+                        <textarea id="note" name="note" class="ffm-form-control" rows="2" placeholder="Optional notes regarding expenses"></textarea>
                     </div>
 
                     <!-- Live Total Display -->
@@ -1957,9 +1990,9 @@
                         <span style="font-weight: 800; color: #15803d; font-size: 1.25rem;">Tk <span id="live_form_total">0</span></span>
                     </div>
 
-                    <div class="ffm-live-loc-note">
-                        <svg class="ffm-icon ffm-icon-sm" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                        <span>Your live location is captured automatically when you save. Keep GPS / location turned on.</span>
+                    <div class="ffm-gps-live-indicator">
+                        <span class="ffm-gps-pulse-dot"></span>
+                        <span>Live GPS location required on submit</span>
                     </div>
                     <button type="submit" id="submitExpenseBtn" class="ffm-btn ffm-btn-primary">
                         <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Submit Daily Expense Entry

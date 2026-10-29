@@ -605,9 +605,9 @@ class FFMController(http.Controller):
                 return {'status': 'error', 'message': _('Select a chemist or enter manual name.')}
 
             try:
-                order_tk = float(payload.get('order_tk', 0))
-                sale_tk = float(payload.get('sale_tk', 0))
-                coll_tk = float(payload.get('coll_tk', 0))
+                order_tk = float(payload.get('order_tk') or 0)
+                sale_tk = float(payload.get('sale_tk') or 0)
+                coll_tk = float(payload.get('coll_tk') or 0)
             except (ValueError, TypeError):
                 return {'status': 'error', 'message': _('Order, sale, and collection must be numeric.')}
 
@@ -620,7 +620,7 @@ class FFMController(http.Controller):
             # Journey validation for Chemist visit (required)
             mode = (payload.get('mode') or '').strip()
             try:
-                fare_tk = float(payload.get('fare_tk', 0))
+                fare_tk = float(payload.get('fare_tk') or 0.0)
             except (ValueError, TypeError):
                 fare_tk = 0.0
 
@@ -726,7 +726,7 @@ class FFMController(http.Controller):
             # Journey validation for Doctor visit
             mode = (payload.get('mode') or '').strip()
             try:
-                fare_tk = float(payload.get('fare_tk', 0))
+                fare_tk = float(payload.get('fare_tk') or 0.0)
             except (ValueError, TypeError):
                 fare_tk = 0.0
 
@@ -822,10 +822,19 @@ class FFMController(http.Controller):
             if not farm_name:
                 return {'status': 'error', 'message': _('Farm or institution name is required.')}
 
+            broiler = (payload.get('broiler') or '').strip()
+            layer = (payload.get('layer') or '').strip()
+            sonali = (payload.get('sonali') or '').strip()
+            cattle = (payload.get('cattle') or '').strip()
+            aqua = (payload.get('aqua') or '').strip()
+            bird_raw = payload.get('bird_count')
+            if not broiler or not layer or not sonali or not cattle or not aqua or bird_raw is None or str(bird_raw).strip() == '':
+                return {'status': 'error', 'message': _('All Livestock & Capacity Breakdown fields are required.')}
+
             try:
-                bird_count = int(payload.get('bird_count', 0) or 0)
+                bird_count = int(bird_raw)
             except (ValueError, TypeError):
-                bird_count = 0
+                return {'status': 'error', 'message': _('Animal/bird count must be a number.')}
 
             if bird_count < 0:
                 return {'status': 'error', 'message': _('Animal/bird count cannot be negative.')}
@@ -836,11 +845,11 @@ class FFMController(http.Controller):
                 'report_id': report.id,
                 'farm_name': farm_name,
                 'address': (payload.get('address') or '').strip(),
-                'broiler': (payload.get('broiler') or '').strip(),
-                'layer': (payload.get('layer') or '').strip(),
-                'sonali': (payload.get('sonali') or '').strip(),
-                'cattle': (payload.get('cattle') or '').strip(),
-                'aqua': (payload.get('aqua') or '').strip(),
+                'broiler': broiler,
+                'layer': layer,
+                'sonali': sonali,
+                'cattle': cattle,
+                'aqua': aqua,
                 'bird_count': bird_count,
                 'note': (payload.get('note') or '').strip(),
                 'client_uuid': client_uuid or False,
@@ -936,15 +945,15 @@ class FFMController(http.Controller):
             today_date, _now_time = self._get_dhaka_date_and_time()
 
             try:
-                entertainment = float(payload.get('entertainment', 0) or 0.0)
-                courier = float(payload.get('courier', 0) or 0.0)
-                photocopy = float(payload.get('photocopy', 0) or 0.0)
-                promotion = float(payload.get('promotion', 0) or 0.0)
-                stationery = float(payload.get('stationery', 0) or 0.0)
-                carrying = float(payload.get('carrying', 0) or 0.0)
-                banking = float(payload.get('banking', 0) or 0.0)
-                hotel_rent = float(payload.get('hotel_rent', 0) or 0.0)
-                bike = float(payload.get('bike', 0) or 0.0)
+                entertainment = float(payload.get('entertainment') or 0.0)
+                courier = float(payload.get('courier') or 0.0)
+                photocopy = float(payload.get('photocopy') or 0.0)
+                promotion = float(payload.get('promotion') or 0.0)
+                stationery = float(payload.get('stationery') or 0.0)
+                carrying = float(payload.get('carrying') or 0.0)
+                banking = float(payload.get('banking') or 0.0)
+                hotel_rent = float(payload.get('hotel_rent') or 0.0)
+                bike = float(payload.get('bike') or 0.0)
             except (ValueError, TypeError):
                 return {'status': 'error', 'message': _('Expense amounts must be valid numbers.')}
 

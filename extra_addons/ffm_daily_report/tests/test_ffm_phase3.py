@@ -426,7 +426,11 @@ class TestFFMPhase3Http(HttpCase):
             'params': {
                 'farm_name': 'Baraka Layer Farm HTTP Test',
                 'address': 'Dhanmondi Lake View',
+                'broiler': '1000 birds',
                 'layer': '4000 birds',
+                'sonali': '500 birds',
+                'cattle': '10',
+                'aqua': '2 ponds',
                 'bird_count': 4000,
                 'note': 'Good feedback on feed quality',
                 'mode': 'on_foot',
