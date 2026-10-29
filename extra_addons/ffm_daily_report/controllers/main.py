@@ -344,6 +344,69 @@ class FFMController(http.Controller):
 
         all_depots = request.env['aam.branch'].sudo().search([], order='name')
 
+        my_team_members = []
+        seen_emp_ids = set()
+
+        def _add_member(emp, role_label, role_code):
+            if not emp or emp.id in seen_emp_ids:
+                return
+            seen_emp_ids.add(emp.id)
+            t_names = ', '.join(emp.ffm_territory_ids.mapped('name')) if emp.ffm_territory_ids else '-'
+            branch_names = [emp.branch_id.name] if emp.branch_id else []
+            terr_branches = emp.ffm_territory_ids.mapped('branch_id.name')
+            all_b = sorted(set([b for b in (branch_names + terr_branches) if b]))
+            d_names = ', '.join(all_b) if all_b else '-'
+            phone = emp.ffm_phone or emp.work_phone or '-'
+            my_team_members.append({
+                'id': emp.id,
+                'name': emp.name,
+                'role': role_label,
+                'role_code': role_code,
+                'territory': t_names,
+                'depot': d_names,
+                'phone': phone,
+                'is_me': bool(employee and emp.id == employee.id),
+            })
+
+        # Add current user first
+        if employee:
+            curr_role = 'RSM' if is_rsm else ('ASM' if is_asm else ('Field Person' if is_fp else role_badge))
+            curr_code = 'rsm' if is_rsm else ('asm' if is_asm else ('fp' if is_fp else 'admin'))
+            _add_member(employee, curr_role, curr_code)
+
+        if is_rsm:
+            for item in rsm_hierarchy_asms:
+                _add_member(item['asm'], 'ASM', 'asm')
+                for fp in item['fps']:
+                    _add_member(fp, 'Field Person', 'fp')
+            for fp in rsm_direct_fps:
+                _add_member(fp, 'Field Person', 'fp')
+        elif is_asm:
+            if rsm_employee:
+                _add_member(rsm_employee, 'RSM', 'rsm')
+            for fp in asm_subordinate_fps:
+                _add_member(fp, 'Field Person', 'fp')
+        elif is_fp:
+            if asm_employee:
+                _add_member(asm_employee, 'ASM', 'asm')
+            if rsm_employee:
+                _add_member(rsm_employee, 'RSM', 'rsm')
+            if asm_employee:
+                peer_fps = Emp.search([
+                    ('parent_id', '=', asm_employee.id),
+                    ('ffm_role', '=', 'fp'),
+                    ('active', '=', True),
+                    ('id', '!=', employee.id if employee else 0)
+                ], order='name')
+                for pfp in peer_fps:
+                    _add_member(pfp, 'Field Person', 'fp')
+        elif is_management_only:
+            all_field = Emp.search([('active', '=', True), ('ffm_role', 'in', ['rsm', 'asm', 'fp'])], order='ffm_role, name')
+            role_map = {'rsm': ('RSM', 'rsm'), 'asm': ('ASM', 'asm'), 'fp': ('Field Person', 'fp')}
+            for fe in all_field:
+                lbl, code = role_map.get(fe.ffm_role, (fe.ffm_role or 'Staff', 'admin'))
+                _add_member(fe, lbl, code)
+
         return {
             'user': user,
             'user_name': user.name,
@@ -360,6 +423,7 @@ class FFMController(http.Controller):
             'asm_subordinate_fps': asm_subordinate_fps,
             'rsm_hierarchy_asms': rsm_hierarchy_asms,
             'rsm_direct_fps': rsm_direct_fps,
+            'my_team_members': my_team_members,
             'app_name': app_name,
             'is_super_admin': is_super_admin,
             'is_manager': is_manager,
@@ -604,28 +668,40 @@ class FFMController(http.Controller):
             if not chemist_id and not chemist_name_manual:
                 return {'status': 'error', 'message': _('Select a chemist or enter manual name.')}
 
-            try:
-                order_tk = float(payload.get('order_tk') or 0)
-                sale_tk = float(payload.get('sale_tk') or 0)
-                coll_tk = float(payload.get('coll_tk') or 0)
-            except (ValueError, TypeError):
-                return {'status': 'error', 'message': _('Order, sale, and collection must be numeric.')}
-
-            if order_tk < 0 or sale_tk < 0 or coll_tk < 0:
-                return {'status': 'error', 'message': _('Amount cannot be negative.')}
-
-            if not (order_tk.is_integer() and sale_tk.is_integer() and coll_tk.is_integer()):
-                return {'status': 'error', 'message': _('Amount must be a whole number.')}
-
-            # Journey validation for Chemist visit (required)
+            order_raw = payload.get('order_tk')
+            sale_raw = payload.get('sale_tk')
+            coll_raw = payload.get('coll_tk')
+            note = (payload.get('note') or '').strip()
             mode = (payload.get('mode') or '').strip()
-            try:
-                fare_tk = float(payload.get('fare_tk') or 0.0)
-            except (ValueError, TypeError):
-                fare_tk = 0.0
+            fare_raw = payload.get('fare_tk')
+
+            if order_raw is None or str(order_raw).strip() == '' or \
+               sale_raw is None or str(sale_raw).strip() == '' or \
+               coll_raw is None or str(coll_raw).strip() == '':
+                return {'status': 'error', 'message': _('Order, Sale, and Collection amounts are required.')}
+
+            if not note:
+                return {'status': 'error', 'message': _('Visit notes/remarks are required.')}
 
             if not mode:
                 return {'status': 'error', 'message': _('Mode of journey is required.')}
+
+            if fare_raw is None or str(fare_raw).strip() == '':
+                return {'status': 'error', 'message': _('T.A. bill for vehicle is required.')}
+
+            try:
+                order_tk = float(order_raw)
+                sale_tk = float(sale_raw)
+                coll_tk = float(coll_raw)
+                fare_tk = float(fare_raw)
+            except (ValueError, TypeError):
+                return {'status': 'error', 'message': _('Amounts and fare must be numeric.')}
+
+            if order_tk < 0 or sale_tk < 0 or coll_tk < 0 or fare_tk < 0:
+                return {'status': 'error', 'message': _('Amounts cannot be negative.')}
+
+            if not (order_tk.is_integer() and sale_tk.is_integer() and coll_tk.is_integer()):
+                return {'status': 'error', 'message': _('Amount must be a whole number.')}
 
             report = request.env['ffm.daily.report'].get_or_create_today_report()
 
@@ -720,18 +796,25 @@ class FFMController(http.Controller):
             sample = (payload.get('sample') or '').strip()
             grade = (payload.get('grade') or '').strip()
 
-            if not product_discussion or not sample or not grade:
-                return {'status': 'error', 'message': _('Product discussion, sample/gift, and grade are required.')}
+            fare_raw = payload.get('fare_tk')
+            if not mobile or not mailing_address or not product_discussion or not sample or not grade:
+                return {'status': 'error', 'message': _('Doctor contact, chamber address, product discussion, sample, and grade are required.')}
 
             # Journey validation for Doctor visit
             mode = (payload.get('mode') or '').strip()
-            try:
-                fare_tk = float(payload.get('fare_tk') or 0.0)
-            except (ValueError, TypeError):
-                fare_tk = 0.0
-
             if not mode:
                 return {'status': 'error', 'message': _('Mode of journey is required.')}
+
+            if fare_raw is None or str(fare_raw).strip() == '':
+                return {'status': 'error', 'message': _('T.A. bill for vehicle is required.')}
+
+            try:
+                fare_tk = float(fare_raw)
+            except (ValueError, TypeError):
+                return {'status': 'error', 'message': _('T.A. bill for vehicle must be numeric.')}
+
+            if fare_tk < 0:
+                return {'status': 'error', 'message': _('Vehicle fare cannot be negative.')}
 
             report = request.env['ffm.daily.report'].get_or_create_today_report()
 
@@ -822,6 +905,10 @@ class FFMController(http.Controller):
             if not farm_name:
                 return {'status': 'error', 'message': _('Farm or institution name is required.')}
 
+            address = (payload.get('address') or '').strip()
+            if not address:
+                return {'status': 'error', 'message': _('Farm address / location is required.')}
+
             broiler = (payload.get('broiler') or '').strip()
             layer = (payload.get('layer') or '').strip()
             sonali = (payload.get('sonali') or '').strip()
@@ -839,19 +926,35 @@ class FFMController(http.Controller):
             if bird_count < 0:
                 return {'status': 'error', 'message': _('Animal/bird count cannot be negative.')}
 
+            note = (payload.get('note') or '').strip()
+            if not note:
+                return {'status': 'error', 'message': _('Discussion / Notes is required.')}
+
+            fare_raw = payload.get('fare_tk')
+            if fare_raw is None or str(fare_raw).strip() == '':
+                return {'status': 'error', 'message': _('T.A. bill for vehicle is required.')}
+
+            try:
+                fare_tk = float(fare_raw)
+            except (ValueError, TypeError):
+                return {'status': 'error', 'message': _('T.A. bill for vehicle must be numeric.')}
+
+            if fare_tk < 0:
+                return {'status': 'error', 'message': _('Vehicle fare cannot be negative.')}
+
             report = request.env['ffm.daily.report'].get_or_create_today_report()
 
             visit = request.env['ffm.farm.visit'].sudo().create({
                 'report_id': report.id,
                 'farm_name': farm_name,
-                'address': (payload.get('address') or '').strip(),
+                'address': address,
                 'broiler': broiler,
                 'layer': layer,
                 'sonali': sonali,
                 'cattle': cattle,
                 'aqua': aqua,
                 'bird_count': bird_count,
-                'note': (payload.get('note') or '').strip(),
+                'note': note,
                 'client_uuid': client_uuid or False,
                 **location,
             })
@@ -865,8 +968,6 @@ class FFMController(http.Controller):
                         'employee_id': report.employee_id.id,
                         'date': report.date,
                     })
-
-                fare_tk = float(payload.get('fare_tk', 0) or 0.0)
 
                 # Only mode + T.A. bill are collected; places fall back to the working place
                 def_place = report.working_place_id or request.env['ffm.place'].sudo().search([], limit=1)

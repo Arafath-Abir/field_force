@@ -112,6 +112,14 @@
                                 </button>
                             </div>
                             <nav class="ffm-sidenav-nav">
+                                <t t-if="has_field_operations">
+                                    <div class="ffm-sidenav-group">Field Activities</div>
+                                    <a href="/ff"
+                                       t-attf-class="ffm-sidenav-link #{'active' if request.httprequest.path in ('/ff', '/ff/') else ''}">
+                                        <svg class="ffm-icon ffm-icon-sm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                                        <span>My Activity</span>
+                                    </a>
+                                </t>
                                 <div class="ffm-sidenav-group">Team Reports</div>
                                 <a t-if="approval_enabled" href="/ff/manager?tab=approvals" data-tab="approvals"
                                    t-attf-class="ffm-sidenav-link #{'active' if nav_key == 'mgr_approvals' else ''}">
@@ -406,199 +414,54 @@
                     </div>
                 </div>
 
-                <!-- Collapsible Team Hierarchy Details -->
+                <!-- Collapsible Team Details Table -->
                 <div class="ffm-myteam-body" id="ffmMyTeamBody">
                     <div class="ffm-myteam-body-inner">
-                        <!-- 1. RSM: Shows ASMs under them and FPs under each ASM -->
-                        <t t-if="is_rsm">
-                            <div class="ffm-hier-head">
-                                <div class="ffm-hier-head-title">
-                                    Regional Team Hierarchy (ASMs &amp; Field Persons)
-                                </div>
-                                <span class="ffm-hier-subtext">Reports To: <strong style="color: #0284c7;">Marketing Manager/Head Office</strong></span>
-                            </div>
-
-                            <t t-if="rsm_hierarchy_asms or rsm_direct_fps">
-                                <div class="ffm-hier-asm-tree">
-                                    <t t-foreach="rsm_hierarchy_asms" t-as="item">
-                                        <div class="ffm-hier-asm-block">
-                                            <div class="ffm-hier-asm-row">
-                                                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                                                    <span class="ffm-role-pill ffm-role-pill--asm">ASM</span>
-                                                    <strong style="font-size: 0.96rem; color: #0f172a;"><t t-esc="item['asm'].name"/></strong>
-                                                    <t t-if="item['asm'].ffm_territory_ids">
-                                                        <span class="ffm-sub-text">(📍 <t t-esc="', '.join(item['asm'].ffm_territory_ids.mapped('name'))"/>)</span>
-                                                    </t>
-                                                    <t t-set="asm_depots" t-value="', '.join(item['asm'].ffm_territory_ids.mapped('branch_id.name'))"/>
-                                                    <t t-if="asm_depots">
-                                                        <span class="ffm-sub-text">🏭 <t t-esc="asm_depots"/></span>
-                                                    </t>
-                                                    <t t-if="item['asm'].ffm_phone">
-                                                        <span class="ffm-sub-text">• 📞 <t t-esc="item['asm'].ffm_phone"/></span>
-                                                    </t>
-                                                </div>
-                                                <span class="ffm-badge ffm-badge-neutral"><t t-esc="len(item['fps'])"/> Field Persons</span>
-                                            </div>
-                                            <div class="ffm-hier-nested-fps">
-                                                <t t-foreach="item['fps']" t-as="fp">
-                                                    <div class="ffm-hier-fp-chip">
-                                                        <span class="ffm-hier-fp-chip-dot"></span>
-                                                        <strong><t t-esc="fp.name"/></strong>
-                                                        <t t-if="fp.ffm_territory_ids">
-                                                            <span style="color: #64748b; font-size: 0.78rem;">— 📍 <t t-esc="', '.join(fp.ffm_territory_ids.mapped('name'))"/></span>
-                                                        </t>
-                                                        <t t-set="fp_depots" t-value="', '.join(fp.ffm_territory_ids.mapped('branch_id.name'))"/>
-                                                        <t t-if="fp_depots">
-                                                            <span style="color: #0284c7; font-size: 0.78rem;">(🏭 <t t-esc="fp_depots"/>)</span>
-                                                        </t>
-                                                    </div>
+                        <div class="ffm-myteam-table-wrap">
+                            <table class="ffm-simple-team-table">
+                                <thead>
+                                    <tr>
+                                        <th>Team Member</th>
+                                        <th>Role</th>
+                                        <th>Territory</th>
+                                        <th>Depot</th>
+                                        <th>Contact</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="my_team_members" t-as="m">
+                                        <tr t-att-class="'ffm-row-me' if m['is_me'] else ''">
+                                            <td class="ffm-col-name">
+                                                <span class="ffm-member-name"><t t-esc="m['name']"/></span>
+                                                <t t-if="m['is_me']">
+                                                    <span class="ffm-badge-me">(Me)</span>
                                                 </t>
-                                                <t t-if="not item['fps']">
-                                                    <span class="ffm-sub-text" style="font-style: italic;">No field persons assigned under this ASM</span>
+                                            </td>
+                                            <td>
+                                                <span t-attf-class="ffm-role-pill ffm-role-pill--#{m['role_code']}"><t t-esc="m['role']"/></span>
+                                            </td>
+                                            <td><t t-esc="m['territory']"/></td>
+                                            <td><t t-esc="m['depot']"/></td>
+                                            <td>
+                                                <t t-if="m['phone'] and m['phone'] != '-'">
+                                                    <a t-attf-href="tel:#{m['phone']}" class="ffm-team-phone">📞 <t t-esc="m['phone']"/></a>
                                                 </t>
-                                            </div>
-                                        </div>
+                                                <t t-else="">
+                                                    <span style="color: #94a3b8;">-</span>
+                                                </t>
+                                            </td>
+                                        </tr>
                                     </t>
-
-                                    <t t-if="rsm_direct_fps">
-                                        <div class="ffm-hier-asm-block" style="border-left: 3px solid #10b981;">
-                                            <div class="ffm-hier-asm-row">
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <span class="ffm-badge ffm-badge-success">Direct Reports</span>
-                                                    <strong style="font-size: 0.92rem; color: #0f172a;">Field Persons (Direct to RSM)</strong>
-                                                </div>
-                                                <span class="ffm-badge ffm-badge-neutral"><t t-esc="len(rsm_direct_fps)"/> Field Persons</span>
-                                            </div>
-                                            <div class="ffm-hier-nested-fps">
-                                                <t t-foreach="rsm_direct_fps" t-as="fp">
-                                                    <div class="ffm-hier-fp-chip">
-                                                        <span class="ffm-hier-fp-chip-dot"></span>
-                                                        <strong><t t-esc="fp.name"/></strong>
-                                                        <t t-if="fp.ffm_territory_ids">
-                                                            <span style="color: #64748b; font-size: 0.78rem;">— 📍 <t t-esc="', '.join(fp.ffm_territory_ids.mapped('name'))"/></span>
-                                                        </t>
-                                                        <t t-set="fp_depots" t-value="', '.join(fp.ffm_territory_ids.mapped('branch_id.name'))"/>
-                                                        <t t-if="fp_depots">
-                                                            <span style="color: #0284c7; font-size: 0.78rem;">(🏭 <t t-esc="fp_depots"/>)</span>
-                                                        </t>
-                                                    </div>
-                                                </t>
-                                            </div>
-                                        </div>
+                                    <t t-if="not my_team_members">
+                                        <tr>
+                                            <td colspan="5" style="text-align: center; padding: 18px; color: #64748b;">
+                                                No team members found.
+                                            </td>
+                                        </tr>
                                     </t>
-                                </div>
-                            </t>
-                            <t t-else="">
-                                <div class="ffm-empty-sm">No ASMs or Field Persons assigned in your region yet.</div>
-                            </t>
-                        </t>
-
-                        <!-- 2. ASM: Shows supervising RSM and Field Persons under them -->
-                        <t t-elif="is_asm">
-                            <div class="ffm-hier-head">
-                                <div class="ffm-hier-head-title">
-                                    My Area Team &amp; Supervising RSM
-                                </div>
-                                <span class="ffm-hier-subtext">Reports To: <strong style="color: #0284c7;"><t t-esc="rsm_name or 'Marketing Manager/Head Office'"/></strong></span>
-                            </div>
-
-                            <div style="margin-bottom: 12px; font-size: 0.84rem; font-weight: 600; color: #475569;">
-                                Field Persons Under Me (<t t-esc="len(asm_subordinate_fps)"/>):
-                            </div>
-                            <t t-if="asm_subordinate_fps">
-                                <div class="ffm-hier-grid">
-                                    <t t-foreach="asm_subordinate_fps" t-as="fp">
-                                        <div class="ffm-hier-item-box">
-                                            <div class="ffm-hier-item-top">
-                                                <div style="display: flex; align-items: center; gap: 6px;">
-                                                    <span class="ffm-role-pill ffm-role-pill--fp">FP</span>
-                                                    <span class="ffm-hier-item-name"><t t-esc="fp.name"/></span>
-                                                </div>
-                                                <a t-attf-href="/ff/report/cards?employee_id={{fp.id}}" class="ffm-badge ffm-badge-neutral" style="text-decoration: none; font-size: 0.72rem;">View Reports</a>
-                                            </div>
-                                            <div class="ffm-hier-item-detail">
-                                                <t t-if="fp.ffm_territory_ids">
-                                                    <span>📍 Terr: <strong><t t-esc="', '.join(fp.ffm_territory_ids.mapped('name'))"/></strong></span>
-                                                </t>
-                                                <t t-set="fp_depot" t-value="', '.join(fp.ffm_territory_ids.mapped('branch_id.name'))"/>
-                                                <t t-if="fp_depot">
-                                                    <span>🏭 Depot: <strong style="color: #0284c7;"><t t-esc="fp_depot"/></strong></span>
-                                                </t>
-                                                <t t-if="fp.ffm_phone">
-                                                    <span>📞 <t t-esc="fp.ffm_phone"/></span>
-                                                </t>
-                                            </div>
-                                        </div>
-                                    </t>
-                                </div>
-                            </t>
-                            <t t-else="">
-                                <div class="ffm-empty-sm">No field persons assigned under you yet.</div>
-                            </t>
-                        </t>
-
-                        <!-- 3. Field Person: Shows their ASM, RSM, Territory and Depot -->
-                        <t t-elif="is_fp">
-                            <div class="ffm-hier-head">
-                                <div class="ffm-hier-head-title">
-                                    My Reporting Line &amp; Territory
-                                </div>
-                                <span class="ffm-hier-subtext">Direct Reporting Hierarchy</span>
-                            </div>
-                            <div class="ffm-hier-grid">
-                                <div class="ffm-hier-item-box">
-                                    <div class="ffm-hier-item-top">
-                                        <span class="ffm-role-pill ffm-role-pill--asm">ASM</span>
-                                        <span class="ffm-sub-text">Direct Supervisor</span>
-                                    </div>
-                                    <div class="ffm-hier-item-name"><t t-esc="asm_name or 'Direct / Head Office'"/></div>
-                                    <div class="ffm-hier-item-detail">
-                                        <t t-if="asm_employee and asm_employee.ffm_phone"><span>📞 <t t-esc="asm_employee.ffm_phone"/></span></t>
-                                        <t t-if="asm_employee and asm_employee.hq"><span>📍 HQ: <t t-esc="asm_employee.hq"/></span></t>
-                                    </div>
-                                </div>
-                                <div class="ffm-hier-item-box">
-                                    <div class="ffm-hier-item-top">
-                                        <span class="ffm-role-pill ffm-role-pill--rsm">RSM</span>
-                                        <span class="ffm-sub-text">Regional Manager</span>
-                                    </div>
-                                    <div class="ffm-hier-item-name"><t t-esc="rsm_name or 'Marketing Manager/Head Office'"/></div>
-                                    <div class="ffm-hier-item-detail">
-                                        <t t-if="rsm_employee and rsm_employee.ffm_phone"><span>📞 <t t-esc="rsm_employee.ffm_phone"/></span></t>
-                                        <t t-if="rsm_employee and rsm_employee.hq"><span>📍 HQ: <t t-esc="rsm_employee.hq"/></span></t>
-                                    </div>
-                                </div>
-                                <div class="ffm-hier-item-box">
-                                    <div class="ffm-hier-item-top">
-                                        <span class="ffm-badge ffm-badge-neutral" style="font-size: 0.72rem;">Territory &amp; Depot</span>
-                                        <span class="ffm-sub-text">Assigned Area</span>
-                                    </div>
-                                    <div class="ffm-hier-item-name"><t t-esc="territory_names or 'Unassigned'"/></div>
-                                    <div class="ffm-hier-item-detail">
-                                        <t t-if="depot_names"><span>🏭 Depot: <strong style="color: #0284c7;"><t t-esc="depot_names"/></strong></span></t>
-                                        <t t-else=""><span>🏭 Depot: Main Depot</span></t>
-                                    </div>
-                                </div>
-                            </div>
-                        </t>
-
-                        <!-- 4. Manager / Admin -->
-                        <t t-else="">
-                            <div class="ffm-hier-head">
-                                <div class="ffm-hier-head-title">
-                                    Central Field Operations Overview
-                                </div>
-                                <span class="ffm-hier-subtext">Head Office Administration</span>
-                            </div>
-                            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                                <a href="/ff/manager?tab=team" class="ffm-btn ffm-btn-secondary" style="width: auto; padding: 8px 16px; font-size: 0.84rem; text-decoration: none;">
-                                    <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg> Manage People &amp; Logins
-                                </a>
-                                <a href="/ff/manager?tab=territories" class="ffm-btn ffm-btn-secondary" style="width: auto; padding: 8px 16px; font-size: 0.84rem; text-decoration: none;">
-                                    <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon></svg> Manage Territories &amp; Depots
-                                </a>
-                            </div>
-                        </t>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1022,38 +885,40 @@
                     <div class="ffm-fin-grid">
                         <div class="ffm-fin-card ffm-fin-card--order">
                             <label class="ffm-fin-label" for="order_tk">
-                                <span>Order (Tk)</span>
+                                <span>Order (Tk) <span class="ffm-req">*</span></span>
                             </label>
                             <div class="ffm-currency-wrap">
                                 <span class="ffm-currency-prefix">Tk</span>
-                                <input type="number" id="order_tk" name="order_tk" class="ffm-form-control" min="0" step="1" placeholder="0"/>
+                                <input type="number" id="order_tk" name="order_tk" class="ffm-form-control" required="required" min="0" step="1" placeholder="0"/>
                             </div>
                         </div>
 
                         <div class="ffm-fin-card ffm-fin-card--sale">
                             <label class="ffm-fin-label" for="sale_tk">
-                                <span>Sale (Tk)</span>
+                                <span>Sale (Tk) <span class="ffm-req">*</span></span>
                             </label>
                             <div class="ffm-currency-wrap">
                                 <span class="ffm-currency-prefix">Tk</span>
-                                <input type="number" id="sale_tk" name="sale_tk" class="ffm-form-control" min="0" step="1" placeholder="0"/>
+                                <input type="number" id="sale_tk" name="sale_tk" class="ffm-form-control" required="required" min="0" step="1" placeholder="0"/>
                             </div>
                         </div>
 
                         <div class="ffm-fin-card ffm-fin-card--coll">
                             <label class="ffm-fin-label" for="coll_tk">
-                                <span>Collection (Tk)</span>
+                                <span>Collection (Tk) <span class="ffm-req">*</span></span>
                             </label>
                             <div class="ffm-currency-wrap">
                                 <span class="ffm-currency-prefix">Tk</span>
-                                <input type="number" id="coll_tk" name="coll_tk" class="ffm-form-control" min="0" step="1" placeholder="0"/>
+                                <input type="number" id="coll_tk" name="coll_tk" class="ffm-form-control" required="required" min="0" step="1" placeholder="0"/>
                             </div>
                         </div>
                     </div>
 
                     <div class="ffm-form-group">
-                        <label class="ffm-form-label" for="note">Visit Notes / Remarks</label>
-                        <input type="text" id="note" name="note" class="ffm-form-control" placeholder="Optional remarks"/>
+                        <label class="ffm-form-label" for="note">
+                            <span>Visit Notes / Remarks <span class="ffm-req">*</span></span>
+                        </label>
+                        <input type="text" id="note" name="note" class="ffm-form-control" required="required" placeholder="Enter visit remarks"/>
                     </div>
 
                     <!-- ── Journey & T.A. Bill ── -->
@@ -1061,7 +926,7 @@
                         <div class="ffm-journey-header">
                             <div class="ffm-journey-title">
                                 <span class="ffm-icon-box ffm-icon-box-sm ffm-icon-box--blue" style="margin-bottom: 0;">
-                                    <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                                     <svg class="ffm-icon ffm-icon-xs" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
                                 </span>
                                 <span>Journey &amp; T.A. Bill</span>
                             </div>
@@ -1080,11 +945,11 @@
                             </div>
                             <div class="ffm-form-group" style="margin-bottom: 0;">
                                 <label class="ffm-form-label" for="fare_tk">
-                                    <span>T.A. Bill for Vehicle (Tk)</span>
+                                    <span>T.A. Bill for Vehicle (Tk) <span class="ffm-req">*</span></span>
                                 </label>
                                 <div class="ffm-currency-wrap">
                                     <span class="ffm-currency-prefix">Tk</span>
-                                    <input type="number" id="fare_tk" class="ffm-form-control" min="0" step="1" placeholder="0" style="color: #1f2937;"/>
+                                    <input type="number" id="fare_tk" class="ffm-form-control" required="required" min="0" step="1" placeholder="0" style="color: #1f2937;"/>
                                 </div>
                             </div>
                         </div>
@@ -1123,17 +988,42 @@
                     var saleRaw = document.getElementById('sale_tk').value.trim();
                     var collRaw = document.getElementById('coll_tk').value.trim();
 
-                    var order = orderRaw === '' ? 0 : parseInt(orderRaw, 10);
-                    var sale = saleRaw === '' ? 0 : parseInt(saleRaw, 10);
-                    var coll = collRaw === '' ? 0 : parseInt(collRaw, 10);
+                    if (orderRaw === '' || saleRaw === '' || collRaw === '') {
+                        FFM.showToast('Order, Sale, and Collection amounts are required.', 'error');
+                        if (orderRaw === '') document.getElementById('order_tk').focus();
+                        else if (saleRaw === '') document.getElementById('sale_tk').focus();
+                        else document.getElementById('coll_tk').focus();
+                        return false;
+                    }
+
+                    var order = parseInt(orderRaw, 10);
+                    var sale = parseInt(saleRaw, 10);
+                    var coll = parseInt(collRaw, 10);
 
                     if (isNaN(order) || isNaN(sale) || isNaN(coll) || order &lt; 0 || sale &lt; 0 || coll &lt; 0) {
                         FFM.showToast('Please enter valid positive numbers for amounts.', 'error');
                         return false;
                     }
 
+                    var note = document.getElementById('note').value.trim();
+                    if (!note) {
+                        FFM.showToast('Visit notes / remarks are required.', 'error');
+                        document.getElementById('note').focus();
+                        return false;
+                    }
+
                     var fareRaw = document.getElementById('fare_tk').value.trim();
-                    var fare = fareRaw === '' ? 0 : parseFloat(fareRaw);
+                    if (fareRaw === '') {
+                        FFM.showToast('T.A. bill for vehicle is required.', 'error');
+                        document.getElementById('fare_tk').focus();
+                        return false;
+                    }
+                    var fare = parseFloat(fareRaw);
+                    if (isNaN(fare) || fare &lt; 0) {
+                        FFM.showToast('Please enter a valid fare amount.', 'error');
+                        document.getElementById('fare_tk').focus();
+                        return false;
+                    }
 
                     var btn = document.getElementById('btnSubmitChemist');
                     FFM.withLiveLocation(btn, 'Saving...', function(loc, release) {
@@ -1146,7 +1036,7 @@
                             order_tk: order,
                             sale_tk: sale,
                             coll_tk: coll,
-                            note: document.getElementById('note').value.trim(),
+                            note: note,
                             mode: document.getElementById('mode').value,
                             other_mode: document.getElementById('other_mode').value.trim(),
                             fare_tk: fare,
@@ -1274,11 +1164,11 @@
                             </div>
                             <div class="ffm-form-group" style="margin-bottom: 0;">
                                 <label class="ffm-form-label" for="doc_fare_tk">
-                                    <span>T.A. Bill for Vehicle (Tk)</span>
+                                    <span>T.A. Bill for Vehicle (Tk) <span class="ffm-req">*</span></span>
                                 </label>
                                 <div class="ffm-currency-wrap">
                                     <span class="ffm-currency-prefix">Tk</span>
-                                    <input type="number" id="doc_fare_tk" class="ffm-form-control" min="0" step="1" placeholder="0" style="color: #1f2937;"/>
+                                    <input type="number" id="doc_fare_tk" class="ffm-form-control" required="required" min="0" step="1" placeholder="0" style="color: #1f2937;"/>
                                 </div>
                             </div>
                         </div>
@@ -1302,11 +1192,37 @@
 
                     if (!docManual) {
                         FFM.showToast('Please enter doctor name.', 'error');
+                        document.getElementById('prescriber_name_manual').focus();
+                        return false;
+                    }
+
+                    var mobile = document.getElementById('mobile').value.trim();
+                    var grade = document.getElementById('grade').value;
+                    var mailingAddress = document.getElementById('mailing_address').value.trim();
+                    var productDiscussion = document.getElementById('product_discussion').value.trim();
+                    var sample = document.getElementById('sample').value.trim();
+
+                    if (!mobile || !grade || !mailingAddress || !productDiscussion || !sample) {
+                        FFM.showToast('Doctor contact, chamber address, product discussion, sample, and grade are required.', 'error');
+                        if (!mobile) document.getElementById('mobile').focus();
+                        else if (!mailingAddress) document.getElementById('mailing_address').focus();
+                        else if (!productDiscussion) document.getElementById('product_discussion').focus();
+                        else if (!sample) document.getElementById('sample').focus();
                         return false;
                     }
 
                     var fareRaw = document.getElementById('doc_fare_tk').value.trim();
-                    var fare = fareRaw === '' ? 0 : parseFloat(fareRaw);
+                    if (fareRaw === '') {
+                        FFM.showToast('T.A. bill for vehicle is required.', 'error');
+                        document.getElementById('doc_fare_tk').focus();
+                        return false;
+                    }
+                    var fare = parseFloat(fareRaw);
+                    if (isNaN(fare) || fare &lt; 0) {
+                        FFM.showToast('Please enter a valid fare amount.', 'error');
+                        document.getElementById('doc_fare_tk').focus();
+                        return false;
+                    }
 
                     var btn = document.getElementById('btnSubmitDoctor');
                     FFM.withLiveLocation(btn, 'Saving...', function(loc, release) {
@@ -1316,11 +1232,11 @@
                             gps_accuracy: loc.gps_accuracy,
                             doctor_id: false,
                             prescriber_name_manual: docManual,
-                            mobile: document.getElementById('mobile').value.trim(),
-                            mailing_address: document.getElementById('mailing_address').value.trim(),
-                            product_discussion: document.getElementById('product_discussion').value.trim(),
-                            sample: document.getElementById('sample').value.trim(),
-                            grade: document.getElementById('grade').value,
+                            mobile: mobile,
+                            mailing_address: mailingAddress,
+                            product_discussion: productDiscussion,
+                            sample: sample,
+                            grade: grade,
                             mode: document.getElementById('doc_mode').value,
                             fare_tk: fare,
                             client_uuid: FFM.getOrGenerateUUID('ffm_doctor_visit_uuid')
@@ -1383,9 +1299,9 @@
 
                     <div class="ffm-form-group">
                         <label class="ffm-form-label" for="farm_address">
-                            <span>Location / Address</span>
+                            <span>Location / Address <span class="ffm-req">*</span></span>
                         </label>
-                        <input type="text" id="farm_address" name="address" class="ffm-form-control" placeholder="Village, union or area details"/>
+                        <input type="text" id="farm_address" name="address" class="ffm-form-control" required="required" placeholder="Village, union or area details"/>
                     </div>
 
                     <!-- Livestock & Animal Capacity Grid (All Required) -->
@@ -1423,8 +1339,10 @@
                     </div>
 
                     <div class="ffm-form-group">
-                        <label class="ffm-form-label" for="farm_note">Discussion Highlights &amp; Farmer Feedback</label>
-                        <input type="text" id="farm_note" name="note" class="ffm-form-control" placeholder="Discussion notes and farmer response"/>
+                        <label class="ffm-form-label" for="farm_note">
+                            <span>Discussion Highlights &amp; Farmer Feedback <span class="ffm-req">*</span></span>
+                        </label>
+                        <input type="text" id="farm_note" name="note" class="ffm-form-control" required="required" placeholder="Discussion notes and farmer response"/>
                     </div>
 
                     <!-- ── Journey & T.A. Bill ── -->
@@ -1451,11 +1369,11 @@
                             </div>
                             <div class="ffm-form-group" style="margin-bottom: 0;">
                                 <label class="ffm-form-label" for="farm_fare_tk">
-                                    <span>T.A. Bill for Vehicle (Tk)</span>
+                                    <span>T.A. Bill for Vehicle (Tk) <span class="ffm-req">*</span></span>
                                 </label>
                                 <div class="ffm-currency-wrap">
                                     <span class="ffm-currency-prefix">Tk</span>
-                                    <input type="number" id="farm_fare_tk" class="ffm-form-control" min="0" step="1" placeholder="0" style="color: #1f2937;"/>
+                                    <input type="number" id="farm_fare_tk" class="ffm-form-control" required="required" min="0" step="1" placeholder="0" style="color: #1f2937;"/>
                                 </div>
                             </div>
                         </div>
@@ -1479,6 +1397,13 @@
                     if (!name) {
                         FFM.showToast('Please enter farm or institution name.', 'error');
                         document.getElementById('farm_name').focus();
+                        return false;
+                    }
+
+                    var address = document.getElementById('farm_address').value.trim();
+                    if (!address) {
+                        FFM.showToast('Please enter farm location / address.', 'error');
+                        document.getElementById('farm_address').focus();
                         return false;
                     }
 
@@ -1507,8 +1432,25 @@
                         return false;
                     }
 
+                    var note = document.getElementById('farm_note').value.trim();
+                    if (!note) {
+                        FFM.showToast('Please enter discussion highlights &amp; notes.', 'error');
+                        document.getElementById('farm_note').focus();
+                        return false;
+                    }
+
                     var fareRaw = document.getElementById('farm_fare_tk').value.trim();
-                    var fare = fareRaw === '' ? 0 : parseFloat(fareRaw);
+                    if (fareRaw === '') {
+                        FFM.showToast('T.A. bill for vehicle is required.', 'error');
+                        document.getElementById('farm_fare_tk').focus();
+                        return false;
+                    }
+                    var fare = parseFloat(fareRaw);
+                    if (isNaN(fare) || fare &lt; 0) {
+                        FFM.showToast('Please enter a valid fare amount.', 'error');
+                        document.getElementById('farm_fare_tk').focus();
+                        return false;
+                    }
 
                     var btn = document.getElementById('btnSubmitFarm');
                     FFM.withLiveLocation(btn, 'Saving...', function(loc, release) {
@@ -1517,14 +1459,14 @@
                             longitude: loc.longitude,
                             gps_accuracy: loc.gps_accuracy,
                             farm_name: name,
-                            address: document.getElementById('farm_address').value.trim(),
+                            address: address,
                             broiler: broiler,
                             layer: layer,
                             sonali: sonali,
                             cattle: cattle,
                             aqua: aqua,
                             bird_count: birdCount,
-                            note: document.getElementById('farm_note').value.trim(),
+                            note: note,
                             mode: document.getElementById('farm_mode').value,
                             fare_tk: fare,
                             client_uuid: FFM.getOrGenerateUUID('ffm_farm_visit_uuid')
